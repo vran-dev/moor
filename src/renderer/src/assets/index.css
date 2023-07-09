@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ProseMirror:focus {
+    outline: none;
+}
+
+.prose {
+    & li>p {
+        margin: 0;
+    }
+}
+
+.image-container {
+    width: 100%;
+    height: auto;
+    border: 1px solid transparent;
+}
+
+.image-container>img {
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+.image-container:hover {
+    border-style: solid;
+    border-color: #62cd87;
+    border-width: 1px;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.resize-handle-left {
+    top: 50%;
+    left: -5px;
+    transform: translateY(-50%);
+    cursor: w-resize;
+}
+
+.resize-handle-right {
+    top: 50%;
+    right: -5px;
+    transform: translateY(-50%);
+    cursor: e-resize;
+}
+
+
+.bubble-menu {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    border-radius: 0.375rem;
+    border-width: 1px;
+    background-color: #ffffff;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.bubble-menu-item {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    background-color: #ffffff;
+}
+
+.bubble-menu-item:hover {
+    color: #1D4ED8;
+    background-color: #F3F4F6;
+}
+
+.active {
+    color: #1D4ED8;
+}
+
+.ProseMirror .is-empty::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
