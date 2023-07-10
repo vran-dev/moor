@@ -2,14 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+.navbar {
+    height: 20px;
+    background-color: #FFF;
+    -webkit-app-region: drag;
+    position: sticky;
+    z-index: 200;
+    top: 0;
+}
+
 .ProseMirror:focus {
     outline: none;
 }
 
-.prose {
-    & li>p {
-        margin: 0;
-    }
+.prose li>p {
+    margin: 0;
 }
 
 .image-container {
@@ -94,4 +101,29 @@
     float: left;
     height: 0;
     pointer-events: none;
+}
+
+/* task list & item */
+
+ul[data-type="taskList"] {
+    list-style: none;
+    padding: 0;
+}
+
+ul[data-type="taskList"] p {
+    margin: 0;
+}
+
+ul[data-type="taskList"] li {
+    display: flex;
+}
+
+ul[data-type="taskList"] li>label {
+    flex: 0 0 auto;
+    margin-right: 0.5rem;
+    user-select: none;
+}
+
+ul[data-type="taskList"] li>div {
+    flex: 1 1 auto;
 }

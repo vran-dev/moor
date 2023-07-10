@@ -8,17 +8,19 @@ import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 import React, { useEffect } from 'react'
 import Slash from '@renderer/extensions/slash'
 
 import {
-  Bold as BoldIcon,
-  Italic as ItalicICon,
-  Link as LinkIcon,
-  Code as CodeIcon,
-  Strikethrough as StrikethroughIcon,
-  Underline as UnderLineIcon,
-  Quote as QuoteIcon
+  BoldIcon,
+  ItalicIcon,
+  LinkIcon,
+  CodeIcon,
+  StrikethroughIcon,
+  UnderlineIcon,
+  QuoteIcon
 } from './Icons'
 
 const Tiptap = (): JSX.Element => {
@@ -31,6 +33,10 @@ const Tiptap = (): JSX.Element => {
 <li>大厂都是怎么做的呢？</li>
 </ul>
 <p>跟随本文，一起揭晓以上问题</p>
+<ul data-type="taskList">
+          <li data-type="taskItem" data-checked="true">A list item</li>
+          <li data-type="taskItem" data-checked="false">And another one</li>
+        </ul>
 <h2 id="为什么还要自定义-code">为什么还要自定义 code？</h2>
 <p>HTTP 协议中定义了 5 类 status code</p>
 <ol>
@@ -148,6 +154,15 @@ const Tiptap = (): JSX.Element => {
     extensions: [
       StarterKit,
       Slash,
+      TaskList.configure({
+        itemTypeName: 'taskItem',
+        HTMLAttributes: {
+          class: 'not-prose'
+        }
+      }),
+      TaskItem.configure({
+        nested: true
+      }),
       Placeholder.configure({
         placeholder: ({ node }) => {
           if (node.type.name === 'heading') {
@@ -214,7 +229,7 @@ const Tiptap = (): JSX.Element => {
       onclick: (): boolean | undefined => editor?.chain().focus().toggleBold().run()
     },
     {
-      icon: ItalicICon,
+      icon: ItalicIcon,
       name: 'Italic',
       symbol: 'italic',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleItalic().run()
@@ -232,7 +247,7 @@ const Tiptap = (): JSX.Element => {
       onclick: (): boolean | undefined => editor?.chain().focus().toggleStrike().run()
     },
     {
-      icon: UnderLineIcon,
+      icon: UnderlineIcon,
       name: 'Underline',
       symbol: 'underline',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleUnderline().run()

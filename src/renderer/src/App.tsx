@@ -35,21 +35,24 @@ const items: MenuItem[] = [
 const App: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false)
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-        style={{ backgroundColor: '#FFF' }}
-      >
-        <Menu theme="light" defaultSelectedKeys={['1']} mode="inline" items={items} />
-      </Sider>
-      <Layout>
-        <Content style={{ margin: '0 16px', backgroundColor: '#FFFFFF' }}>
-          <Tiptap></Tiptap>
-        </Content>
+    <>
+      <div className="navbar"></div>
+      <Layout style={{ minHeight: '100vh', backgroundColor: '#FFFFFF' }}>
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          style={{ backgroundColor: '#FFF' }}
+        >
+          <Menu theme="light" defaultSelectedKeys={['1']} mode="inline" items={items} />
+        </Sider>
+        <Layout style={{ backgroundColor: '#FFFFFF' }}>
+          <Content style={{ margin: '0 16px', backgroundColor: '#FFFFFF' }}>
+            <Tiptap></Tiptap>
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </>
   )
 }
 
