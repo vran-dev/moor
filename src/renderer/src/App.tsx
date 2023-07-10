@@ -3,7 +3,6 @@ import { DesktopOutlined, FileOutlined, PieChartOutlined } from '@ant-design/ico
 import type { MenuProps } from 'antd'
 import { Layout, Menu, theme } from 'antd'
 import Tiptap from './components/TiptapEditor'
-import { ColorFactory } from 'antd/es/color-picker/color'
 
 const { Content, Sider } = Layout
 

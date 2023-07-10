@@ -3,6 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { CustomLink } from '../extensions/link'
 import CustomImage from '../extensions/image/image'
 import CustomTable from '../extensions/table'
+import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
@@ -25,7 +26,6 @@ import {
 
 const Tiptap = (): JSX.Element => {
   const content = `
-    <section class="content">
                 <p>在 API 开发或对接中，经常会看到协议中有自定义 code 的设计</p>
 <ul>
 <li>那为什么要这么设计呢？</li>
@@ -38,6 +38,9 @@ const Tiptap = (): JSX.Element => {
           <li data-type="taskItem" data-checked="false">And another one</li>
         </ul>
 <h2 id="为什么还要自定义-code">为什么还要自定义 code？</h2>
+
+<img src="https://blog.cc1234.cc/posts/http-status-and-code/img/1.png" />
+
 <p>HTTP 协议中定义了 5 类 status code</p>
 <ol>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#information_responses">Informational responses</a>(<code>100</code>–<code>199</code>)</li>
@@ -147,13 +150,17 @@ const Tiptap = (): JSX.Element => {
 <li>code 是可读的</li>
 <li>通常也会包含一个详细描述的 message 字段</li>
 <li>根据响应，调用方有能力定位到导致错误的资源（字段）</li>
-</ul>
-
-            </section>`
+</ul>`
   const editor = useEditor({
     extensions: [
       StarterKit,
       Slash,
+      ExcalidrawNode.configure({
+        HTMLAttributes: {
+          style: 'height: 500px;display:block',
+          class: 'not-prose'
+        }
+      }),
       TaskList.configure({
         itemTypeName: 'taskItem',
         HTMLAttributes: {
