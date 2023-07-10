@@ -12,7 +12,8 @@ import {
   NumberedListIcon,
   Heading1Icon,
   Heading2Icon,
-  Heading3Icon
+  Heading3Icon,
+  ExcalidrawIcon
 } from '@renderer/components/Icons'
 
 interface CommandItemProps {
@@ -273,6 +274,14 @@ const getItems = ({ query }: { query: string }) => {
       description: 'quote text',
       command: ({ editor, range }: Command) => {
         editor.chain().focus().deleteRange(range).toggleBlockquote().run()
+      }
+    },
+    {
+      title: 'Excalidraw',
+      icon: ExcalidrawIcon,
+      description: 'drawing with Excalidraw',
+      command: ({ editor, range }: Command) => {
+        editor.chain().focus().deleteRange(range).insertExcalidraw().run()
       }
     }
   ]

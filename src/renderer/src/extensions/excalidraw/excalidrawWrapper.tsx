@@ -1,38 +1,43 @@
 import { Excalidraw } from '@excalidraw/excalidraw'
-import { NodeViewWrapper } from '@tiptap/react'
+import { Editor, Node, NodeViewWrapper } from '@tiptap/react'
 import { ReactNode, useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 const ExcalidrawWrapper = (props: {
-  width: string | undefined
-  height: string | undefined
-  content: object | undefined | null
-  onChange: (data: object | null) => void
+  editor: Editor
+  node: Node
+  updateAttributes: (attributes: {}) => void
 }): ReactNode => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null)
-  const [excalidrawContent, setExcalidrawContent] = useState(null)
-  const dataUpdate = (elements, state): void => {
-    if (excalidrawAPI) {
-      const data = {
-        elements: elements,
-        appState: state
-      }
-      setExcalidrawContent(JSON.stringify(data))
-      // console.log(props)
-      // props.onChange(excalidrawContent)
+  const node = props.node
+  const attrs = node.attrs
+  const width = attrs.width ? attrs.width : ''
+  const height = attrs.height ? attrs.height : '500px'
+  const initialData = attrs.data ? JSON.parse(attrs.data) : null
+  const dataUpdate = (elements, state, files): void => {
+    // notice: state.collaborators should be a array ,but export to object
+    state.collaborators = []
+    const data = {
+      elements: elements,
+      appState: state,
+      files: files
     }
+    const newData = JSON.stringify(data)
+    Promise.resolve().then(() => {
+      props.updateAttributes({ data: newData })
+    })
   }
   return (
     <>
       <NodeViewWrapper
         style={{
-          width: props.width ? props.width : '',
-          height: props.height ? props.height : '500px'
+          width: width,
+          height: height,
+          display: 'block'
         }}
-        contentEditable={false}
       >
         <Excalidraw
-          initialData={props.content}
+          initialData={initialData}
           onChange={dataUpdate}
           ref={(api): void => setExcalidrawAPI(api)}
         ></Excalidraw>
