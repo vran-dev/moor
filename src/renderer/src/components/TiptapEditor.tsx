@@ -3,7 +3,9 @@ import StarterKit from '@tiptap/starter-kit'
 import { CustomLink } from '../extensions/link'
 import CustomImage from '../extensions/image/image'
 import CustomTable from '../extensions/table'
+import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeblock'
 import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
+import { MermaidNode } from '@renderer/extensions/mermaid/mermaid'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
@@ -32,6 +34,9 @@ const Tiptap = (): JSX.Element => {
 <li>这种设计有没有什么实践？</li>
 <li>大厂都是怎么做的呢？</li>
 </ul>
+
+<div class="mermaid" ></div>
+
 <p>跟随本文，一起揭晓以上问题</p>
 <ul data-type="taskList">
           <li data-type="taskItem" data-checked="true">A list item</li>
@@ -157,14 +162,18 @@ const Tiptap = (): JSX.Element => {
 `
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false
+      }),
       Slash,
+      CustomCodeBlock,
       ExcalidrawNode.configure({
         HTMLAttributes: {
           style: 'height: 500px;display:block',
           class: 'not-prose'
         }
       }),
+      MermaidNode,
       TaskList.configure({
         itemTypeName: 'taskItem',
         HTMLAttributes: {

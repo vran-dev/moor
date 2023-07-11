@@ -3,6 +3,7 @@ import { DesktopOutlined, FileOutlined, PieChartOutlined } from '@ant-design/ico
 import type { MenuProps } from 'antd'
 import { Layout, Menu, theme } from 'antd'
 import Tiptap from './components/TiptapEditor'
+import Mermaid from './extensions/mermaid/mermaidView'
 
 const { Content, Sider } = Layout
 
@@ -33,6 +34,10 @@ const items: MenuItem[] = [
 
 const App: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false)
+  const chartDefinition = `sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!`
   return (
     <>
       <div className="navbar"></div>
