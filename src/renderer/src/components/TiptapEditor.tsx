@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { CustomLink } from '../extensions/link'
 import CustomImage from '../extensions/image/image'
 import CustomTable from '../extensions/table'
-import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeblock'
+import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeBlock'
 import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
 import { MermaidNode } from '@renderer/extensions/mermaid/mermaid'
 import TableHeader from '@tiptap/extension-table-header'
@@ -173,7 +173,6 @@ const Tiptap = (): JSX.Element => {
           class: 'not-prose'
         }
       }),
-      MermaidNode,
       TaskList.configure({
         itemTypeName: 'taskItem',
         HTMLAttributes: {
@@ -187,6 +186,9 @@ const Tiptap = (): JSX.Element => {
         placeholder: ({ node }) => {
           if (node.type.name === 'heading') {
             return `Heading ${node.attrs.level}`
+          }
+          if (node.type.name === 'codeBlock') {
+            return `Writing code...`
           }
           return "Writing or Press '/' for commands"
         },

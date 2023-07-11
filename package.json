@@ -20,6 +20,7 @@
     "build:linux": "electron-vite build && electron-builder --linux --config"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.8.1",
     "@codemirror/commands": "^6.2.4",
     "@codemirror/language": "^6.8.0",
     "@codemirror/state": "^6.2.1",

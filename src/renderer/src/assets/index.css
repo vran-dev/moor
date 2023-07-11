@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* codemirror editor */
+.cm-editor {
+    border: none
+}
+
+.cm-editor.cm-focused {
+    border: none;
+    outline: none;
+}
+
+/* prosemirror editor */
+.ProseMirror:focus {
+    outline: none;
+}
+
+.codeblock {
+    background-color: #FAFAFA;
+    padding: 12px;
+}
+
+.codeblock-preview {
+    background-color: #FFFFFF;
+    padding: 5px;
+    margin: 20px auto;
+}
+
 .navbar {
     height: 20px;
     background-color: #FFF;
@@ -11,9 +37,7 @@
     top: 0;
 }
 
-.ProseMirror:focus {
-    outline: none;
-}
+
 
 .prose li>p {
     margin: 0;

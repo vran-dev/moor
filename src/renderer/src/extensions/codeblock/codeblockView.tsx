@@ -2,12 +2,16 @@ import { Node } from '@tiptap/pm/model'
 import { EditorView, NodeView } from '@tiptap/pm/view'
 import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
 import { EditorView as CodeMirror, keymap as cmKeymap, drawSelection } from '@codemirror/view'
-import { defaultKeymap } from '@codemirror/commands'
+import { defaultKeymap, indentWithTab } from '@codemirror/commands'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
 import { ViewUpdate } from '@codemirror/view'
+import { closeBrackets } from '@codemirror/autocomplete'
+import mermaid from 'mermaid'
+import MermaidWrapper from '../mermaid/mermaidView'
+import { Transaction } from '@codemirror/state'
 
 export interface CmCommand {
   key: string
@@ -24,6 +28,7 @@ export class CodeblockView implements NodeView {
   dom: HTMLElement
   cm: CodeMirror
   updating: boolean
+  livePreviewDom?: HTMLElement
 
   constructor(node, view, getPos) {
     this.node = node
@@ -34,15 +39,42 @@ export class CodeblockView implements NodeView {
     this.cm = new CodeMirror({
       doc: this.node.textContent,
       extensions: [
-        cmKeymap.of([...this.codeMirrorKeymap(), ...defaultKeymap]),
+        cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
         drawSelection(),
+        closeBrackets(),
         syntaxHighlighting(defaultHighlightStyle),
         CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
       ]
     })
 
+    const codeBlockWrapper = document.createElement('div')
+    codeBlockWrapper.classList.add('codeblock')
+    this.dom = codeBlockWrapper
+
+    codeBlockWrapper.appendChild(this.cm.dom)
+    if (node.attrs.language && node.attrs.language === 'mermaid') {
+      const mermaidWrapper = document.createElement('div')
+      mermaidWrapper.classList.add('codeblock-preview')
+      mermaidWrapper.innerHTML = node.textContent
+      mermaidWrapper.style.display = 'none'
+      this.livePreviewDom = mermaidWrapper
+      codeBlockWrapper.appendChild(mermaidWrapper)
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
+      if (node.textContent) {
+        mermaid
+          .run({
+            nodes: [mermaidWrapper]
+          })
+          .then(() => {
+            this.livePreviewDom.style.display = 'inherit'
+          })
+          .catch((error) => {
+            this.livePreviewDom.style.display = 'none'
+            console.error('reder mermaid failed', error)
+          })
+      }
+    }
     // The editor's outer node is our DOM representation
-    this.dom = this.cm.dom
 
     // This flag is used to avoid an update loop between the outer and
     // inner editor
@@ -72,6 +104,24 @@ export class CodeblockView implements NodeView {
       })
       tr.setSelection(TextSelection.create(tr.doc, selFrom, selTo))
       this.view.dispatch(tr)
+      if (this.livePreviewDom) {
+        if (this.livePreviewDom.attributes.getNamedItem('data-processed')) {
+          this.livePreviewDom.attributes.removeNamedItem('data-processed')
+        }
+        this.livePreviewDom.innerHTML = this.cm.state.doc.toString()
+        mermaid
+          .run({
+            nodes: [this.livePreviewDom]
+          })
+          .then(() => {
+            console.log('run......')
+            this.livePreviewDom.style.display = 'inherit'
+          })
+          .catch((error) => {
+            this.livePreviewDom.style.display = 'none'
+            console.error('reder mermaid failed', error)
+          })
+      }
     }
   }
 
@@ -111,6 +161,47 @@ export class CodeblockView implements NodeView {
         key: 'Ctrl-y',
         mac: 'Cmd-y',
         run: () => redo(view.state, view.dispatch)
+      },
+      {
+        key: 'Backspace',
+        run: (): boolean => {
+          const ranges = this.cm.state.selection.ranges
+
+          if (ranges.length > 1) {
+            return false
+          }
+
+          const selection = ranges[0]
+
+          if (selection && (!selection.empty || selection.anchor > 0)) {
+            return false
+          }
+
+          // We don't want to convert a multi-line code block into a paragraph
+          // because newline characters are invalid in a paragraph node.
+          if (this.cm.state.doc.lines >= 2) {
+            return false
+          }
+
+          const state = this.view.state
+          // const toggleNode = assertGet(state.schema.nodes, this.toggleName)
+          // const toggleNode = state.schema.nodes[this.toggleName]
+          const pos = this.getPos()
+          const node = state.tr.doc.nodeAt(pos)
+          console.log(node)
+          console.log(view.state.schema.nodes.paragraph)
+          const tr = node
+            ? state.tr.replaceWith(
+                pos,
+                pos + node.nodeSize,
+                view.state.schema.nodes.paragraph.createChecked({}, this.node.content)
+              )
+            : state.tr
+          tr.setSelection(TextSelection.near(tr.doc.resolve(pos)))
+          this.view.dispatch(tr)
+          this.view.focus()
+          return true
+        }
       }
     ]
   }
