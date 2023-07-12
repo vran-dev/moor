@@ -34,8 +34,23 @@ const Tiptap = (): JSX.Element => {
 <li>这种设计有没有什么实践？</li>
 <li>大厂都是怎么做的呢？</li>
 </ul>
+<pre>
+  <code class='language-mermaid'>
+  journey
+    title My working day
+    section Go to work
+      Make tea: 5: Me
+      Go upstairs: 3: Me
+      Do work: 1: Me, Cat
+    section Go home
+      Go downstairs: 5: Me
+      Sit down: 5: Me
+  </code>
+</pre>
 
-<pre>select * from product;</pre>
+<pre>
+<code  class='language-sql'>select * from product;</code>
+</pre>
 
 <p>跟随本文，一起揭晓以上问题</p>
 <ul data-type="taskList">

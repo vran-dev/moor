@@ -3,11 +3,15 @@ import { EditorView, NodeView } from '@tiptap/pm/view'
 import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
 import { EditorView as CodeMirror, keymap as cmKeymap, drawSelection } from '@codemirror/view'
 import { defaultKeymap, indentWithTab } from '@codemirror/commands'
-import { syntaxHighlighting, defaultHighlightStyle, LanguageSupport } from '@codemirror/language'
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  LanguageSupport,
+  LanguageDescription
+} from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
-import { keymap } from 'prosemirror-keymap'
 import { ViewUpdate } from '@codemirror/view'
 import { closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
@@ -21,108 +25,114 @@ export interface CmCommand {
   run: (state: EditorState, dispatch: (tr: any) => void, view: EditorView) => boolean | void
 }
 
+interface LanguageBlock {
+  name: string
+
+  description?: LanguageDescription | null
+
+  updateLivePreview?: (parent: HTMLElement, content: string) => void
+
+  hideLivePreview?: () => void
+}
+
+class MermaidLanguageBlock implements LanguageBlock {
+  name = 'Mermaid'
+  description = null
+  dom?: HTMLElement
+  parentDom?: HTMLElement
+
+  updateLivePreview = (parent: HTMLElement, content: string): void => {
+    this.parentDom = parent
+    if (!this.dom) {
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
+      const mermaidWrapper = document.createElement('div')
+      mermaidWrapper.classList.add('codeblock-preview')
+      mermaidWrapper.style.display = 'none'
+      this.dom = mermaidWrapper
+      parent.appendChild(mermaidWrapper)
+    }
+
+    if (this.dom.attributes.getNamedItem('data-processed')) {
+      this.dom.attributes.removeNamedItem('data-processed')
+    }
+
+    this.dom.innerHTML = content
+    if (content) {
+      mermaid
+        .run({
+          nodes: [this.dom]
+        })
+        .then(() => {
+          this.dom.style.display = 'inherit'
+        })
+        .catch((error) => {
+          this.dom.style.display = 'none'
+          console.error('reder mermaid failed', error)
+        })
+    }
+  }
+
+  hideLivePreview = (): void => {
+    if (this.parentDom && this.dom) {
+      this.parentDom.removeChild(this.dom)
+      this.dom = undefined
+    } else if (this.dom) {
+      this.dom.style.display = 'none'
+    }
+  }
+}
+
 export class CodeblockView implements NodeView {
   node: Node
   view: EditorView
   getPos: () => number
   dom: HTMLElement
+
   cm: CodeMirror
   updating: boolean
-  livePreviewDom?: HTMLElement
-  cmExtensions?: Extension[] = []
-  languagePacks: LanguageSupport[]
+  LanguageBlocks: LanguageBlock[]
+  languageCompartment: Compartment
+  languageBlock?: LanguageBlock
 
   constructor(node, view, getPos) {
     this.node = node
     this.view = view
     this.getPos = getPos
-    this.languagePacks = []
-
-    // Create a CodeMirror instance
-    const language = new Compartment()
-    this.cmExtensions = [
-      cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
-      drawSelection(),
-      closeBrackets(),
-      syntaxHighlighting(defaultHighlightStyle),
-      language.of([]),
-      CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
-    ]
-
-    languages.forEach((lang) => {
-      lang.load().then((langModule) => this.languagePacks.push(langModule))
-    })
-
-    this.cm = new CodeMirror({
-      doc: this.node.textContent,
-      extensions: this.cmExtensions
-    })
-
-    const switchLang = (lang: string): void => {
-      console.log(this.languagePacks)
-      const langPack = this.languagePacks.find(
-        (langPack) => langPack.language.name.toLowerCase() === lang.toLowerCase()
-      )
-      if (langPack) {
-        this.cm.dispatch({
-          effects: language.reconfigure(langPack)
-        })
-      } else {
-        console.log('no lang pack found ' + lang)
-        this.cm.dispatch({
-          effects: language.reconfigure([])
-        })
-      }
-    }
-
+    // init dom
     const codeBlockWrapper = document.createElement('div')
     codeBlockWrapper.classList.add('codeblock')
     this.dom = codeBlockWrapper
 
-    const langSelect = document.createElement('select')
-
-    const plainOption = document.createElement('option')
-    plainOption.value = 'text'
-    plainOption.text = 'text'
-    langSelect.appendChild(plainOption)
-
-    languages
-      .map((lang) => {
-        const option = document.createElement('option')
-        option.value = lang.name
-        option.text = lang.name
-        return option
-      })
-      .forEach((option) => langSelect.appendChild(option))
-    langSelect.addEventListener('change', (event) => {
-      event.preventDefault()
-      switchLang(event.target?.value)
+    // init codemirror
+    this.languageCompartment = new Compartment()
+    this.cm = new CodeMirror({
+      doc: this.node.textContent,
+      extensions: [
+        cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
+        drawSelection(),
+        closeBrackets(),
+        syntaxHighlighting(defaultHighlightStyle),
+        this.languageCompartment.of([]),
+        CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
+      ]
     })
-    codeBlockWrapper.appendChild(langSelect)
 
-    codeBlockWrapper.appendChild(this.cm.dom)
-    if (node.attrs.language && node.attrs.language === 'mermaid') {
-      const mermaidWrapper = document.createElement('div')
-      mermaidWrapper.classList.add('codeblock-preview')
-      mermaidWrapper.innerHTML = node.textContent
-      mermaidWrapper.style.display = 'none'
-      this.livePreviewDom = mermaidWrapper
-      codeBlockWrapper.appendChild(mermaidWrapper)
-      mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
-      if (node.textContent) {
-        mermaid
-          .run({
-            nodes: [mermaidWrapper]
-          })
-          .then(() => {
-            this.livePreviewDom.style.display = 'inherit'
-          })
-          .catch((error) => {
-            this.livePreviewDom.style.display = 'none'
-            console.error('reder mermaid failed', error)
-          })
-      }
-    }
+    this.LanguageBlocks = languages.map((lang: LanguageDescription): LanguageBlock => {
+      return { name: lang.name, description: lang }
+    })
+    this.LanguageBlocks.push({ name: 'Plain' })
+    this.LanguageBlocks.push(new MermaidLanguageBlock())
+    this.initLanguageSelect()
+    this.dom.appendChild(this.cm.dom)
+    this.matchLanguage(
+      this.node.attrs.language,
+      (support) => {
+        this.cm.dispatch({
+          effects: this.languageCompartment.reconfigure(support)
+        })
+      },
+      (lang) => console.log(lang + ' not found')
+    )
     // The editor's outer node is our DOM representation
 
     // This flag is used to avoid an update loop between the outer and
@@ -153,25 +163,98 @@ export class CodeblockView implements NodeView {
       })
       tr.setSelection(TextSelection.create(tr.doc, selFrom, selTo))
       this.view.dispatch(tr)
-      if (this.livePreviewDom) {
-        if (this.livePreviewDom.attributes.getNamedItem('data-processed')) {
-          this.livePreviewDom.attributes.removeNamedItem('data-processed')
-        }
-        this.livePreviewDom.innerHTML = this.cm.state.doc.toString()
-        mermaid
-          .run({
-            nodes: [this.livePreviewDom]
-          })
-          .then(() => {
-            console.log('run......')
-            this.livePreviewDom.style.display = 'inherit'
-          })
-          .catch((error) => {
-            this.livePreviewDom.style.display = 'none'
-            console.error('reder mermaid failed', error)
-          })
+      if (this.languageBlock && this.languageBlock.updateLivePreview) {
+        const code = this.cm.state.doc.toString()
+        this.languageBlock.updateLivePreview(this.dom, code)
       }
     }
+  }
+
+  private initLanguageSelect(): void {
+    const langSelect = document.createElement('select')
+    const selectedLang = this.node.attrs.language || 'Plain'
+    this.dom.appendChild(langSelect)
+
+    const langOptions = this.LanguageBlocks.map((langBlock) => {
+      const option = document.createElement('option')
+      option.value = langBlock.name
+      option.text = langBlock.name
+      if (langBlock.name.toLowerCase() === selectedLang.toLowerCase()) {
+        option.selected = true
+      }
+      return option
+    })
+    langOptions
+      .sort((a, b) => a.value.localeCompare(b.value))
+      .forEach((option) => {
+        if (option.value.toLowerCase() === selectedLang.toLowerCase()) {
+          option.selected = true
+        }
+        langSelect.appendChild(option)
+      })
+
+    langSelect.addEventListener('change', (event) => {
+      event.preventDefault()
+      const lang = event.target?.value
+      this.matchLanguage(
+        lang,
+        (support) => {
+          this.cm.dispatch({
+            effects: this.languageCompartment.reconfigure(support)
+          })
+        },
+        () => {
+          this.cm.dispatch({
+            effects: this.languageCompartment.reconfigure([])
+          })
+          this.updateNodeAttrs('Plain')
+        }
+      )
+    })
+  }
+
+  private matchLanguage(
+    lang: string,
+    matched: (LanguageSupport: LanguageSupport) => void,
+    noMatch?: (lang: string) => void
+  ): void {
+    const block = this.LanguageBlocks.find(
+      (block) => block.name.toLowerCase() === lang.toLowerCase()
+    )
+    if (!block) {
+      noMatch && noMatch(lang)
+      return
+    }
+
+    if (block.description) {
+      if (block.description.support) {
+        matched(block.description.support)
+      } else {
+        block.description.load().then((support: LanguageSupport) => {
+          matched(support)
+        })
+      }
+    }
+
+    if (this.languageBlock?.hideLivePreview) {
+      this.languageBlock.hideLivePreview()
+    }
+
+    if (block.updateLivePreview) {
+      block.updateLivePreview(this.dom, this.node.textContent)
+    }
+    this.languageBlock = block
+  }
+
+  private updateNodeAttrs(lang): void {
+    const { state, dispatch } = this.view
+    const attrs = {
+      language: lang
+    }
+
+    const transaction = state.tr.setNodeMarkup(this.getPos(), undefined, attrs)
+    state.tr.setNodeMarkup(this.getPos(), undefined, attrs)
+    dispatch(transaction)
   }
 
   setSelection(anchor, head): void {
@@ -322,27 +405,27 @@ export class CodeblockView implements NodeView {
   }
 }
 
-function arrowHandler(dir) {
-  return (state, dispatch, view) => {
-    if (state.selection.empty && view.endOfTextblock(dir)) {
-      const side = dir == 'left' || dir == 'up' ? -1 : 1
-      const $head = state.selection.$head
-      const nextPos = Selection.near(
-        state.doc.resolve(side > 0 ? $head.after() : $head.before()),
-        side
-      )
-      if (nextPos.$head && nextPos.$head.parent.type.name == 'code_block') {
-        dispatch(state.tr.setSelection(nextPos))
-        return true
-      }
-    }
-    return false
-  }
-}
+// function arrowHandler(dir) {
+//   return (state, dispatch, view) => {
+//     if (state.selection.empty && view.endOfTextblock(dir)) {
+//       const side = dir == 'left' || dir == 'up' ? -1 : 1
+//       const $head = state.selection.$head
+//       const nextPos = Selection.near(
+//         state.doc.resolve(side > 0 ? $head.after() : $head.before()),
+//         side
+//       )
+//       if (nextPos.$head && nextPos.$head.parent.type.name == 'code_block') {
+//         dispatch(state.tr.setSelection(nextPos))
+//         return true
+//       }
+//     }
+//     return false
+//   }
+// }
 
-const arrowHandlers = keymap({
-  ArrowLeft: arrowHandler('left'),
-  ArrowRight: arrowHandler('right'),
-  ArrowUp: arrowHandler('up'),
-  ArrowDown: arrowHandler('down')
-})
+// const arrowHandlers = keymap({
+//   ArrowLeft: arrowHandler('left'),
+//   ArrowRight: arrowHandler('right'),
+//   ArrowUp: arrowHandler('up'),
+//   ArrowDown: arrowHandler('down')
+// })

@@ -30,7 +30,7 @@
 
 .navbar {
     height: 20px;
-    background-color: #FFF;
+    background-color: #FFFFFF;
     -webkit-app-region: drag;
     position: sticky;
     z-index: 200;
@@ -67,8 +67,8 @@
     position: absolute;
     width: 10px;
     height: 10px;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: #FFFFFF;
+    border: 1px solid #cccCCC;
     box-sizing: border-box;
 }
 
