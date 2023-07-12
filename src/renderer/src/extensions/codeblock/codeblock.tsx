@@ -1,5 +1,4 @@
 import { CodeBlock } from '@tiptap/extension-code-block'
-import { InputRule, callOrReturn, NodeViewRenderer } from '@tiptap/react'
 import { CodeblockView } from './codeBlockView'
 
 export const CustomCodeBlock = CodeBlock.extend({
@@ -13,29 +12,6 @@ export const CustomCodeBlock = CodeBlock.extend({
       return new CodeblockView(props.node, props.editor.view, props.getPos)
     }
   }
-
-  // addInputRules() {
-  //   return [
-  //     new InputRule({
-  //       find: /^```([a-z]+)?[\s\n]$/,
-  //       handler: ({ state, range, match }): void => {
-  //         const nodeType = this.type
-  //         const $start = state.doc.resolve(range.from)
-
-  //         if (!$start.node(-1).canReplaceWith($start.index(-1), $start.indexAfter(-1), nodeType)) {
-  //           return
-  //         }
-
-  //         const language = match[1] || 'javascript'
-  //         const attributes = { language: language }
-  //         state.tr
-  //           .delete(range.from, range.to)
-  //           .replaceRangeWith(range.from, range.from + 1, nodeType.create(attributes))
-  //         // .setBlockType(range.from, range.from, nodeType, attributes)
-  //       }
-  //     })
-  //   ]
-  // }
 })
 
 export default CustomCodeBlock

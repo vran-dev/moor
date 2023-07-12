@@ -37,7 +37,9 @@
     top: 0;
 }
 
-
+.codeblock + .codeblock {
+    margin-top: 20px;
+}
 
 .prose li>p {
     margin: 0;

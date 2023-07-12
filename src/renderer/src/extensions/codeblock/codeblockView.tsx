@@ -3,15 +3,15 @@ import { EditorView, NodeView } from '@tiptap/pm/view'
 import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
 import { EditorView as CodeMirror, keymap as cmKeymap, drawSelection } from '@codemirror/view'
 import { defaultKeymap, indentWithTab } from '@codemirror/commands'
-import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
+import { syntaxHighlighting, defaultHighlightStyle, LanguageSupport } from '@codemirror/language'
+import { languages } from '@codemirror/language-data'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
 import { ViewUpdate } from '@codemirror/view'
 import { closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
-import MermaidWrapper from '../mermaid/mermaidView'
-import { Transaction } from '@codemirror/state'
+import { Compartment, Extension } from '@codemirror/state'
 
 export interface CmCommand {
   key: string
@@ -29,27 +29,76 @@ export class CodeblockView implements NodeView {
   cm: CodeMirror
   updating: boolean
   livePreviewDom?: HTMLElement
+  cmExtensions?: Extension[] = []
+  languagePacks: LanguageSupport[]
 
   constructor(node, view, getPos) {
     this.node = node
     this.view = view
     this.getPos = getPos
+    this.languagePacks = []
 
     // Create a CodeMirror instance
+    const language = new Compartment()
+    this.cmExtensions = [
+      cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
+      drawSelection(),
+      closeBrackets(),
+      syntaxHighlighting(defaultHighlightStyle),
+      language.of([]),
+      CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
+    ]
+
+    languages.forEach((lang) => {
+      lang.load().then((langModule) => this.languagePacks.push(langModule))
+    })
+
     this.cm = new CodeMirror({
       doc: this.node.textContent,
-      extensions: [
-        cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
-        drawSelection(),
-        closeBrackets(),
-        syntaxHighlighting(defaultHighlightStyle),
-        CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
-      ]
+      extensions: this.cmExtensions
     })
+
+    const switchLang = (lang: string): void => {
+      console.log(this.languagePacks)
+      const langPack = this.languagePacks.find(
+        (langPack) => langPack.language.name.toLowerCase() === lang.toLowerCase()
+      )
+      if (langPack) {
+        this.cm.dispatch({
+          effects: language.reconfigure(langPack)
+        })
+      } else {
+        console.log('no lang pack found ' + lang)
+        this.cm.dispatch({
+          effects: language.reconfigure([])
+        })
+      }
+    }
 
     const codeBlockWrapper = document.createElement('div')
     codeBlockWrapper.classList.add('codeblock')
     this.dom = codeBlockWrapper
+
+    const langSelect = document.createElement('select')
+
+    const plainOption = document.createElement('option')
+    plainOption.value = 'text'
+    plainOption.text = 'text'
+    langSelect.appendChild(plainOption)
+
+    languages
+      .map((lang) => {
+        const option = document.createElement('option')
+        option.value = lang.name
+        option.text = lang.name
+        return option
+      })
+      .forEach((option) => langSelect.appendChild(option))
+    langSelect.addEventListener('change', (event) => {
+      event.preventDefault()
+      switchLang(event.target?.value)
+    })
+    codeBlockWrapper.appendChild(langSelect)
 
     codeBlockWrapper.appendChild(this.cm.dom)
     if (node.attrs.language && node.attrs.language === 'mermaid') {

@@ -35,7 +35,7 @@ const Tiptap = (): JSX.Element => {
 <li>大厂都是怎么做的呢？</li>
 </ul>
 
-<div class="mermaid" ></div>
+<pre>select * from product;</pre>
 
 <p>跟随本文，一起揭晓以上问题</p>
 <ul data-type="taskList">
