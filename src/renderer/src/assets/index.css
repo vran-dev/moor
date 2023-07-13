@@ -159,3 +159,7 @@ ul[data-type="taskList"] li>div {
     cursor: pointer;
     overflow: hidden;
 }
+
+.search-match {
+    background-color: yellow;
+}

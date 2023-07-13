@@ -25,6 +25,7 @@ import {
   UnderlineIcon,
   QuoteIcon
 } from './Icons'
+import { Search } from '@renderer/extensions/search/searchExtension'
 
 const Tiptap = (): JSX.Element => {
   const content = `
@@ -177,6 +178,7 @@ const Tiptap = (): JSX.Element => {
 `
   const editor = useEditor({
     extensions: [
+      Search,
       StarterKit.configure({
         codeBlock: false
       }),

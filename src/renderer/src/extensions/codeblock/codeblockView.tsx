@@ -1,6 +1,8 @@
 import { Node } from '@tiptap/pm/model'
-import { EditorView, NodeView } from '@tiptap/pm/view'
+import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } from '@tiptap/pm/view'
 import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
+import { exitCode } from 'prosemirror-commands'
+import { undo, redo } from 'prosemirror-history'
 import { EditorView as CodeMirror, keymap as cmKeymap, drawSelection } from '@codemirror/view'
 import { defaultKeymap, indentWithTab } from '@codemirror/commands'
 import {
@@ -10,9 +12,8 @@ import {
   LanguageDescription
 } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
-import { exitCode } from 'prosemirror-commands'
-import { undo, redo } from 'prosemirror-history'
-import { ViewUpdate } from '@codemirror/view'
+import { StateField, StateEffect } from '@codemirror/state'
+import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
 import { Compartment, Extension } from '@codemirror/state'
@@ -148,6 +149,7 @@ export class CodeblockView implements NodeView {
     if (this.updating || !this.cm.hasFocus) {
       return
     }
+    console.log('update from codemirror')
     let offset = this.getPos() + 1
     const cmSelection = update.state.selection.main
     const selFrom = offset + cmSelection.from
@@ -353,10 +355,31 @@ export class CodeblockView implements NodeView {
     return true
   }
 
-  update(node): boolean {
+  update(node: Node, decorations: Decoration[], innerDecoration: DecorationSource): boolean {
     if (node.type != this.node.type) {
       return false
     }
+    console.log('update codeblock....')
+    if (innerDecoration instanceof DecorationSet) {
+      const decorationSet = innerDecoration as DecorationSet
+      const localDecoraions = decorationSet.find()
+      console.log(localDecoraions)
+      // TODO begin with here
+      const underlineTheme = CodeMirror.baseTheme({
+        '.cm-underline': { textDecoration: 'underline 3px red' }
+      })
+      const addUnderline = StateEffect.define<{ from: number; to: number }>({
+        map: ({ from, to }, change) => ({ from: change.mapPos(from), to: change.mapPos(to) })
+      })
+      localDecoraions.forEach((decoration: Decoration) => {
+        const cmDecoration = CmDecoration.mark({
+          attributes: { class: 'cm-underline' }
+        }).range(decoration.from, decoration.to)
+        const effects = [addUnderline.of({ from: decoration.from, to: decoration.to })]
+        this.cm.dispatch({ effects })
+      })
+    }
+
     this.node = node
     if (this.updating) {
       return true
