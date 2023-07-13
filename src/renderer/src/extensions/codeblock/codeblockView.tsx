@@ -17,6 +17,7 @@ import { closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
 import { Compartment, Extension } from '@codemirror/state'
 import ProsemirrorNodes from '@renderer/common/ProsemirrorNodes'
+import Zoomable from '@renderer/common/zoomable'
 
 export interface CmCommand {
   key: string
@@ -48,8 +49,10 @@ class MermaidLanguageBlock implements LanguageBlock {
       mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
       const mermaidWrapper = document.createElement('div')
       mermaidWrapper.classList.add('codeblock-preview')
+      mermaidWrapper.classList.add('zoomable')
       mermaidWrapper.style.display = 'none'
       this.dom = mermaidWrapper
+      Zoomable.init(mermaidWrapper)
       parent.appendChild(mermaidWrapper)
     }
 

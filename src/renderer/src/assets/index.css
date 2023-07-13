@@ -37,7 +37,7 @@
     top: 0;
 }
 
-.codeblock + .codeblock {
+.codeblock+.codeblock {
     margin-top: 20px;
 }
 
@@ -152,4 +152,10 @@ ul[data-type="taskList"] li>label {
 
 ul[data-type="taskList"] li>div {
     flex: 1 1 auto;
+}
+
+/* zoom */
+.zoomable {
+    cursor: pointer;
+    overflow: hidden;
 }

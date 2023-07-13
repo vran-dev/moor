@@ -13,7 +13,8 @@ import {
   Heading1Icon,
   Heading2Icon,
   Heading3Icon,
-  ExcalidrawIcon
+  ExcalidrawIcon,
+  CodeBlockIcon
 } from '@renderer/components/Icons'
 
 interface CommandItemProps {
@@ -282,6 +283,14 @@ const getItems = ({ query }: { query: string }) => {
       description: 'drawing with Excalidraw',
       command: ({ editor, range }: Command) => {
         editor.chain().focus().deleteRange(range).insertExcalidraw().run()
+      }
+    },
+    {
+      title: 'Code Block',
+      icon: CodeBlockIcon,
+      description: 'create code block',
+      command: ({ editor, range }: Command) => {
+        editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Plain' }).run()
       }
     }
   ]
