@@ -38,7 +38,15 @@ const ExcalidrawNode = Node.create<ExcalidrawOptions>({
         default: null
       },
       data: {
-        default: DEFAULT_EXCALIDRAW_DATA
+        default: DEFAULT_EXCALIDRAW_DATA,
+        parseHTML: (element): string | null => {
+          const nodeData = element.attributes.getNamedItem('data')
+          if (!nodeData) {
+            return null
+          }
+          return nodeData.value
+        },
+        rendered: false
       }
     }
   },

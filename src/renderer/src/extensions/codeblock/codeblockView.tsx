@@ -16,6 +16,7 @@ import { ViewUpdate } from '@codemirror/view'
 import { closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
 import { Compartment, Extension } from '@codemirror/state'
+import ProsemirrorNodes from '@renderer/common/ProsemirrorNodes'
 
 export interface CmCommand {
   key: string
@@ -207,7 +208,9 @@ export class CodeblockView implements NodeView {
           this.cm.dispatch({
             effects: this.languageCompartment.reconfigure([])
           })
-          this.updateNodeAttrs('Plain')
+          ProsemirrorNodes.updateNodeAttributes(this.view, this.getPos, {
+            language: 'Plain'
+          })
         }
       )
     })
@@ -244,17 +247,6 @@ export class CodeblockView implements NodeView {
       block.updateLivePreview(this.dom, this.node.textContent)
     }
     this.languageBlock = block
-  }
-
-  private updateNodeAttrs(lang): void {
-    const { state, dispatch } = this.view
-    const attrs = {
-      language: lang
-    }
-
-    const transaction = state.tr.setNodeMarkup(this.getPos(), undefined, attrs)
-    state.tr.setNodeMarkup(this.getPos(), undefined, attrs)
-    dispatch(transaction)
   }
 
   setSelection(anchor, head): void {

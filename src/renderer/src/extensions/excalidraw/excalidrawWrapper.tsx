@@ -1,4 +1,5 @@
 import { Excalidraw } from '@excalidraw/excalidraw'
+import { Attrs } from '@tiptap/pm/model'
 import { Editor, Node, NodeViewWrapper } from '@tiptap/react'
 import { ReactNode, useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -6,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 const ExcalidrawWrapper = (props: {
   editor: Editor
   node: Node
-  updateAttributes: (attributes: {}) => void
+  updateAttributes: (attributes: Attrs | null) => void
 }): ReactNode => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null)
   const node = props.node
@@ -39,6 +40,7 @@ const ExcalidrawWrapper = (props: {
         <Excalidraw
           initialData={initialData}
           onChange={dataUpdate}
+          zenModeEnabled={false}
           ref={(api): void => setExcalidrawAPI(api)}
         ></Excalidraw>
       </NodeViewWrapper>
