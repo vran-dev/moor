@@ -35,6 +35,7 @@ const Tiptap = (): JSX.Element => {
 <li>这种设计有没有什么实践？</li>
 <li>大厂都是怎么做的呢？</li>
 </ul>
+<p>journey</p>
 <pre>
   <code class='language-mermaid'>
   journey

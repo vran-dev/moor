@@ -12,13 +12,14 @@ import {
   LanguageDescription
 } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
-import { StateField, StateEffect } from '@codemirror/state'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
 import { Compartment, Extension } from '@codemirror/state'
 import ProsemirrorNodes from '@renderer/common/ProsemirrorNodes'
 import Zoomable from '@renderer/common/zoomable'
+import { replaceClassEffects } from './codeMirrors'
+import { searchKeyword } from '../search/searchPlugin'
 
 export interface CmCommand {
   key: string
@@ -149,15 +150,17 @@ export class CodeblockView implements NodeView {
     if (this.updating || !this.cm.hasFocus) {
       return
     }
-    console.log('update from codemirror')
     let offset = this.getPos() + 1
     const cmSelection = update.state.selection.main
     const selFrom = offset + cmSelection.from
     const selTo = offset + cmSelection.to
     const pmSel = this.view.state.selection
-
     if (update.docChanged || pmSel.from != selFrom || pmSel.to != selTo) {
       const tr = this.view.state.tr
+      if (update.changes.empty) {
+        console.log('empty change')
+        return
+      }
       update.changes.iterChanges((fromA, toA, fromB, toB, text) => {
         if (text.length) {
           const schema = this.view.state.schema
@@ -292,6 +295,29 @@ export class CodeblockView implements NodeView {
         run: () => redo(view.state, view.dispatch)
       },
       {
+        key: 'Ctrl-f',
+        mac: 'Cmd-f',
+        run: (): boolean => {
+          console.log('searching...')
+          const ranges = this.cm.state.selection.ranges
+          if (ranges.length > 1) {
+            console.log('multi selection')
+            return false
+          }
+          const selection = ranges[0]
+          if (!selection) {
+            console.log('without selection')
+            return false
+          }
+          const searchString = this.cm.state.doc.sliceString(selection.from, selection.to)
+          console.log('search string '+searchString)
+          if (searchString) {
+            searchKeyword(this.view, searchString)
+          }
+          return true
+        }
+      },
+      {
         key: 'Backspace',
         run: (): boolean => {
           const ranges = this.cm.state.selection.ranges
@@ -317,8 +343,6 @@ export class CodeblockView implements NodeView {
           // const toggleNode = state.schema.nodes[this.toggleName]
           const pos = this.getPos()
           const node = state.tr.doc.nodeAt(pos)
-          console.log(node)
-          console.log(view.state.schema.nodes.paragraph)
           const tr = node
             ? state.tr.replaceWith(
                 pos,
@@ -359,25 +383,23 @@ export class CodeblockView implements NodeView {
     if (node.type != this.node.type) {
       return false
     }
-    console.log('update codeblock....')
+    console.log('update codeblock')
+    console.log(innerDecoration)
     if (innerDecoration instanceof DecorationSet) {
       const decorationSet = innerDecoration as DecorationSet
       const localDecoraions = decorationSet.find()
-      console.log(localDecoraions)
       // TODO begin with here
-      const underlineTheme = CodeMirror.baseTheme({
-        '.cm-underline': { textDecoration: 'underline 3px red' }
-      })
-      const addUnderline = StateEffect.define<{ from: number; to: number }>({
-        map: ({ from, to }, change) => ({ from: change.mapPos(from), to: change.mapPos(to) })
-      })
       localDecoraions.forEach((decoration: Decoration) => {
-        const cmDecoration = CmDecoration.mark({
-          attributes: { class: 'cm-underline' }
-        }).range(decoration.from, decoration.to)
-        const effects = [addUnderline.of({ from: decoration.from, to: decoration.to })]
-        this.cm.dispatch({ effects })
+        replaceClassEffects(
+          this.cm,
+          [{ from: decoration.from, to: decoration.to }],
+          ['search-match']
+        )
       })
+
+      if (!localDecoraions.length) {
+        replaceClassEffects(this.cm, [], [])
+      }
     }
 
     this.node = node

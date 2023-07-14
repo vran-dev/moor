@@ -1,5 +1,5 @@
 import { Plugin } from '@tiptap/pm/state'
-import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import { Decoration, DecorationSet, EditorView } from '@tiptap/pm/view'
 import { Node } from '@tiptap/pm/model'
 
 export const searchPlugin = (): Plugin => {
@@ -32,9 +32,8 @@ export const searchPlugin = (): Plugin => {
           const range = view.state.selection
           const { from, to } = range
           const searchString = view.state.doc.textBetween(from, to)
-          console.log('开始搜索 ' + searchString)
           const regex = new RegExp(searchString, 'gi')
-          const decorationSet = serach(view.state.doc, regex)
+          const decorationSet = search(view.state.doc, regex)
           view.dispatch(view.state.tr.setMeta('search', { decorationSet }))
         }
       },
@@ -46,7 +45,7 @@ export const searchPlugin = (): Plugin => {
   })
 }
 
-const serach = (doc: Node, regex): DecorationSet => {
+const search = (doc: Node, regex): DecorationSet => {
   interface MergedTextNode {
     text: string
     from: number
@@ -85,4 +84,10 @@ const serach = (doc: Node, regex): DecorationSet => {
     }
   })
   return DecorationSet.create(doc, searchMatches)
+}
+
+export const searchKeyword = (view: EditorView, keyword: string): void => {
+  const regex = new RegExp(keyword, 'gi')
+  const decorationSet = search(view.state.doc, regex)
+  view.dispatch(view.state.tr.setMeta('search', { decorationSet }))
 }
