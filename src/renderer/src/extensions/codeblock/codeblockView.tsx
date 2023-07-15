@@ -3,23 +3,25 @@ import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } fro
 import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
-import { EditorView as CodeMirror, keymap as cmKeymap, drawSelection } from '@codemirror/view'
-import { defaultKeymap, indentWithTab } from '@codemirror/commands'
+import { EditorView as CodeMirror, keymap as cmKeymap } from '@codemirror/view'
+import { defaultKeymap, history, indentWithTab } from '@codemirror/commands'
 import {
   syntaxHighlighting,
   defaultHighlightStyle,
   LanguageSupport,
-  LanguageDescription
+  LanguageDescription,
+  bracketMatching,
+  indentOnInput,
 } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
-import { closeBrackets } from '@codemirror/autocomplete'
+import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import mermaid from 'mermaid'
-import { Compartment, Extension } from '@codemirror/state'
+import { Compartment } from '@codemirror/state'
 import ProsemirrorNodes from '@renderer/common/ProsemirrorNodes'
 import Zoomable from '@renderer/common/zoomable'
 import { replaceClassEffects } from './codeMirrors'
-import { searchKeyword } from '../search/searchPlugin'
+import { searchPlugin } from '../search/searchPlugin'
 
 export interface CmCommand {
   key: string
@@ -115,8 +117,14 @@ export class CodeblockView implements NodeView {
       doc: this.node.textContent,
       extensions: [
         cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
-        drawSelection(),
+        indentOnInput(),
+        autocompletion(),
+        // foldGutter(),
+        // highlightActiveLine(),
+        // drawSelection(),
+        history(),
         closeBrackets(),
+        bracketMatching(),
         syntaxHighlighting(defaultHighlightStyle),
         this.languageCompartment.of([]),
         CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
@@ -158,7 +166,6 @@ export class CodeblockView implements NodeView {
     if (update.docChanged || pmSel.from != selFrom || pmSel.to != selTo) {
       const tr = this.view.state.tr
       if (update.changes.empty) {
-        console.log('empty change')
         return
       }
       update.changes.iterChanges((fromA, toA, fromB, toB, text) => {
@@ -298,22 +305,28 @@ export class CodeblockView implements NodeView {
         key: 'Ctrl-f',
         mac: 'Cmd-f',
         run: (): boolean => {
-          console.log('searching...')
           const ranges = this.cm.state.selection.ranges
           if (ranges.length > 1) {
-            console.log('multi selection')
+            searchPlugin.option.getEditor()?.commands.showSearchPageBox()
             return false
           }
           const selection = ranges[0]
           if (!selection) {
-            console.log('without selection')
-            return false
+            searchPlugin.option.getEditor()?.commands.showSearchPageBox()
+            searchPlugin.searchByKeyword(this.view, null)
+            return true
           }
           const searchString = this.cm.state.doc.sliceString(selection.from, selection.to)
-          console.log('search string '+searchString)
-          if (searchString) {
-            searchKeyword(this.view, searchString)
-          }
+          searchPlugin.option.getEditor()?.commands.showSearchPageBox(searchString)
+          searchPlugin.searchByKeyword(this.view, searchString)
+          return true
+        }
+      },{
+        key: 'Escape',
+        mac: 'Escape',
+        run: (): boolean => {
+          console.log('escaping...')
+          searchPlugin.option.getEditor()?.commands.hideSearchPageBox()
           return true
         }
       },
@@ -383,28 +396,20 @@ export class CodeblockView implements NodeView {
     if (node.type != this.node.type) {
       return false
     }
-    console.log('update codeblock')
-    console.log(innerDecoration)
-    if (innerDecoration instanceof DecorationSet) {
-      const decorationSet = innerDecoration as DecorationSet
-      const localDecoraions = decorationSet.find()
-      // TODO begin with here
-      localDecoraions.forEach((decoration: Decoration) => {
-        replaceClassEffects(
-          this.cm,
-          [{ from: decoration.from, to: decoration.to }],
-          ['search-match']
-        )
-      })
-
-      if (!localDecoraions.length) {
-        replaceClassEffects(this.cm, [], [])
-      }
-    }
-
     this.node = node
     if (this.updating) {
       return true
+    }
+    if (innerDecoration instanceof DecorationSet) {
+      const decorationSet = innerDecoration as DecorationSet
+      const localDecoraions = decorationSet.find()
+      const decorations = localDecoraions.map((decoration: Decoration) => {
+        return { from: decoration.from, to: decoration.to }
+      })
+      const classes = decorations.length ? ['search-match'] : []
+      this.updating = true
+      replaceClassEffects(this.cm, decorations, classes)
+      this.updating = false
     }
     const newText = node.textContent,
       curText = this.cm.state.doc.toString()

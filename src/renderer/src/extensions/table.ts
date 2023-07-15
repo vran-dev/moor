@@ -39,14 +39,12 @@ export const CustomTable = Table.extend({
           const rowsCount = 2
           const withHeaderRow = true
 
-          console.log(headers)
           const { tr, selection } = props.state
           const { range } = props
 
           const headerCells: ProsemirrorNode[] = []
           const cells: ProsemirrorNode[] = []
 
-          console.log(types)
           for (let index = 0; index < colsCount; index += 1) {
             const content = this.editor.schema.nodes.paragraph.createChecked(
               null,
@@ -74,7 +72,6 @@ export const CustomTable = Table.extend({
             .replaceSelectionWith(node)
             .scrollIntoView()
             .setSelection(TextSelection.near(tr.doc.resolve(offset)))
-          console.log('created')
         }
       })
     ]

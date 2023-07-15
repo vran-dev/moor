@@ -5,7 +5,6 @@ import CustomImage from '../extensions/image/image'
 import CustomTable from '../extensions/table'
 import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeBlock'
 import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
-import { MermaidNode } from '@renderer/extensions/mermaid/mermaid'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
@@ -15,6 +14,7 @@ import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import React, { useEffect } from 'react'
 import Slash from '@renderer/extensions/slash'
+import { Search } from '@renderer/extensions/search/searchExtension'
 
 import {
   BoldIcon,
@@ -25,7 +25,7 @@ import {
   UnderlineIcon,
   QuoteIcon
 } from './Icons'
-import { Search } from '@renderer/extensions/search/searchExtension'
+import { SearchBox } from './SearchBox'
 
 const Tiptap = (): JSX.Element => {
   const content = `

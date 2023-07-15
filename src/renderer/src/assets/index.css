@@ -163,3 +163,34 @@ ul[data-type="taskList"] li>div {
 .search-match {
     background-color: yellow;
 }
+
+.search-page-box {
+    position: relative;
+    margin-bottom: 1.5rem;
+    margin-top: 22px;
+}
+
+.search-page-box-icon {
+    display: flex;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding-left: 0.875rem;
+    align-items: center;
+    pointer-events: none;
+}
+
+.search-page-box-input {
+    display: block;
+    padding: 0.625rem;
+    padding-left: 2.5rem;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-color: #D1D5DB;
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #111827;
+    background-color: #F9FAFB;
+}
