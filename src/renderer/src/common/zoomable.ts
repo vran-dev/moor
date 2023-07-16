@@ -16,7 +16,7 @@ export default class Zoomable {
   }
 
   static wrap(element: HTMLElement): HTMLElement {
-    element.addEventListener('click', function () {
+    const callback = () => {
       const zoomedElement = element.cloneNode(true)
       zoomedElement.style.display = 'flex'
       zoomedElement.style.justifyContent = 'center'
@@ -37,7 +37,8 @@ export default class Zoomable {
       Zoomable.#overlay.style.display = 'inherit'
       Zoomable.#overlay.appendChild(zoomedElement)
       Zoomable.#overlay.addEventListener('click', listener)
-    })
+    }
+    element.addEventListener('click', callback)
     return element
   }
 }

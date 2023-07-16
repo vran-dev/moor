@@ -25,7 +25,7 @@ import {
   UnderlineIcon,
   QuoteIcon
 } from './Icons'
-import { SearchBox } from './SearchBox'
+import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
 
 const Tiptap = (): JSX.Element => {
   const content = `
@@ -180,6 +180,7 @@ const Tiptap = (): JSX.Element => {
   const editor = useEditor({
     extensions: [
       Search,
+      HexColorHighlighter,
       StarterKit.configure({
         codeBlock: false
       }),
@@ -308,7 +309,7 @@ const Tiptap = (): JSX.Element => {
   return (
     <>
       {editor && (
-        <BubbleMenu editor={editor} onChange={() => setIsEditable(!isEditable)}>
+        <BubbleMenu editor={editor} onChange={(): void => setIsEditable(!isEditable)}>
           <div className="bubble-menu">
             {menuItems.map((item) => (
               <button key={item.name} onClick={item.onclick} className={'bubble-menu-item'}>
@@ -322,7 +323,7 @@ const Tiptap = (): JSX.Element => {
           </div>
         </BubbleMenu>
       )}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} style={{ display: 'flex', flexDirection: 'column' }} />
     </>
   )
 }

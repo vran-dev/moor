@@ -64,8 +64,7 @@ const ExcalidrawWrapper = (props: {
       <NodeViewWrapper
         style={{
           width: width,
-          height: height,
-          display: 'block'
+          height: height
         }}
       >
         <Excalidraw
