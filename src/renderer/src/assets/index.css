@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    overflow: hidden;
+}
 /* codemirror editor */
 .cm-editor {
     border: none
@@ -12,7 +15,6 @@
     outline: none;
 }
 
-/* prosemirror editor */
 .ProseMirror:focus {
     outline: none;
 }
@@ -167,8 +169,10 @@ ul[data-type="taskList"] li>div {
 
 .search-page-box {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     margin-top: 22px;
+    width: 100%;
+    max-width: 65ch;
 }
 
 .search-page-box-icon {
@@ -196,23 +200,17 @@ ul[data-type="taskList"] li>div {
     background-color: #F9FAFB;
 }
 
-/*定义整个滚动条高宽及背景：高宽分别对应横竖滚动条的尺寸*/
 ::-webkit-scrollbar {
+    background: transparent;
     width: 10px;
-    background-color: #F5F5F5;
+    height: 10px;
 }
-
-/*定义滚动条轨道：内阴影+圆角*/
-::-webkit-scrollbar-track {
-    background-color: #F5F5F5;
-}
-
-/*定义滑块：内阴影+圆角*/
 ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: #bdbdbd;
+    background: #D3D1CB;
 }
-
+::-webkit-scrollbar-track {
+    background: #EDECE9;
+}
 .color {
     white-space: nowrap;
 }

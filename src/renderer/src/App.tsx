@@ -8,10 +8,13 @@ const App: React.FC = () => {
       <div className="navbar"></div>
       <div
         style={{
-          margin: '0 16px',
           backgroundColor: '#FFFFFF',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          alignItems: 'center',
+          overflow: 'hidden',
+          height: '100vh',
+          width: '100%'
         }}
         className={'editorContainer'}
       >

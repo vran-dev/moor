@@ -126,17 +126,6 @@ export class SearchBoxView {
   constructor(container: HTMLElement, input: HTMLInputElement) {
     this.container = container
     this.input = input
-    window.addEventListener('scroll', (event) => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop
-      const offsetLeft = container.offsetLeft
-      if (scrollTop >= 40) {
-        container.style.position = 'fixed'
-        container.style.top = '20px'
-        container.style.left = `${offsetLeft}`
-      } else {
-        container.style.position = 'relative'
-      }
-    })
   }
 
   show(): void {
@@ -172,8 +161,6 @@ export const createSearchBoxView = (
   find: (event) => void
 ): SearchBoxView => {
   const wrapper = document.createElement('div')
-  wrapper.style.maxWidth = '65ch'
-  wrapper.style.margin = '0 auto'
   wrapper.classList.add('search-page-box')
 
   const iconContainer = document.createElement('div')
