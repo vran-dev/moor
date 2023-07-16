@@ -61,7 +61,7 @@ class MermaidLanguageBlock implements LanguageBlock {
       mermaidWrapper.classList.add('zoomable')
       mermaidWrapper.style.display = 'none'
       this.dom = mermaidWrapper
-      Zoomable.init(mermaidWrapper)
+      Zoomable.wrap(mermaidWrapper)
       parent.appendChild(mermaidWrapper)
     }
 

@@ -49,6 +49,7 @@
     width: 100%;
     height: auto;
     border: 1px solid transparent;
+    padding: 3px;
 }
 
 .image-container>img {

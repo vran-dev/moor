@@ -15,7 +15,7 @@ export default class Zoomable {
     document.body.appendChild(this.#overlay)
   }
 
-  static init(element: HTMLElement): void {
+  static wrap(element: HTMLElement): HTMLElement {
     element.addEventListener('click', function () {
       const zoomedElement = element.cloneNode(true)
       zoomedElement.style.display = 'flex'
@@ -26,6 +26,7 @@ export default class Zoomable {
       zoomedElement.style.height = '80%'
       zoomedElement.style.width = '80%'
       zoomedElement.style.zIndex = '10000'
+      zoomedElement.style.objectFit = 'contain'
 
       const listener = (): void => {
         Zoomable.#overlay.removeChild(zoomedElement)
@@ -37,5 +38,6 @@ export default class Zoomable {
       Zoomable.#overlay.appendChild(zoomedElement)
       Zoomable.#overlay.addEventListener('click', listener)
     })
+    return element
   }
 }
