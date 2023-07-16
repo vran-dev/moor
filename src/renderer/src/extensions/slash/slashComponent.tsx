@@ -1,4 +1,4 @@
-import { Editor } from '@tiptap/react'
+import { Editor, Range } from '@tiptap/react'
 import { useState, useEffect, useRef, useLayoutEffect, ReactNode } from 'react'
 
 export interface CommandItemProps {
@@ -84,9 +84,11 @@ export const SlashComponent = ({
             key={index}
             onClick={(): void => selectItem(index)}
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-md border border-stone-200 bg-white">
-              {item.icon({ className: 'icon', width: 20, height: 20 })}
-            </div>
+            {item.icon && (
+              <div className="flex h-10 w-10 items-center justify-center rounded-md border border-stone-200 bg-white">
+                {item.icon ? item.icon({ className: 'icon', width: 20, height: 20 }) : null}
+              </div>
+            )}
             <div>
               <p className="font-medium">{item.title}</p>
               <p className="text-xs text-stone-500">{item.description}</p>

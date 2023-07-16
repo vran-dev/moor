@@ -26,7 +26,7 @@ import {
 } from './Icons'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
 import Slash from '@renderer/extensions/slash/slashExtension'
-// import Slash from '@renderer/extensions/slash/slash'
+import { LanguageSuggestion } from '@renderer/extensions/slash/slashExtension'
 
 const Tiptap = (): JSX.Element => {
   const content = `
@@ -181,6 +181,7 @@ const Tiptap = (): JSX.Element => {
   const editor = useEditor({
     extensions: [
       Slash,
+      LanguageSuggestion,
       Search,
       HexColorHighlighter,
       StarterKit.configure({

@@ -17,6 +17,7 @@ import {
   CodeBlockIcon
 } from '@renderer/components/Icons'
 import { Suggestion } from '../suggestion/suggestion'
+import { suggestionLanguages } from '../codeblock/suggestions'
 
 const slashSuggestionsKey = new PluginKey('slashSuggestions')
 
@@ -36,8 +37,7 @@ const SlashExtension = Extension.create({
     return [
       Suggestion({
         editor: this.editor,
-        ...this.options.suggestion,
-        pluginKey: slashSuggestionsKey
+        ...this.options.suggestion
       })
     ]
   }
@@ -184,9 +184,11 @@ const getItems = ({ query }: { query: string }) => {
   if (!query || query === '') {
     return items
   }
-  return items
-    .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
-    .filter((item) => item.description.toLowerCase().includes(query.toLowerCase()))
+  return items.filter(
+    (item) =>
+      item.title.toLowerCase().includes(query.toLowerCase()) ||
+      item.description.toLowerCase().includes(query.toLowerCase())
+  )
 }
 
 const Slash = SlashExtension.configure({
@@ -196,4 +198,14 @@ const Slash = SlashExtension.configure({
   }
 })
 
+const LanguageSuggestion = SlashExtension.configure({
+  suggestion: {
+    char: '```',
+    pluginKey: new PluginKey('languageSuggestions'),
+    items: suggestionLanguages,
+    render: defaultRender
+  }
+})
+
 export default Slash
+export { Slash, LanguageSuggestion }
