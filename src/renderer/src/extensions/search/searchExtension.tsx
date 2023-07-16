@@ -43,7 +43,11 @@ export const Search = Extension.create<SearchOption>({
             searchBox.show()
           } else {
             searchBox = createSearchBoxView(searchKey, (event) => {
-              this.editor.commands.search(event.target.value)
+              if (event) {
+                this.editor.commands.search(event.target.value)
+              } else {
+                this.editor.commands.search(null)
+              }
             })
             this.editor.view.dom.parentElement?.parentElement?.insertBefore(
               searchBox.container,

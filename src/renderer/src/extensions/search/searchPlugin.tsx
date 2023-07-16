@@ -180,6 +180,7 @@ export const createSearchBoxView = (
     }
     if (event.key === 'Escape') {
       wrapper.style.display = 'none'
+      find(null)
       return
     }
   })
