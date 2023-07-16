@@ -1,17 +1,22 @@
 import { Node } from '@tiptap/pm/model'
 import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } from '@tiptap/pm/view'
-import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
+import { TextSelection, Selection, EditorState, NodeSelection } from '@tiptap/pm/state'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
 import { EditorView as CodeMirror, keymap as cmKeymap } from '@codemirror/view'
-import { defaultKeymap, history, indentWithTab } from '@codemirror/commands'
+import {
+  defaultKeymap,
+  history,
+  indentWithTab,
+  selectAll as cmSelectAll
+} from '@codemirror/commands'
 import {
   syntaxHighlighting,
   defaultHighlightStyle,
   LanguageSupport,
   LanguageDescription,
   bracketMatching,
-  indentOnInput,
+  indentOnInput
 } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
@@ -302,6 +307,27 @@ export class CodeblockView implements NodeView {
         run: () => redo(view.state, view.dispatch)
       },
       {
+        key: 'Mod-a',
+        run: (): boolean => {
+          const ranges = this.cm.state.selection.ranges
+          if (ranges.length > 1 || !ranges[0]) {
+            return false
+          }
+          const selection = ranges[0]
+          const { anchor, head } = selection
+          if (anchor === 0 && head === this.cm.state.doc.length) {
+            // second select all editor area
+            const doc = this.view.state.doc
+            const tr = this.view.state.tr.setSelection(NodeSelection.create(doc, doc.content.size))
+            this.view.dispatch(tr)
+          } else {
+            // first select all codeblock area
+            cmSelectAll(this.cm)
+          }
+          return true
+        }
+      },
+      {
         key: 'Ctrl-f',
         mac: 'Cmd-f',
         run: (): boolean => {
@@ -313,20 +339,22 @@ export class CodeblockView implements NodeView {
           const selection = ranges[0]
           if (!selection) {
             searchPlugin.option.getEditor()?.commands.showSearchPageBox()
-            searchPlugin.searchByKeyword(this.view, null)
             return true
           }
           const searchString = this.cm.state.doc.sliceString(selection.from, selection.to)
           searchPlugin.option.getEditor()?.commands.showSearchPageBox(searchString)
-          searchPlugin.searchByKeyword(this.view, searchString)
+          if (searchString) {
+            searchPlugin.option.getEditor()?.commands.search(searchString)
+          }
           return true
         }
-      },{
+      },
+      {
         key: 'Escape',
         mac: 'Escape',
         run: (): boolean => {
-          console.log('escaping...')
           searchPlugin.option.getEditor()?.commands.hideSearchPageBox()
+          searchPlugin.option.getEditor()?.commands.search()
           return true
         }
       },

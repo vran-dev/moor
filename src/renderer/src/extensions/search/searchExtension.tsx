@@ -29,6 +29,9 @@ export const Search = Extension.create<SearchOption>({
       search:
         (keyword) =>
         ({ commands }): boolean => {
+          if (keyword) {
+            searchBox?.updateTextValue(keyword)
+          }
           searchPlugin.searchByKeyword(this.editor.view, keyword)
           return true
         },
@@ -47,7 +50,6 @@ export const Search = Extension.create<SearchOption>({
               this.editor.view.dom.parentElement
             )
           }
-          searchBox.updateTextValue(searchKey)
           return true
         },
       hideSearchPageBox:
@@ -67,7 +69,9 @@ export const Search = Extension.create<SearchOption>({
       'Mod-f': (): boolean => {
         this.editor.commands.showSearchPageBox()
         const searchKey = getSelectionText(this.editor.view)
-        this.editor.commands.search(searchKey)
+        if (searchKey) {
+          this.editor.commands.search(searchKey)
+        }
         return true
       },
       Escape: (): boolean => {

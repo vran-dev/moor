@@ -64,14 +64,7 @@ class SearchPlugin extends Plugin {
   }
 
   searchByKeyword = (view: EditorView, keyword: string | null | undefined): void => {
-    if (!view.state.selection.empty) {
-      const range = view.state.selection
-      const { from, to } = range
-      const searchKeyword = view.state.doc.textBetween(from, to)
-      this.option.setSearchKeyword(searchKeyword)
-    } else {
-      this.option.setSearchKeyword(keyword)
-    }
+    this.option.setSearchKeyword(keyword)
     this.option.setUpdating(true)
     view.dispatch(view.state.tr.setMeta('search', DecorationSet.empty))
     this.option.setUpdating(false)
@@ -148,6 +141,7 @@ export class SearchBoxView {
 
   show(): void {
     this.container.style.display = 'block'
+    this.input.focus()
   }
 
   hide(): void {
