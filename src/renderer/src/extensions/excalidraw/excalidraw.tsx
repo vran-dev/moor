@@ -1,6 +1,5 @@
 import { Node, nodeInputRule, mergeAttributes, ReactNodeViewRenderer } from '@tiptap/react'
 import ExcalidrawWrapper from './excalidrawWrapper'
-import { NodeSelection } from '@tiptap/pm/state'
 
 const inputRegex = /^```excalidraw\n/
 

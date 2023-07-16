@@ -1,16 +1,22 @@
 export default class Zoomable {
+  static #overlay: HTMLDivElement
+
+  static {
+    this.#overlay = document.createElement('div')
+    this.#overlay.style.position = 'fixed'
+    this.#overlay.style.top = '0'
+    this.#overlay.style.left = '0'
+    this.#overlay.style.width = '100%'
+    this.#overlay.style.height = '100%'
+    this.#overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
+    this.#overlay.style.zIndex = '9999'
+    this.#overlay.style.margin = '0 auto'
+    this.#overlay.style.display = 'none'
+    document.body.appendChild(this.#overlay)
+  }
+
   static init(element: HTMLElement): void {
-    const overlay = document.createElement('div')
-    overlay.style.position = 'fixed'
-    overlay.style.top = '0'
-    overlay.style.left = '0'
-    overlay.style.width = '100%'
-    overlay.style.height = '100%'
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
-    overlay.style.zIndex = '9999'
-    overlay.style.margin = '0 auto'
     element.addEventListener('click', function () {
-      overlay.style.display = 'inherit'
       const zoomedElement = element.cloneNode(true)
       zoomedElement.style.display = 'flex'
       zoomedElement.style.justifyContent = 'center'
@@ -20,14 +26,16 @@ export default class Zoomable {
       zoomedElement.style.height = '80%'
       zoomedElement.style.width = '80%'
       zoomedElement.style.zIndex = '10000'
-      overlay.style.margin = '0 auto'
 
-      overlay.appendChild(zoomedElement)
-      document.body.appendChild(overlay)
-      overlay.addEventListener('click', function () {
-        overlay.removeChild(zoomedElement)
-        overlay.style.display = 'none'
-      })
+      const listener = (): void => {
+        Zoomable.#overlay.removeChild(zoomedElement)
+        Zoomable.#overlay.style.display = 'none'
+        Zoomable.#overlay.removeEventListener('click', listener)
+      }
+
+      Zoomable.#overlay.style.display = 'inherit'
+      Zoomable.#overlay.appendChild(zoomedElement)
+      Zoomable.#overlay.addEventListener('click', listener)
     })
   }
 }

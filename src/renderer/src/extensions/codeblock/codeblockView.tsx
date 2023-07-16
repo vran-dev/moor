@@ -80,7 +80,7 @@ class MermaidLanguageBlock implements LanguageBlock {
         })
         .catch((error) => {
           this.dom.style.display = 'none'
-          console.error('reder mermaid failed', error)
+          console.error('render mermaid failed', error)
         })
     }
   }

@@ -1,3 +1,4 @@
+import Zoomable from '@renderer/common/zoomable'
 import { Node } from 'prosemirror-model'
 import { NodeView, EditorView } from 'prosemirror-view'
 import { v4 as uuidv4 } from 'uuid'
@@ -55,6 +56,7 @@ export class ImageView implements NodeView {
     this.img.alt = node.attrs.alt
     this.img.style.width = '100%'
     this.dom.appendChild(this.img)
+    Zoomable.init(this.img)
 
     this.leftSide = document.createElement('div')
     this.leftSide.addEventListener('mousedown', (event) => {
