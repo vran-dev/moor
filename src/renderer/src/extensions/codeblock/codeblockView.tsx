@@ -152,8 +152,6 @@ export class CodeblockView implements NodeView {
       },
       (lang) => console.log(lang + ' not found')
     )
-    // The editor's outer node is our DOM representation
-
     // This flag is used to avoid an update loop between the outer and
     // inner editor
     this.updating = false

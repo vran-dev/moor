@@ -1,6 +1,5 @@
 import React from 'react'
 import Tiptap from './components/TiptapEditor'
-import { direction } from '@excalidraw/excalidraw/types/ga'
 
 const App: React.FC = () => {
   return (

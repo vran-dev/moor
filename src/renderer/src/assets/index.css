@@ -15,6 +15,10 @@ body {
     outline: none;
 }
 
+.ProseMirror {
+    width: 100%;
+}
+
 .ProseMirror:focus {
     outline: none;
 }

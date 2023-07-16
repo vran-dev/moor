@@ -1,6 +1,5 @@
 import { CodeBlock } from '@tiptap/extension-code-block'
-import { CodeblockView } from './codeBlockView'
-
+import { CodeblockView } from './codeblockView'
 export const CustomCodeBlock = CodeBlock.extend({
   inline: false,
   HTMLAttributes: {

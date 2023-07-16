@@ -13,7 +13,6 @@ import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import React, { useEffect } from 'react'
-import Slash from '@renderer/extensions/slash'
 import { Search } from '@renderer/extensions/search/searchExtension'
 
 import {
@@ -26,6 +25,8 @@ import {
   QuoteIcon
 } from './Icons'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
+import Slash from '@renderer/extensions/slash/slashExtension'
+// import Slash from '@renderer/extensions/slash/slash'
 
 const Tiptap = (): JSX.Element => {
   const content = `
@@ -179,12 +180,12 @@ const Tiptap = (): JSX.Element => {
 `
   const editor = useEditor({
     extensions: [
+      Slash,
       Search,
       HexColorHighlighter,
       StarterKit.configure({
         codeBlock: false
       }),
-      Slash,
       CustomCodeBlock,
       ExcalidrawNode.configure({
         HTMLAttributes: {
@@ -242,7 +243,6 @@ const Tiptap = (): JSX.Element => {
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert p-3 bg-white',
-        style: 'margin: 20px auto;',
         spellcheck: 'false'
       }
     }
