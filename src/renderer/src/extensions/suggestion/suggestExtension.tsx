@@ -8,27 +8,6 @@ import { Suggestion } from './suggestion'
 import { suggestLanguages } from '../codeblock/suggestLanguages'
 import { suggestSlashCommands } from '../slash/slashItems'
 
-const SuggestExtension = Extension.create({
-  addOptions() {
-    return {
-      suggestion: {
-        command: ({ editor, range, props }: { editor: Editor; range: Range; props: any }): void => {
-          props.command({ editor, range })
-        }
-      }
-    }
-  },
-
-  addProseMirrorPlugins(): Plugin[] {
-    return [
-      Suggestion({
-        editor: this.editor,
-        ...this.options.suggestion
-      })
-    ]
-  }
-})
-
 const defaultRender = (): any => {
   let component: ReactRenderer | null = null
   let popup: any | null = null
@@ -76,23 +55,55 @@ const defaultRender = (): any => {
   }
 }
 
-const SlashCommandSuggestion = SuggestExtension.configure({
+const SlashCommandSuggestion = Extension.create({
   name: 'slashSuggestions',
-  suggestion: {
-    char: '/',
-    pluginKey: new PluginKey('slashSuggestions'),
-    items: suggestSlashCommands,
-    render: defaultRender
+  addOptions() {
+    return {
+      suggestion: {
+        char: '/',
+        pluginKey: new PluginKey('slashSuggestions'),
+        items: suggestSlashCommands,
+        render: defaultRender,
+        command: ({ editor, range, props }: { editor: Editor; range: Range; props: any }): void => {
+          props.command({ editor, range })
+        }
+      }
+    }
+  },
+
+  addProseMirrorPlugins(): Plugin[] {
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion
+      })
+    ]
   }
 })
 
-const LanguageSuggestion = SuggestExtension.configure({
+const LanguageSuggestion = Extension.create({
   name: 'languageSuggestions',
-  suggestion: {
-    char: '```',
-    pluginKey: new PluginKey('languageSuggestions'),
-    items: suggestLanguages,
-    render: defaultRender
+  addOptions() {
+    return {
+      suggestion: {
+        char: '```',
+        pluginKey: new PluginKey('languageSuggestions'),
+        items: suggestLanguages,
+        render: defaultRender,
+        command: ({ editor, range, props }: { editor: Editor; range: Range; props: any }): void => {
+          props.command({ editor, range })
+        }
+      }
+    }
+  },
+
+  addProseMirrorPlugins(): Plugin[] {
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion
+      })
+    ]
   }
 })
 

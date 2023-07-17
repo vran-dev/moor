@@ -38,9 +38,6 @@ export function textblockTypeInputRule(config: {
 
 export const CustomCodeBlock = CodeBlock.extend({
   inline: false,
-  HTMLAttributes: {
-    class: 'hover:outline hover:outline-blue-300'
-  },
 
   addNodeView() {
     return (props) => {

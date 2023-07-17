@@ -1,6 +1,6 @@
 import { Node } from '@tiptap/pm/model'
 import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } from '@tiptap/pm/view'
-import { TextSelection, Selection, EditorState, NodeSelection } from '@tiptap/pm/state'
+import { TextSelection, Selection, EditorState, AllSelection } from '@tiptap/pm/state'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
 import { EditorView as CodeMirror, keymap as cmKeymap } from '@codemirror/view'
@@ -25,6 +25,7 @@ import { replaceClassEffects } from './codeMirrors'
 import { searchPlugin } from '../search/searchPlugin'
 import { LanguageBlock, languageBlocks } from './suggestLanguages'
 import { v4 as uuid } from 'uuid'
+import { selectAll } from 'prosemirror-commands'
 
 export interface CmCommand {
   key: string
@@ -254,10 +255,7 @@ export class CodeblockView implements NodeView {
           const selection = ranges[0]
           const { anchor, head } = selection
           if (anchor === 0 && head === this.cm.state.doc.length) {
-            // second select all editor area
-            const doc = this.view.state.doc
-            const tr = this.view.state.tr.setSelection(NodeSelection.create(doc, doc.content.size))
-            this.view.dispatch(tr)
+            selectAll(this.view.state, this.view.dispatch, this.view)
           } else {
             // first select all codeblock area
             cmSelectAll(this.cm)
