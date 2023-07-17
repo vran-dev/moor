@@ -14,19 +14,17 @@ import {
   syntaxHighlighting,
   defaultHighlightStyle,
   LanguageSupport,
-  LanguageDescription,
   bracketMatching,
   indentOnInput
 } from '@codemirror/language'
-import { languages } from '@codemirror/language-data'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
-import mermaid from 'mermaid'
 import { Compartment } from '@codemirror/state'
 import ProsemirrorNodes from '@renderer/common/ProsemirrorNodes'
-import Zoomable from '@renderer/common/zoomable'
 import { replaceClassEffects } from './codeMirrors'
 import { searchPlugin } from '../search/searchPlugin'
+import { LanguageBlock, languageBlocks } from './suggestLanguages'
+import { v4 as uuid } from 'uuid'
 
 export interface CmCommand {
   key: string
@@ -36,70 +34,12 @@ export interface CmCommand {
   run: (state: EditorState, dispatch: (tr: any) => void, view: EditorView) => boolean | void
 }
 
-interface LanguageBlock {
-  name: string
-
-  description?: LanguageDescription | null
-
-  updateLivePreview?: (parent: HTMLElement, content: string) => void
-
-  hideLivePreview?: () => void
-}
-
-class MermaidLanguageBlock implements LanguageBlock {
-  name = 'Mermaid'
-  description = null
-  dom?: HTMLElement
-  parentDom?: HTMLElement
-
-  updateLivePreview = (parent: HTMLElement, content: string): void => {
-    this.parentDom = parent
-    if (!this.dom) {
-      mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
-      const mermaidWrapper = document.createElement('div')
-      mermaidWrapper.classList.add('codeblock-preview')
-      mermaidWrapper.classList.add('zoomable')
-      mermaidWrapper.style.display = 'none'
-      this.dom = mermaidWrapper
-      Zoomable.wrap(mermaidWrapper)
-      parent.appendChild(mermaidWrapper)
-    }
-
-    if (this.dom.attributes.getNamedItem('data-processed')) {
-      this.dom.attributes.removeNamedItem('data-processed')
-    }
-
-    this.dom.innerHTML = content
-    if (content) {
-      mermaid
-        .run({
-          nodes: [this.dom]
-        })
-        .then(() => {
-          this.dom.style.display = 'inherit'
-        })
-        .catch((error) => {
-          this.dom.style.display = 'none'
-          console.error('render mermaid failed', error)
-        })
-    }
-  }
-
-  hideLivePreview = (): void => {
-    if (this.parentDom && this.dom) {
-      this.parentDom.removeChild(this.dom)
-      this.dom = undefined
-    } else if (this.dom) {
-      this.dom.style.display = 'none'
-    }
-  }
-}
-
 export class CodeblockView implements NodeView {
   node: Node
   view: EditorView
   getPos: () => number
   dom: HTMLElement
+  id: string
 
   cm: CodeMirror
   updating: boolean
@@ -111,6 +51,7 @@ export class CodeblockView implements NodeView {
     this.node = node
     this.view = view
     this.getPos = getPos
+    this.id = uuid()
     // init dom
     const codeBlockWrapper = document.createElement('div')
     codeBlockWrapper.classList.add('codeblock')
@@ -136,11 +77,7 @@ export class CodeblockView implements NodeView {
       ]
     })
 
-    this.LanguageBlocks = languages.map((lang: LanguageDescription): LanguageBlock => {
-      return { name: lang.name, description: lang }
-    })
-    this.LanguageBlocks.push({ name: 'Plain' })
-    this.LanguageBlocks.push(new MermaidLanguageBlock())
+    this.LanguageBlocks = languageBlocks
     this.initLanguageSelect()
     this.dom.appendChild(this.cm.dom)
     this.matchLanguage(
@@ -184,7 +121,7 @@ export class CodeblockView implements NodeView {
       this.view.dispatch(tr)
       if (this.languageBlock && this.languageBlock.updateLivePreview) {
         const code = this.cm.state.doc.toString()
-        this.languageBlock.updateLivePreview(this.dom, code)
+        this.languageBlock.updateLivePreview(this.id, this.dom, code)
       }
     }
   }
@@ -235,10 +172,13 @@ export class CodeblockView implements NodeView {
   }
 
   private matchLanguage(
-    lang: string,
+    lang: string | null | undefined,
     matched: (LanguageSupport: LanguageSupport) => void,
     noMatch?: (lang: string) => void
   ): void {
+    if (!lang) {
+      return
+    }
     const block = this.LanguageBlocks.find(
       (block) => block.name.toLowerCase() === lang.toLowerCase()
     )
@@ -247,22 +187,22 @@ export class CodeblockView implements NodeView {
       return
     }
 
-    if (block.description) {
-      if (block.description.support) {
-        matched(block.description.support)
+    if (block.lang) {
+      if (block.lang.support) {
+        matched(block.lang.support)
       } else {
-        block.description.load().then((support: LanguageSupport) => {
+        block.lang.load().then((support: LanguageSupport) => {
           matched(support)
         })
       }
     }
 
     if (this.languageBlock?.hideLivePreview) {
-      this.languageBlock.hideLivePreview()
+      this.languageBlock.hideLivePreview(this.id)
     }
 
     if (block.updateLivePreview) {
-      block.updateLivePreview(this.dom, this.node.textContent)
+      block.updateLivePreview(this.id, this.dom, this.node.textContent)
     }
     this.languageBlock = block
   }

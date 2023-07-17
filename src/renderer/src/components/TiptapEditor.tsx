@@ -25,8 +25,10 @@ import {
   QuoteIcon
 } from './Icons'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
-import Slash from '@renderer/extensions/slash/slashExtension'
-import { LanguageSuggestion } from '@renderer/extensions/slash/slashExtension'
+import {
+  LanguageSuggestion,
+  SlashCommandSuggestion
+} from '@renderer/extensions/suggestion/suggestExtension'
 
 const Tiptap = (): JSX.Element => {
   const content = `
@@ -180,7 +182,7 @@ const Tiptap = (): JSX.Element => {
 `
   const editor = useEditor({
     extensions: [
-      Slash,
+      SlashCommandSuggestion,
       LanguageSuggestion,
       Search,
       HexColorHighlighter,
