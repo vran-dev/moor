@@ -39,7 +39,7 @@ const Tiptap = (): JSX.Element => {
   const editor = useEditor({
     extensions: [
       Markdown,
-      
+
       Search,
       HexColorHighlighter,
       StarterKit.configure({
@@ -73,9 +73,25 @@ const Tiptap = (): JSX.Element => {
             return `Writing code...`
           }
           const doc = editor.view.state.doc
-          const nearbyNode = doc.nodeAt(pos - 1)
-          if (nearbyNode && nearbyNode.type.name === 'tableCell') {
-            return ''
+
+          let p = doc
+          doc.descendants((curr: Node, currPos: number, parent: Node): boolean | void => {
+            if (curr === node) {
+              p = parent
+              return false
+            }
+            if (currPos > pos) {
+              return false
+            }
+          })
+          if (p != null) {
+            if (p.type.name === 'tableCell') {
+              return ''
+            }
+            if (p.type.name === 'tableHeader') {
+              return ''
+            }
+            console.log(p)
           }
           return "Writing or Press '/' for commands"
         },
