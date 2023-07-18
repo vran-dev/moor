@@ -39,8 +39,7 @@ const Tiptap = (): JSX.Element => {
   const editor = useEditor({
     extensions: [
       Markdown,
-      SlashCommandSuggestion,
-      LanguageSuggestion,
+      
       Search,
       HexColorHighlighter,
       StarterKit.configure({
@@ -105,7 +104,9 @@ const Tiptap = (): JSX.Element => {
         HTMLAttributes: {
           class: 'border border-slate-300 focus:bg-cyan-50 hover:z-20 p-2'
         }
-      })
+      }),
+      SlashCommandSuggestion,
+      LanguageSuggestion
     ],
     content: defualtContent,
     editorProps: {
