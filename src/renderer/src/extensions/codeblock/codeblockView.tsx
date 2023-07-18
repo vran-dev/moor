@@ -255,6 +255,7 @@ export class CodeblockView implements NodeView {
           const selection = ranges[0]
           const { anchor, head } = selection
           if (anchor === 0 && head === this.cm.state.doc.length) {
+            this.view.focus()
             selectAll(this.view.state, this.view.dispatch, this.view)
           } else {
             // first select all codeblock area
