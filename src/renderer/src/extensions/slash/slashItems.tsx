@@ -9,7 +9,8 @@ import {
   Heading2Icon,
   Heading3Icon,
   ExcalidrawIcon,
-  CodeBlockIcon
+  CodeBlockIcon,
+  TextIcon
 } from '@renderer/components/Icons'
 
 export const suggestSlashCommands = ({ query }: { query: string }) => {
@@ -97,6 +98,14 @@ export const suggestSlashCommands = ({ query }: { query: string }) => {
       description: 'create code block',
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Plain' }).run()
+      }
+    },
+    {
+      name: 'Text',
+      icon: TextIcon,
+      description: 'plain text',
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setParagraph().run()
       }
     }
   ]

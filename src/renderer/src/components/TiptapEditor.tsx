@@ -33,6 +33,7 @@ import { Transaction } from 'prosemirror-state'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 import { Markdown } from 'tiptap-markdown'
 import { defualtContent } from './defaultContent'
+import { Node } from 'prosemirror-model'
 
 const Tiptap = (): JSX.Element => {
   const editor = useEditor({
@@ -62,12 +63,20 @@ const Tiptap = (): JSX.Element => {
         nested: true
       }),
       Placeholder.configure({
-        placeholder: ({ node }) => {
+        placeholder: ({ editor, node, pos }) => {
+          if (pos == 0) {
+            return "Writing or Press '/' for commands"
+          }
           if (node.type.name === 'heading') {
             return `Heading ${node.attrs.level}`
           }
           if (node.type.name === 'codeBlock') {
             return `Writing code...`
+          }
+          const doc = editor.view.state.doc
+          const nearbyNode = doc.nodeAt(pos - 1)
+          if (nearbyNode && nearbyNode.type.name === 'tableCell') {
+            return ''
           }
           return "Writing or Press '/' for commands"
         },
