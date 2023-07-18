@@ -45,7 +45,7 @@ export interface SuggestionKeyDownProps {
 
 export const SuggestionPluginKey = new PluginKey('suggestion')
 
-const waitForElm = (selector: string): Promise<Element | null> => {
+export const waitForElm = (selector: string): Promise<Element | null> => {
   return new Promise<Element | null>((resolve) => {
     if (document.querySelector(selector)) {
       resolve(document.querySelector(selector))

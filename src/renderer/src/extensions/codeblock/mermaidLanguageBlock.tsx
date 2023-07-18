@@ -2,6 +2,7 @@ import { LanguageBlock } from './suggestLanguages'
 import mermaid from 'mermaid'
 import Zoomable from '@renderer/common/zoomable'
 import { CommandProps } from '../suggestion/suggestComponent'
+import { waitForElm } from '../suggestion/suggestion'
 
 const debounce = (fn: (...args: any[]) => void, delay: number): (() => void) => {
   let timer: number
@@ -28,21 +29,26 @@ export class LivePreview {
       if (this.dom.attributes.getNamedItem('data-processed')) {
         this.dom.attributes.removeNamedItem('data-processed')
       }
+      if (!this.parentDom?.contains(this.dom)) {
+        this.parentDom?.appendChild(this.dom)
+      }
       this.dom.innerHTML = content
       if (content) {
-        mermaid
-          .run({
-            nodes: [this.dom]
-          })
-          .then(() => {
-            this.dom.style.display = 'inherit'
-          })
-          .catch((error) => {
-            this.dom.style.display = 'none'
-            console.error('render mermaid failed', error)
-          })
+        waitForElm('#' + this.id).then(() => {
+          mermaid
+            .run({
+              nodes: [this.dom]
+            })
+            .then(() => {
+              this.dom.style.display = 'inherit'
+            })
+            .catch((error) => {
+              // this.dom.style.display = 'none'
+              console.error('render mermaid failed', error)
+            })
+        })
       }
-    }, 100)()
+    }, 200)()
   }
 
   hide(): void {
@@ -61,16 +67,16 @@ export class MermaidLanguageBlock implements LanguageBlock {
   livePreviewMap: Map<string, LivePreview> = new Map()
 
   constructor() {
-    mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
+    mermaid.initialize({ startOnLoad: false, theme: 'default' })
   }
 
   updateLivePreview = (id: string, parent: HTMLElement, content: string): void => {
     let livePreview = this.livePreviewMap.get(id)
     if (!livePreview) {
       const mermaidWrapper = document.createElement('div')
+      mermaidWrapper.id = id
       mermaidWrapper.classList.add('codeblock-preview')
       mermaidWrapper.classList.add('zoomable')
-      mermaidWrapper.style.display = 'none'
       Zoomable.wrap(mermaidWrapper)
       parent.appendChild(mermaidWrapper)
 

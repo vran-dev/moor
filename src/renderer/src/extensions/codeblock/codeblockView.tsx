@@ -52,7 +52,7 @@ export class CodeblockView implements NodeView {
     this.node = node
     this.view = view
     this.getPos = getPos
-    this.id = uuid()
+    this.id = 'id_' + uuid().replaceAll('-', '')
     // init dom
     const codeBlockWrapper = document.createElement('div')
     codeBlockWrapper.classList.add('codeblock')
@@ -93,6 +93,9 @@ export class CodeblockView implements NodeView {
     // This flag is used to avoid an update loop between the outer and
     // inner editor
     this.updating = false
+    if (this.languageBlock?.updateLivePreview) {
+      this.languageBlock.updateLivePreview(this.id, this.dom, this.node.textContent)
+    }
   }
 
   forwardUpdate(update: ViewUpdate): void {
@@ -120,10 +123,6 @@ export class CodeblockView implements NodeView {
       })
       tr.setSelection(TextSelection.create(tr.doc, selFrom, selTo))
       this.view.dispatch(tr)
-      if (this.languageBlock && this.languageBlock.updateLivePreview) {
-        const code = this.cm.state.doc.toString()
-        this.languageBlock.updateLivePreview(this.id, this.dom, code)
-      }
     }
   }
 
@@ -196,14 +195,6 @@ export class CodeblockView implements NodeView {
           matched(support)
         })
       }
-    }
-
-    if (this.languageBlock?.hideLivePreview) {
-      this.languageBlock.hideLivePreview(this.id)
-    }
-
-    if (block.updateLivePreview) {
-      block.updateLivePreview(this.id, this.dom, this.node.textContent)
     }
     this.languageBlock = block
   }
@@ -403,6 +394,9 @@ export class CodeblockView implements NodeView {
       })
       this.updating = false
     }
+    if (this.languageBlock?.updateLivePreview) {
+      this.languageBlock.updateLivePreview(this.id, this.dom, newText)
+    }
     return true
   }
 
@@ -412,6 +406,12 @@ export class CodeblockView implements NodeView {
 
   stopEvent(): boolean {
     return true
+  }
+
+  destroy(): void {
+    if (this.languageBlock?.hideLivePreview) {
+      this.languageBlock.hideLivePreview(this.id)
+    }
   }
 }
 
