@@ -261,7 +261,6 @@ export function Suggestion<I = any>({
       // Call the keydown hook if suggestion is active.
       handleKeyDown(view, event) {
         const { active, range } = plugin.getState(view.state)
-
         if (!active) {
           return false
         }

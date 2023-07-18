@@ -80,7 +80,7 @@ export const Search = Extension.create<SearchOption>({
       },
       Escape: (): boolean => {
         this.editor.commands.hideSearchPageBox()
-        return true
+        return false
       }
     }
   },
