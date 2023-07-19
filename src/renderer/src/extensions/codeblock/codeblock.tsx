@@ -4,6 +4,8 @@ import { InputRule, InputRuleFinder, callOrReturn } from '@tiptap/react'
 import { NodeType } from 'prosemirror-model'
 import { ExtendedRegExpMatchArray } from '@tiptap/react'
 import { suggestLanguages } from './suggestLanguages'
+import { Plugin, PluginKey, TextSelection } from 'prosemirror-state'
+import { EditorView } from 'prosemirror-view'
 
 export function textblockTypeInputRule(config: {
   find: InputRuleFinder
@@ -36,6 +38,8 @@ export function textblockTypeInputRule(config: {
   })
 }
 
+export const markdownCodeBlockContentRegex = /^```(\w*)\n([\s\S]*?)\n```$/
+
 export const CustomCodeBlock = CodeBlock.extend({
   inline: false,
 
@@ -59,6 +63,67 @@ export const CustomCodeBlock = CodeBlock.extend({
         getAttributes: (match) => ({
           language: match[1]
         })
+      })
+    ]
+  },
+  addProseMirrorPlugins() {
+    return [
+      // this plugin creates a code block for pasted content from VS Code
+      // we can also detect the copied code language
+      new Plugin({
+        key: new PluginKey('codeBlockVSCodeHandler'),
+        props: {
+          handlePaste: (view: EditorView, event: ClipboardEvent): boolean | void => {
+            if (!event.clipboardData) {
+              return false
+            }
+
+            // don’t create a new code block within code blocks
+            if (this.editor.isActive(this.type.name)) {
+              return false
+            }
+
+            let text = event.clipboardData.getData('text/plain')
+            if (!text) {
+              return false
+            }
+
+            const vscode = event.clipboardData.getData('vscode-editor-data')
+            let language = vscode ? JSON.parse(vscode).mode : undefined
+            if (vscode && !language) {
+              return false
+            }
+
+            // match markdown code block paste
+            const codeBlockMatch = markdownCodeBlockContentRegex.exec(text)
+            if (codeBlockMatch) {
+              language = codeBlockMatch[1]
+              text = codeBlockMatch[2]
+              console.log('is markdown match block ', language, text)
+            }
+
+            const { tr } = view.state
+
+            // create an empty code block
+            tr.replaceSelectionWith(this.type.create({ language }))
+            // put cursor inside the newly created code block
+            tr.setSelection(TextSelection.near(tr.doc.resolve(Math.max(0, tr.selection.from - 2))))
+
+            // add text to code block
+            // strip carriage return chars from text pasted as code
+            // see: https://github.com/ProseMirror/prosemirror-view/commit/a50a6bcceb4ce52ac8fcc6162488d8875613aacd
+            tr.insertText(text.replace(/\r\n?/g, '\n'))
+
+            // store meta information
+            // this is useful for other plugins that depends on the paste event
+            // like the paste rule plugin
+            tr.setMeta('paste', true)
+
+            view.dispatch(tr)
+
+            return true
+          }
+        }
       })
     ]
   }

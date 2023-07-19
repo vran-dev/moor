@@ -63,7 +63,7 @@ const Tiptap = (): JSX.Element => {
       }),
       Placeholder.configure({
         placeholder: ({ editor, node, pos }) => {
-          if (pos == 0) {
+          if (pos == 0 && node.type.name !== 'codeBlock') {
             return "Writing or Press '/' for commands"
           }
           if (node.type.name === 'heading') {
