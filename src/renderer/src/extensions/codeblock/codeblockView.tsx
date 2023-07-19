@@ -88,7 +88,7 @@ export class CodeblockView implements NodeView {
           effects: this.languageCompartment.reconfigure(support)
         })
       },
-      (lang) => console.log(lang + ' not found')
+      (lang) => console.debug(lang + ' not found')
     )
     // This flag is used to avoid an update loop between the outer and
     // inner editor

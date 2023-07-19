@@ -99,7 +99,6 @@ export const CustomCodeBlock = CodeBlock.extend({
             if (codeBlockMatch) {
               language = codeBlockMatch[1]
               text = codeBlockMatch[2]
-              console.log('is markdown match block ', language, text)
             }
 
             const { tr } = view.state
