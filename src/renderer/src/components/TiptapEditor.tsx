@@ -91,7 +91,6 @@ const Tiptap = (): JSX.Element => {
             if (p.type.name === 'tableHeader') {
               return ''
             }
-            console.log(p)
           }
           return "Writing or Press '/' for commands"
         },

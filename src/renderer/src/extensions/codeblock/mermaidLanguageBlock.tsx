@@ -35,6 +35,7 @@ export class LivePreview {
       this.dom.innerHTML = content
       if (content) {
         waitForElm('#' + this.id).then(() => {
+          this.dom.style.display = 'inherit'
           mermaid
             .run({
               nodes: [this.dom]
