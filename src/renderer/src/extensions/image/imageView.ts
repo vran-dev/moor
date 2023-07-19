@@ -43,7 +43,7 @@ export class ImageView implements NodeView {
         const { state, dispatch } = this.view
         const attrs = {
           src: this.node.attrs.src,
-          alt: 'hello world',
+          alt: '',
           id: this.id,
           width: width,
           height: height
