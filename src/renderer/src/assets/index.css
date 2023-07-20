@@ -47,9 +47,40 @@ body {
 .aside {
     width: 200px;
     flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    overflow: hidden;
+    padding: 10px;
+    scrollbar-gutter: stable;
+    position: relative;
+}
+
+.aside:hover {
+    overflow: hidden auto;
+}
+
+.resize-x {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    cursor: ew-resize;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: #DDD;
+}
+
+.resize-x:hover {
+    width: 3px;
+    background-color: #7852ee;
+    transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out, opacity 200ms ease-in-out;
+    transition-property: background-color, border-color, opacity;
+    transition-duration: 200ms, 200ms, 200ms;
+    transition-timing-function: ease-in-out, ease-in-out, ease-in-out;
+    transition-delay: 0s, 0s, 0s;
 }
 
 .navbar {
@@ -66,6 +97,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+
+.tree-item {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
 }
 
 /* codemirror editor */
@@ -232,6 +272,7 @@ ul[data-type="taskList"] li>div {
     margin-top: 22px;
     width: 100%;
     max-width: 65ch;
+    margin: 0 auto;
 }
 
 .search-page-box-icon {
@@ -261,15 +302,20 @@ ul[data-type="taskList"] li>div {
 
 ::-webkit-scrollbar {
     background: transparent;
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 12px;
+    background-color: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: #D3D1CB;
+    background: #DDD;
+    border-radius: 10px;
 }
+
 ::-webkit-scrollbar-track {
-    background: #EDECE9;
+    background: transparent;
 }
+
 .color {
     white-space: nowrap;
 }

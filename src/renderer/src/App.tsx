@@ -4,28 +4,13 @@ import Tiptap from './components/TiptapEditor'
 import { Transaction } from 'prosemirror-state'
 import { Editor, useEditor } from '@tiptap/react'
 import { extensions } from './extensions/extensions'
-import { customMarkdownSerializer } from './extensions/markdown/markdownSerializer'
+import { Aside } from './components/aside'
+
+const ipcRenderer = window.electron.ipcRenderer
 
 const App: React.FC = () => {
-  const ipcRenderer = window.electron.ipcRenderer
   const [data, setData] = React.useState('')
   const [filePath, setFilePath] = React.useState('')
-  const openFileDialog = () => {
-    ipcRenderer.invoke('open-file-dialog').then((result) => {
-      if (!result) {
-        return
-      }
-      const files = result.filePaths
-      if (files.length === 0) {
-        return
-      }
-      ipcRenderer.invoke('file-read', files[0]).then((result) => {
-        setData(result)
-        setFilePath(files[0])
-      })
-    })
-  }
-
   const editor = useEditor({
     extensions: extensions,
     editorProps: {
@@ -63,16 +48,21 @@ const App: React.FC = () => {
       editor.commands.setContent(editorData)
     }
   }, [data])
+
+  const openFile = (filePath) => {
+    setFilePath(filePath)
+    ipcRenderer.invoke('file-read', filePath).then((result) => {
+      setData(result)
+    })
+  }
   return (
     <>
       <div className="app">
         <div className="navbar"></div>
         <div className="wrapper">
-          <div className="aside">
-            <button onClick={openFileDialog}>open file</button>
-          </div>
+          <Aside onOpenFile={openFile} />
           <div className="wrapper column">
-            <div className="header">{filePath}</div>
+            {/* <div className="header">{filePath}</div> */}
             <Tiptap editor={editor} setIsEditable={setIsEditable}></Tiptap>
           </div>
         </div>

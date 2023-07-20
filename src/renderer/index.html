@@ -6,8 +6,9 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data: https://blog.cc1234.cc; script-src 'self' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; font-src 'self' https://unpkg.com"
+      content="default-src 'self'; img-src 'self' data: *; script-src 'self' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; font-src 'self' https://unpkg.com"
     />
+    <meta name="referrer" content="never">
   </head>
 
   <body>
