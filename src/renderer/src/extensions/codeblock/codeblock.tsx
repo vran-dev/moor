@@ -28,6 +28,7 @@ export function textblockTypeInputRule(config: {
       if (!attributes.language) {
         return null
       }
+      // don’t create a new code block within code blocks
       if (suggestLanguages({ query: attributes.language }).length > 0) {
         return null
       }

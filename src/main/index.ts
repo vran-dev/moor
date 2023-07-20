@@ -1,9 +1,14 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { handlers } from './handler/handlers'
 
 function createWindow(): void {
+  // Register all handlers
+  handlers.forEach((handler) => {
+    ipcMain.handle(handler.name, handler.handle)
+  })
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -41,7 +46,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.moor')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
