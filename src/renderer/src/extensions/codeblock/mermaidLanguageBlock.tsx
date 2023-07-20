@@ -45,7 +45,7 @@ export class LivePreview {
             })
             .catch((error) => {
               // this.dom.style.display = 'none'
-              console.error('render mermaid failed', error)
+              console.debug('render mermaid failed', error)
             })
         })
       }

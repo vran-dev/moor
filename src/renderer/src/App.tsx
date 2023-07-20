@@ -35,12 +35,12 @@ const App: React.FC = () => {
       }
     },
     onUpdate(props: { editor: Editor; tr: Transaction }): void {
-      // if (!filePath) {
-      //   return
-      // }
-      const state = props.editor.view.state
-      const markdown = customMarkdownSerializer.serialize(state.doc)
-      // ipcRenderer.invoke('file-write', filePath, markdown)
+      if (!filePath) {
+        return
+      }
+      // const state = props.editor.view.state
+      // const markdown = customMarkdownSerializer.serialize(state.doc)
+      ipcRenderer.invoke('file-write', filePath, JSON.stringify(editor?.getJSON()))
     }
   })
   const [isEditable, setIsEditable] = React.useState(true)

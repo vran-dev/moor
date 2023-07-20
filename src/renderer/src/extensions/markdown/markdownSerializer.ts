@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { MarkdownSerializer } from 'prosemirror-markdown'
-import { Node, Mark } from 'prosemirror-model'
+import { Node, Mark, Fragment } from 'prosemirror-model'
 
 export const customMarkdownSerializer = new MarkdownSerializer(
   {
@@ -47,7 +47,12 @@ export const customMarkdownSerializer = new MarkdownSerializer(
       state.renderInline(node)
       state.closeBlock(node)
     },
-
+    taskList(state, node) {
+      state.renderList(node, '  ', () => (node.attrs.checked ? '[x] ' : '[ ] '))
+    },
+    taskItem(state, node) {
+      state.renderContent(node)
+    },
     image(state, node) {
       state.write(
         '![' +
@@ -61,12 +66,57 @@ export const customMarkdownSerializer = new MarkdownSerializer(
     hardBreak(state, node, parent, index) {
       for (let i = index + 1; i < parent.childCount; i++)
         if (parent.child(i).type != node.type) {
-          state.write('\\\n')
+          state.write('\n')
           return
         }
     },
     text(state, node) {
       state.text(node.text!, !state.inAutolink)
+    },
+    tableRow(state, node, _, index) {
+      let columnCount = 0
+      node.forEach((cellNode, _, colIndex) => {
+        if (colIndex == 0) {
+          state.write('|')
+        }
+
+        state.render(cellNode, node, colIndex)
+        state.write('|')
+        columnCount++
+      })
+      state.write('\n')
+      if (index === 0) {
+        for (let i = 0; i < columnCount; i++) {
+          state.write('| --- ')
+        }
+        if (columnCount > 0) {
+          state.write('|')
+        }
+        state.write('\n')
+      }
+    },
+    tableCell(state, node) {
+      const fragment: Fragment = node.content
+      const child = fragment.firstChild
+      if (child) {
+        // state.renderInline(child)
+        state.wrapBlock('', null, node, () => state.renderContent(node))
+      }
+    },
+    tableHeader(state, node) {
+      const fragment: Fragment = node.content
+      const child = fragment.firstChild
+      if (child) {
+        state.renderInline(child)
+      }
+    },
+    table(state, node) {
+      const table: string[][] = []
+      const colAligns: string[] = []
+      node.forEach((rowNode, _, rowIndex) => {
+        state.render(rowNode, node, rowIndex)
+      })
+      state.write('\n')
     }
   },
   {
