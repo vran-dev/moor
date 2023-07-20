@@ -100,6 +100,8 @@ export const CustomCodeBlock = CodeBlock.extend({
             if (codeBlockMatch) {
               language = codeBlockMatch[1]
               text = codeBlockMatch[2]
+            } else {
+              return false
             }
 
             const { tr } = view.state
