@@ -80,18 +80,7 @@ const Tiptap = (props: { editor; setIsEditable }): JSX.Element => {
           </div>
         </BubbleMenu>
       )}
-      <EditorContent
-        editor={editor}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flex: '1',
-          overflow: 'hidden auto',
-          width: '100%',
-          height: '100%',
-          alignItems: 'center'
-        }}
-      />
+      <EditorContent editor={editor} className="view" />
     </>
   )
 }

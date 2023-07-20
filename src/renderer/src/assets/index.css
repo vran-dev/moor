@@ -4,7 +4,70 @@
 
 body {
     overflow: hidden;
+    height: 100vh;
 }
+
+#root {
+    height: 100%;
+    display: flex;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.wrapper {
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+}
+
+.row {
+    flex-direction: row;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.column {
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.header {
+    height: 30px;
+    width: 100%;
+    background-color: #DDD;
+    display: flex;
+}
+
+.aside {
+    width: 200px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.navbar {
+    height: 20px;
+    background-color: #FFFFFF;
+    -webkit-app-region: drag;
+    z-index: 200;
+}
+
+.view {
+    overflow: hidden auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 /* codemirror editor */
 .cm-editor {
     border: none
@@ -34,14 +97,6 @@ body {
     margin: 20px auto;
 }
 
-.navbar {
-    height: 20px;
-    background-color: #FFFFFF;
-    -webkit-app-region: drag;
-    position: sticky;
-    z-index: 200;
-    top: 0;
-}
 
 .codeblock+.codeblock {
     margin-top: 20px;

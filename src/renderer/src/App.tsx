@@ -40,7 +40,7 @@ const App: React.FC = () => {
       }
       // const state = props.editor.view.state
       // const markdown = customMarkdownSerializer.serialize(state.doc)
-      ipcRenderer.invoke('file-write', filePath, JSON.stringify(editor?.getJSON()))
+      // ipcRenderer.invoke('file-write', filePath, JSON.stringify(editor?.getJSON()))
     }
   })
   const [isEditable, setIsEditable] = React.useState(true)
@@ -65,25 +65,16 @@ const App: React.FC = () => {
   }, [data])
   return (
     <>
-      <div className="navbar"></div>
-      <div style={{ display: 'flex' }}>
-        <div style={{ height: '100vh', width: '200px', backgroundColor: '#DDD' }}>
-          <button onClick={openFileDialog}>open file</button>
-        </div>
-        <div
-          style={{
-            backgroundColor: '#FFFFFF',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            overflow: 'hidden',
-            height: '100vh',
-            width: '100%'
-          }}
-          className={'editorContainer'}
-        >
-          <div style={{ height: '30px', width: '100%', backgroundColor: '#EEE' }}>{filePath}</div>
-          <Tiptap editor={editor} setIsEditable={setIsEditable}></Tiptap>
+      <div className="app">
+        <div className="navbar"></div>
+        <div className="wrapper">
+          <div className="aside">
+            <button onClick={openFileDialog}>open file</button>
+          </div>
+          <div className="wrapper column">
+            <div className="header">{filePath}</div>
+            <Tiptap editor={editor} setIsEditable={setIsEditable}></Tiptap>
+          </div>
         </div>
       </div>
     </>
