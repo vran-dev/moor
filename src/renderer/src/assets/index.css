@@ -336,3 +336,31 @@ ul[data-type="taskList"] li>div {
     vertical-align: middle;
     width: 1em;
 }
+
+.tabs {
+    overflow: hidden;
+}
+
+.tab-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 5px;
+}
+
+.tab-item-header {
+    border-color: #131313;
+    border-style: solid 1px;
+    padding: 2px;
+}
+
+.tab-item-active {
+    background-color: #DDD;
+}
+
+.tab-content {
+}
+
+.editor-view {
+    overflow: hidden auto;
+}

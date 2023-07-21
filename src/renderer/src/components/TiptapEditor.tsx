@@ -1,4 +1,4 @@
-import { EditorContent, BubbleMenu } from '@tiptap/react'
+import { EditorContent, BubbleMenu, useEditor } from '@tiptap/react'
 import {
   BoldIcon,
   ItalicIcon,
@@ -8,9 +8,64 @@ import {
   UnderlineIcon,
   QuoteIcon
 } from './Icons'
+import { useEffect, useState } from 'react'
+import { extensions } from '@renderer/extensions/extensions'
+import { defualtContent } from './defaultContent'
 
-const Tiptap = (props: { editor; setIsEditable }): JSX.Element => {
-  const editor = props.editor
+const autoParse = (data?: string): object | string | null => {
+  if (!data) {
+    return null
+  }
+  try {
+    const json = JSON.parse(data)
+    return json
+  } catch (err) {
+    return data
+  }
+}
+
+const Tiptap = (props: { content?: string }): JSX.Element => {
+  const [data, setData] = useState(autoParse(props.content))
+  const [filePath, setFilePath] = useState('')
+  console.log(data ? 'use data' : 'use default')
+  const editor = useEditor({
+    extensions: extensions,
+    content: data ? data : defualtContent,
+    editorProps: {
+      attributes: {
+        class: 'prose dark:prose-invert p-3 bg-white',
+        spellcheck: 'false'
+      }
+    },
+    onUpdate(props: { editor: Editor; tr: Transaction }): void {
+      if (!filePath) {
+        return
+      }
+      // const state = props.editor.view.state
+      // const markdown = customMarkdownSerializer.serialize(state.doc)
+      // ipcRenderer.invoke('file-write', filePath, JSON.stringify(editor?.getJSON()))
+    }
+  })
+  const [isEditable, setIsEditable] = useState(true)
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(isEditable)
+    }
+  }, [isEditable, editor])
+
+  useEffect(() => {
+    let editorData = data
+    try {
+      const jsonEditorData = JSON.parse(data)
+      editorData = jsonEditorData
+    } catch (err) {
+      editorData = data
+    }
+    if (editor) {
+      editor.commands.setContent(editorData)
+    }
+  }, [data])
 
   interface BubbleMenuItem {
     icon: ({ className, width, height }) => JSX.Element
@@ -80,7 +135,7 @@ const Tiptap = (props: { editor; setIsEditable }): JSX.Element => {
           </div>
         </BubbleMenu>
       )}
-      <EditorContent editor={editor} className="view" />
+      <EditorContent editor={editor} className="editor-view" />
     </>
   )
 }
