@@ -2,7 +2,12 @@ import React, { useState, useRef } from 'react'
 
 const ipcRenderer = window.electron.ipcRenderer
 
-export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Element => {
+export interface FileInfo {
+  name: string
+  path: string
+}
+
+export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Element => {
   const [tree, setTree] = useState([])
   const [workspace, setWorkspace] = useState('')
   const containerRef = useRef(null)
@@ -26,7 +31,10 @@ export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Elemen
   }
 
   const openFile = (fileName: string) => () => {
-    props.onOpenFile(workspace + '/' + fileName)
+    props.onOpenFile({
+      name: fileName,
+      path: workspace + '/' + fileName
+    })
   }
 
   const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -59,7 +67,6 @@ export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Elemen
     return (
       <>
         <div className="aside" ref={containerRef}>
-          <h2>{workspace}</h2>
           {tree.map((item: { name: string }, index: number) => {
             return (
               <button key={index} className="tree-item" onClick={openFile(item?.name)}>

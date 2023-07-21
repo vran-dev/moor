@@ -223,7 +223,7 @@ body {
     background-color: #F3F4F6;
 }
 
-.active {
+.bubble-menu-item .active {
     color: #1D4ED8;
 }
 
@@ -267,7 +267,11 @@ ul[data-type="taskList"] li>div {
 }
 
 .search-match {
-    background-color: yellow;
+    background-color: #ffff00;
+}
+
+.search-match.active {
+    background-color: #ff9632;
 }
 
 .search-page-box {
@@ -276,7 +280,7 @@ ul[data-type="taskList"] li>div {
     margin-top: 22px;
     width: 100%;
     max-width: 65ch;
-    margin: 0 auto;
+    margin: 20px auto;
 }
 
 .search-page-box-icon {
@@ -339,28 +343,74 @@ ul[data-type="taskList"] li>div {
 
 .tabs {
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .tab-header {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    gap: 5px;
+    gap: 0px;
+    border-style: solid;
+    border-color: #DDD;
+    border-width: 0 0 1px 0;
 }
-
-.tab-item-header {
-    border-color: #131313;
-    border-style: solid 1px;
-    padding: 2px;
+.tab-header-inner {
+    padding: 5px 2px 8px 2px;
+    max-width:300px;
+    width: 200px;
+    min-height: 36px;
+    max-height: 36px;
+    font-size: 13px;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: center;
+    text-overflow: ellipsis;
 }
-
-.tab-item-active {
+.tab-header-inner:hover {
     background-color: #DDD;
+}
+.tab-header-inner.active {
+    border-width: 0 0 3px 0;
+    border-color:#1677ff;
+    border-style:  solid;
+    color: #1677ff;
+}
+.tab-header-inner.inactive {
 }
 
 .tab-content {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-content-inner {
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+    width: 100%;
+    min-width: 100%;
+    overflow: hidden;
+}
+
+.tab-content-inner.inactive {
+    display: none;
+}
+
+.tab-content-inner.active {
+    display: flex;
 }
 
 .editor-view {
+    margin: auto;
+    flex-grow: 1;
     overflow: hidden auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }

@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, { useRef } from 'react'
 import Tiptap from './components/TiptapEditor'
-import { Aside } from './components/aside'
+import { Aside, FileInfo } from './components/aside'
 import { Tabs } from './components/tabs'
 
 const ipcRenderer = window.electron.ipcRenderer
 
 const App: React.FC = () => {
   const tabsRef = useRef(null)
-  const openFile = (filePath) => {
-    ipcRenderer.invoke('file-read', filePath).then((result) => {
+  const openFile = (fileInfo: FileInfo) => {
+    ipcRenderer.invoke('file-read', fileInfo.path).then((result) => {
       tabsRef?.current?.addTabItem({
-        title: filePath,
+        key: fileInfo.path,
+        title: fileInfo.name,
         content: () => {
           return <Tiptap content={result}></Tiptap>
         },
@@ -22,21 +23,7 @@ const App: React.FC = () => {
     })
   }
 
-  const items = [
-    {
-      title: 'default',
-      content: () => {
-        return <Tiptap></Tiptap>
-      },
-      active: true
-    },
-    {
-      title: 'hello world',
-      content: () => {
-        return <Tiptap></Tiptap>
-      }
-    }
-  ]
+  const items = []
   return (
     <>
       <div className="app">
@@ -45,7 +32,6 @@ const App: React.FC = () => {
           <Aside onOpenFile={openFile} />
           <div className="wrapper column">
             <Tabs items={items} ref={tabsRef}></Tabs>
-            {/* <div className="header">{filePath}</div> */}
           </div>
         </div>
       </div>

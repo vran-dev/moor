@@ -27,7 +27,6 @@ const autoParse = (data?: string): object | string | null => {
 const Tiptap = (props: { content?: string }): JSX.Element => {
   const [data, setData] = useState(autoParse(props.content))
   const [filePath, setFilePath] = useState('')
-  console.log(data ? 'use data' : 'use default')
   const editor = useEditor({
     extensions: extensions,
     content: data ? data : defualtContent,
@@ -126,7 +125,7 @@ const Tiptap = (props: { content?: string }): JSX.Element => {
             {menuItems.map((item) => (
               <button key={item.name} onClick={item.onclick} className={'bubble-menu-item'}>
                 {item.icon({
-                  className: editor.isActive(item.symbol) ? 'icon active' : 'icon',
+                  className: editor.isActive(item.symbol) ? 'active' : 'icon',
                   width: 14,
                   height: 14
                 })}
