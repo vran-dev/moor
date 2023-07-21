@@ -46,7 +46,6 @@ body {
 
 .aside {
     width: 200px;
-    flex-grow: 1;
     overflow: hidden;
     padding: 10px;
     scrollbar-gutter: stable;
@@ -81,6 +80,11 @@ body {
     transition-duration: 200ms, 200ms, 200ms;
     transition-timing-function: ease-in-out, ease-in-out, ease-in-out;
     transition-delay: 0s, 0s, 0s;
+}
+
+.resizing {
+    width: 3px;
+    background-color: #7852ee;
 }
 
 .navbar {

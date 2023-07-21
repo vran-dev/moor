@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 
 const ipcRenderer = window.electron.ipcRenderer
 
 export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Element => {
   const [tree, setTree] = useState([])
   const [workspace, setWorkspace] = useState('')
-  const [asideWidth, setAsideWidth] = useState(200)
-  const rafRef = useRef(null)
+  const containerRef = useRef(null)
+  const resizeBorderRef = useRef(null)
 
   const openDirectoryDialog = () => {
     ipcRenderer.invoke('open-directory-dialog').then((result) => {
@@ -29,26 +29,26 @@ export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Elemen
     props.onOpenFile(workspace + '/' + fileName)
   }
 
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const initialWidth = asideWidth
-    const initialX = e.clientX
+  const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    event.preventDefault()
+    const initialX = event.clientX
     const min = 100
+    resizeBorderRef.current.classList.add('resizing')
 
     const onMouseMove = (e): void => {
-      const diff = e.clientX - initialX
-      const newWidth = Math.max(initialWidth + diff, min)
-      // setAsideWidth(newWidth)
-      rafRef.current = requestAnimationFrame(() => {
-        setAsideWidth(newWidth)
-      })
       e.preventDefault()
+      const diff = e.clientX - initialX
+      const newWidth = Math.max(initialX + diff, min)
+      containerRef.current.style.minWidth = `${newWidth}px`
+      // setAsideWidth(newWidth)
     }
 
     const onMouseUP = (e): void => {
+      e.preventDefault()
+      resizeBorderRef.current.classList.remove('resizing')
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUP)
-      cancelAnimationFrame(rafRef.current)
-      e.preventDefault()
+      // cancelAnimationFrame(rafRef.current)
     }
     document.addEventListener('mousemove', onMouseMove)
     document.addEventListener('mouseup', onMouseUP)
@@ -58,7 +58,7 @@ export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Elemen
     //foreach tree
     return (
       <>
-        <div className="aside" style={{ width: `${asideWidth}px` }}>
+        <div className="aside" ref={containerRef}>
           <h2>{workspace}</h2>
           {tree.map((item: { name: string }, index: number) => {
             return (
@@ -67,16 +67,16 @@ export const Aside = (props: { onOpenFile: (path: string) => void }): JSX.Elemen
               </button>
             )
           })}
-          <div className="resize-x" onMouseDown={onMouseDown}></div>
+          <div className="resize-x" onMouseDown={onMouseDown} ref={resizeBorderRef}></div>
         </div>
       </>
     )
   } else {
     return (
       <>
-        <div className="aside" style={{ width: `${asideWidth}px` }}>
+        <div className="aside" ref={containerRef}>
           <button onClick={openDirectoryDialog}>select directory</button>
-          <div className="resize-x" onMouseDown={onMouseDown}></div>
+          <div className="resize-x" onMouseDown={onMouseDown} ref={resizeBorderRef}></div>
         </div>
       </>
     )
