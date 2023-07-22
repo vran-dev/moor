@@ -1,6 +1,6 @@
 import { Node } from '@tiptap/pm/model'
 import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } from '@tiptap/pm/view'
-import { TextSelection, Selection, EditorState, AllSelection } from '@tiptap/pm/state'
+import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
 import { EditorView as CodeMirror, keymap as cmKeymap } from '@codemirror/view'
@@ -20,12 +20,12 @@ import {
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { Compartment } from '@codemirror/state'
-import ProsemirrorNodes from '@renderer/common/ProsemirrorNodes'
+import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
 import { replaceClassEffects } from './codeMirrors'
-import { searchPlugin } from '../search/searchPlugin'
 import { LanguageBlock, languageBlocks } from './suggestLanguages'
 import { v4 as uuid } from 'uuid'
 import { selectAll } from 'prosemirror-commands'
+import { Editor } from '@tiptap/react'
 
 export interface CmCommand {
   key: string
@@ -39,6 +39,7 @@ export class CodeblockView implements NodeView {
   node: Node
   view: EditorView
   getPos: () => number
+  editor: Editor
   dom: HTMLElement
   id: string
 
@@ -48,10 +49,11 @@ export class CodeblockView implements NodeView {
   languageCompartment: Compartment
   languageBlock?: LanguageBlock
 
-  constructor(node, view, getPos) {
+  constructor(node, view, getPos, editor) {
     this.node = node
     this.view = view
     this.getPos = getPos
+    this.editor = editor
     this.id = 'id_' + uuid().replaceAll('-', '')
     // init dom
     const codeBlockWrapper = document.createElement('div')
@@ -261,18 +263,18 @@ export class CodeblockView implements NodeView {
         run: (): boolean => {
           const ranges = this.cm.state.selection.ranges
           if (ranges.length > 1) {
-            searchPlugin.option.getEditor()?.commands.showSearchPageBox()
+            this.editor?.commands.showSearchPageBox()
             return false
           }
           const selection = ranges[0]
           if (!selection) {
-            searchPlugin.option.getEditor()?.commands.showSearchPageBox()
+            this.editor?.commands.showSearchPageBox()
             return true
           }
           const searchString = this.cm.state.doc.sliceString(selection.from, selection.to)
-          searchPlugin.option.getEditor()?.commands.showSearchPageBox(searchString)
+          this.editor?.commands.showSearchPageBox(searchString)
           if (searchString) {
-            searchPlugin.option.getEditor()?.commands.search(searchString)
+            this.editor?.commands.search(searchString)
           }
           return true
         }
@@ -281,8 +283,8 @@ export class CodeblockView implements NodeView {
         key: 'Escape',
         mac: 'Escape',
         run: (): boolean => {
-          searchPlugin.option.getEditor()?.commands.hideSearchPageBox()
-          searchPlugin.option.getEditor()?.commands.search()
+          this.editor?.commands.hideSearchPageBox()
+          this.editor?.commands.search()
           return true
         }
       },

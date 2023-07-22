@@ -45,8 +45,10 @@ export const CustomCodeBlock = CodeBlock.extend({
   inline: false,
 
   addNodeView() {
+    const editor = this.editor
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     return (props) => {
-      return new CodeblockView(props.node, props.editor.view, props.getPos)
+      return new CodeblockView(props.node, props.editor.view, props.getPos, editor)
     }
   },
   addInputRules() {

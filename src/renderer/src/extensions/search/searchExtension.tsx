@@ -1,5 +1,5 @@
 import { Extension } from '@tiptap/react'
-import { SearchBoxView, createSearchBoxView, searchPlugin } from './searchPlugin'
+import { SearchBoxView, SearchMeta, createSearchBoxView, searchPluginInit } from './searchPlugin'
 import { getSelectionText } from '@renderer/common/prosemirrorSelections'
 
 declare module '@tiptap/core' {
@@ -28,18 +28,23 @@ export const Search = Extension.create<SearchOption>({
     return {
       search:
         (keyword) =>
-        ({ commands }): boolean => {
+        (props): boolean => {
           if (keyword) {
             searchBox?.updateTextValue(keyword)
           }
-          searchPlugin.searchByKeyword(this.editor.view, keyword, (option) => {
-            searchBox?.updateCountSpan(option.getCurrentMatchIndex(), option.getTotalMatchCount())
-          })
+          const meta: SearchMeta = {
+            searchKey: keyword,
+            direction: 'next',
+            callback: (state) => {
+              searchBox?.updateCountSpan(state.currentMatchIndex, state.totalMatchCount)
+            }
+          }
+          props.dispatch?.(props.state.tr.setMeta('search', meta))
           return true
         },
       showSearchPageBox:
         (keyword?: string | null | undefined) =>
-        ({ commands }): boolean => {
+        (props): boolean => {
           const searchKey = keyword || getSelectionText(this.editor.view)
           if (searchBox) {
             searchBox.show()
@@ -57,15 +62,17 @@ export const Search = Extension.create<SearchOption>({
             )
             searchBox.show()
           }
+          props.dispatch?.(props.state.tr.setMeta('searching', true))
           return true
         },
       hideSearchPageBox:
         () =>
-        ({ commands }): boolean => {
+        (props): boolean => {
           if (searchBox) {
             searchBox.hide()
             this.editor.commands.search(null)
           }
+          props.dispatch?.(props.state.tr.setMeta('searching', false))
           return true
         }
     }
@@ -89,7 +96,6 @@ export const Search = Extension.create<SearchOption>({
   },
 
   addProseMirrorPlugins() {
-    searchPlugin.option.setEditor(this.editor)
-    return [searchPlugin]
+    return [searchPluginInit(this.editor)]
   }
 })

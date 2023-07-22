@@ -54,15 +54,15 @@ const search = (doc: Node, searchKeyword: string | null | RegExp | undefined): D
   return DecorationSet.create(doc, searchMatches)
 }
 
-export interface SearchPluginOption extends PluginSpec<DecorationSet> {
-  setEditor: (editor: Editor) => void
-  getEditor: () => Editor | null
-  setUpdating: (updating: boolean) => void
-  setSearchKeyword: (searchKeyword: string | null | undefined) => void
-  getSearchKeyword: () => string | null | undefined
+export type SearchPluginOption = PluginSpec<SearchPluginState>
+
+export interface SearchMeta {
+  searchKey?: string | null
+  direction?: 'next' | 'prev'
+  callback?: (option: SearchPluginState) => void
 }
 
-class SearchPlugin extends Plugin {
+class SearchPlugin extends Plugin<SearchPluginState> {
   option: SearchPluginOption
 
   constructor(option: SearchPluginOption) {
@@ -75,18 +75,22 @@ class SearchPlugin extends Plugin {
     keyword: string | null | undefined,
     callback?: (option: SearchPluginOption) => void
   ): void => {
+    const state: SearchPluginState | undefined = this.getState(view.state)
     let searchMethod: string
-    if (keyword && this.option.getSearchKeyword() === keyword) {
+    if (keyword && state?.searchKey === keyword) {
       searchMethod = 'next'
     } else {
       searchMethod = 'search'
     }
-    this.option.setSearchKeyword(keyword)
-    this.option.setUpdating(true)
+    if (!state) {
+      return
+    }
+    state.searchKey = keyword
+    state.updating = true
     view.dispatch(view.state.tr.setMeta('search', searchMethod))
-    this.option.setUpdating(false)
+    state.updating = false
     if (callback) {
-      callback(this.option)
+      callback(state)
     }
   }
 }
@@ -98,91 +102,103 @@ export class SearchPluginState {
   searchKey: string | null | undefined
   editor: Editor | null | undefined
   matches: DecorationSet | null | undefined
+  searching = false
+
+  updateMatches(matches: DecorationSet | undefined, currentMatchIndex?: number): void {
+    this.matches = matches
+    this.totalMatchCount = matches?.find()?.length || 0
+    this.currentMatchIndex = currentMatchIndex || -1
+  }
+
+  static empty: SearchPluginState = new SearchPluginState()
+
+  static create(
+    editor: Editor,
+    searchKey?: string | null | undefined,
+    matches?: DecorationSet | undefined | null
+  ): SearchPluginState {
+    const state = new SearchPluginState()
+    state.searchKey = searchKey
+    state.editor = editor
+    state.currentMatchIndex = -1
+    state.totalMatchCount = matches?.find()?.length || 0
+    state.matches = matches
+    return state
+  }
 }
 
-const searchPluginInit = (): SearchPlugin => {
-  let updating = false
-  let searchKeyword: string | null | undefined = null
-  let editor: Editor | null = null
-  let currentMatchIndex = 0
-  let totalMatchCount = 0
-  let matches: DecorationSet | null
+export const searchPluginInit = (editor: Editor): SearchPlugin => {
   return new SearchPlugin({
     name: 'search',
     state: {
-      init(): DecorationSet {
-        return DecorationSet.empty
+      init(): SearchPluginState {
+        return SearchPluginState.create(editor)
       },
 
-      apply(tr, value, oldState, newState): DecorationSet {
-        if (updating) {
-          const method = tr.getMeta('search')
-          if (method === 'search' || totalMatchCount === 0) {
-            matches = search(tr.doc, searchKeyword)
-            totalMatchCount = matches?.find()?.length || 0
-            currentMatchIndex = 0
-          } else if (method === 'next') {
-            //next
-            const decorations = matches?.find() || []
-            const nextIndex = (currentMatchIndex + 1) % decorations.length
-            const next = decorations[nextIndex]
-            const prev = decorations[currentMatchIndex]
-            const newDecorations = decorations.map((d) => {
-              if (d.from === next.from && d.to === next.to) {
-                return Decoration.inline(d.from, d.to, { class: 'search-match active' })
-              } else if (d.from === prev.from && d.to === prev.to) {
-                return Decoration.inline(d.from, d.to, { class: 'search-match' })
-              }
-              return d
-            })
-            matches = DecorationSet.create(tr.doc, newDecorations)
-            currentMatchIndex = nextIndex
-            editor?.view.domAtPos(next.from)?.node.scrollIntoView?.(true)
-          } else {
-            // prev
+      apply(tr, value, oldState, newState): SearchPluginState {
+        if (tr.getMeta('searching')) {
+          value.searching = tr.getMeta('searching')
+        }
+        if (value.updating) {
+          return value
+        }
+        if (tr.docChanged && value.searching) {
+          const newMatches = search(tr.doc, value.searchKey)
+          value.updateMatches(newMatches, value.currentMatchIndex)
+          return value
+        }
+        const searchMeta: SearchMeta = tr.getMeta('search')
+        if (!searchMeta) {
+          return value
+        }
+        value.updating = true
+        if (searchMeta.searchKey === null) {
+          value.updateMatches(DecorationSet.empty)
+          value.updating = false
+          return value
+        }
+
+        // update if searchKey changed
+        if (value.searchKey !== searchMeta.searchKey || tr.docChanged) {
+          value.searchKey = searchMeta.searchKey
+          value.updateMatches(search(tr.doc, searchMeta.searchKey))
+        }
+
+        const direction = searchMeta.direction
+        if (direction === 'next') {
+          const decorations = value.matches?.find() || []
+          const nextIndex =
+            (value.currentMatchIndex == -1 ? 0 : value.currentMatchIndex + 1) % decorations.length
+          const next = decorations[nextIndex]
+          const prev = decorations[Math.max(value.currentMatchIndex, 0)]
+          const newDecorations = decorations.map((d) => {
+            if (d.from === next.from && d.to === next.to) {
+              return Decoration.inline(d.from, d.to, { class: 'search-match active' })
+            } else if (d.from === prev.from && d.to === prev.to) {
+              return Decoration.inline(d.from, d.to, { class: 'search-match' })
+            }
+            return d
+          })
+          value.matches = DecorationSet.create(tr.doc, newDecorations)
+          value.currentMatchIndex = nextIndex
+          if (next) {
+            value.editor?.view.domAtPos(next.from)?.node.scrollIntoView?.()
           }
-          return matches
+        } else {
+          const matches = search(tr.doc, value.searchKey)
+          value.updateMatches(matches)
         }
-
-        if (tr.docChanged) {
-          return value.map(tr.mapping, tr.doc)
+        if (searchMeta.callback) {
+          searchMeta.callback(value)
         }
-
+        value.updating = false
         return value
       }
     },
 
-    setUpdating(updatingValue: boolean): void {
-      updating = updatingValue
-    },
-
-    setSearchKeyword(searchKeywordValue: string | null | undefined): void {
-      searchKeyword = searchKeywordValue
-    },
-
-    getSearchKeyword(): string | null | undefined {
-      return searchKeyword
-    },
-
-    getTotalMatchCount(): number {
-      return totalMatchCount
-    },
-
-    getCurrentMatchIndex(): number {
-      return currentMatchIndex
-    },
-
-    setEditor(editorValue: Editor): void {
-      editor = editorValue
-    },
-
-    getEditor(): Editor | null {
-      return editor
-    },
-
     props: {
       decorations(state): DecorationSource | null | undefined {
-        return this.getState(state)
+        return this.getState(state)?.matches
       }
     }
   })
@@ -257,7 +273,7 @@ export const createSearchBoxView = (
   input.placeholder = 'Search in page'
   input.addEventListener('input', find)
   input.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && wrapper.style.display !== 'none') {
       find(event)
       return
     }
@@ -276,5 +292,3 @@ export const createSearchBoxView = (
   wrapper.appendChild(countSpan)
   return new SearchBoxView(wrapper, input, countSpan)
 }
-
-export const searchPlugin = searchPluginInit()

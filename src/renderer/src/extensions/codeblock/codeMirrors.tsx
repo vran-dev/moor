@@ -50,5 +50,13 @@ export function replaceClassEffects(view: EditorView, ranges: EffectRange[]): bo
     effects.push(StateEffect.appendConfig.of([classEffectField]))
   }
   view.dispatch({ effects: effects, userEvent: classEffectEvent })
+  // scroll to where class is 'active'
+  const activeClass = ranges.find(
+    (range) => range.className && range.className.includes('search-match active')
+  )
+  if (activeClass) {
+    const scrollEffect = EditorView.scrollIntoView(activeClass.from, { xMargin: 100, yMargin: 100 })
+    view.dispatch({ effects: [scrollEffect] })
+  }
   return true
 }
