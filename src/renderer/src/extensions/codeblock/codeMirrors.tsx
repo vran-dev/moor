@@ -1,4 +1,4 @@
-import { StateField, StateEffect, Transaction, Range } from '@codemirror/state'
+import { StateField, StateEffect, Transaction, Range, EditorSelection } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 
 const classEffect = StateEffect.define<{ from: number; to: number; className: string }>({
@@ -55,7 +55,10 @@ export function replaceClassEffects(view: EditorView, ranges: EffectRange[]): bo
     (range) => range.className && range.className.includes('search-match active')
   )
   if (activeClass) {
-    const scrollEffect = EditorView.scrollIntoView(activeClass.from, { xMargin: 100, yMargin: 100 })
+    const scrollEffect = EditorView.scrollIntoView(
+      EditorSelection.range(activeClass.from, activeClass.to),
+      { xMargin: 100, yMargin: 100 }
+    )
     view.dispatch({ effects: [scrollEffect] })
   }
   return true

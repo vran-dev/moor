@@ -68,6 +68,7 @@ export class CodeblockView implements NodeView {
         cmKeymap.of([indentWithTab, ...this.codeMirrorKeymap(), ...defaultKeymap]),
         indentOnInput(),
         autocompletion(),
+        CodeMirror.lineWrapping,
         // foldGutter(),
         // highlightActiveLine(),
         // drawSelection(),

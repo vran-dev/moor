@@ -369,9 +369,10 @@ ul[data-type="taskList"] li>div {
     border-color: #DDD;
     border-width: 0 0 1px 0;
 }
+
 .tab-header-inner {
     padding: 5px 2px 8px 2px;
-    max-width:300px;
+    max-width: 300px;
     width: 200px;
     min-height: 36px;
     max-height: 36px;
@@ -382,17 +383,19 @@ ul[data-type="taskList"] li>div {
     text-align: center;
     text-overflow: ellipsis;
 }
+
 .tab-header-inner:hover {
     background-color: #DDD;
 }
+
 .tab-header-inner.active {
     border-width: 0 0 3px 0;
-    border-color:#1677ff;
-    border-style:  solid;
+    border-color: #1677ff;
+    border-style: solid;
     color: #1677ff;
 }
-.tab-header-inner.inactive {
-}
+
+.tab-header-inner.inactive {}
 
 .tab-content {
     flex-grow: 1;

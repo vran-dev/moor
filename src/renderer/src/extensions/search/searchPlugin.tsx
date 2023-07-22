@@ -3,7 +3,7 @@ import { Decoration, DecorationSet, EditorView, DecorationSource } from '@tiptap
 import { Node } from '@tiptap/pm/model'
 import { Editor } from '@tiptap/core'
 
-const search = (doc: Node, searchKeyword: string | null | RegExp | undefined): DecorationSet => {
+const search = (doc: Node, searchKeyword: string | null | undefined): DecorationSet => {
   interface MergedTextNode {
     text: string
     from: number
@@ -12,7 +12,6 @@ const search = (doc: Node, searchKeyword: string | null | RegExp | undefined): D
     return DecorationSet.empty
   }
 
-  const regex = searchKeyword instanceof RegExp ? searchKeyword : new RegExp(searchKeyword, 'gi')
   const mergedTextNodes: MergedTextNode[] = []
   let index = 0
   doc.descendants((node, pos) => {
@@ -39,10 +38,13 @@ const search = (doc: Node, searchKeyword: string | null | RegExp | undefined): D
   const searchMatches: Decoration[] = []
   let active = false
   mergedTextNodes.forEach((mergedTextNode) => {
-    let match
-    while ((match = regex.exec(mergedTextNode.text))) {
-      const from = mergedTextNode.from + match.index
-      const to = from + match[0].length
+    let index = -1
+    // match all searchKeyword text use indexOf
+    const text = mergedTextNode.text.toLowerCase()
+    const searchKey = searchKeyword.toLowerCase()
+    while ((index = text.indexOf(searchKey, index + 1)) != -1) {
+      const from = mergedTextNode.from + index
+      const to = from + searchKey.length
       if (active) {
         searchMatches.push(Decoration.inline(from, to, { class: 'search-match' }))
       } else {
