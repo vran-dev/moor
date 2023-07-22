@@ -414,3 +414,12 @@ ul[data-type="taskList"] li>div {
     align-items: center;
     width: 100%;
 }
+
+front-matter {
+    background-color: #EEE;
+    width: 100%;
+    min-width: 100%;
+    padding: 10px;
+    display: block;
+    color: #131313;
+}

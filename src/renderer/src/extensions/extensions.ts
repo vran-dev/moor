@@ -19,6 +19,7 @@ import {
 } from '@renderer/extensions/suggestion/suggestExtension'
 import { Markdown } from 'tiptap-markdown'
 import { Node } from 'prosemirror-model'
+import { frontMatter } from './matter/frontMatter'
 
 const customPlaceholderExtension = Placeholder.configure({
   placeholder: ({ editor, node, pos }) => {
@@ -63,10 +64,12 @@ export const extensions = [
   Markdown.configure({
     transformPastedText: true
   }),
+  frontMatter,
   Search,
   HexColorHighlighter,
   StarterKit.configure({
-    codeBlock: false
+    codeBlock: false,
+    horizontalRule: false
   }),
   CustomCodeBlock,
   ExcalidrawNode.configure({
