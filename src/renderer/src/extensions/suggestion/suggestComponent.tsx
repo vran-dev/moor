@@ -52,6 +52,7 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }): boolean => {
+      if (!items || items.length === 0) return false
       if (event.key === 'ArrowUp') {
         upHandler()
         return true
