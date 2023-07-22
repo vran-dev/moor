@@ -6,7 +6,7 @@ export const frontMatter = Node.create({
 
   group: 'block',
 
-  content: 'text*',
+  content: 'inline*',
 
   parseHTML() {
     return [
@@ -195,21 +195,15 @@ export const frontMatter = Node.create({
       }
     }
   },
-  // addNodeView() {
-  //   return ({ editor, node, getPos, HTMLAttributes, decorations, extension }) => {
-  //     const dom = document.createElement('pre')
-  //     dom.innerHTML = node.textContent
-  //     dom.classList.add('front-matter')
-  //     return {
-  //       dom: dom,
-  //       update(newNode, decorations, innerDecorations): boolean {
-  //         if (newNode.type != node.type) {
-  //           return false
-  //         }
-  //         dom.innerHTML = node.textContent
-  //         return true
-  //       }
-  //     }
-  //   }
-  // }
+  addNodeView() {
+    return ({ editor, node, getPos, HTMLAttributes, decorations, extension }) => {
+      const dom = document.createElement('front-matter')
+      dom.innerHTML = node.textContent
+      dom.classList.add('front-matter', 'not-prose')
+      return {
+        // dom: dom,
+        contentDOM: dom
+      }
+    }
+  }
 })
