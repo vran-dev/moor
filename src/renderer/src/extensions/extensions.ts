@@ -12,6 +12,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import { Search } from '@renderer/extensions/search/searchExtension'
+import Dropcursor from '@tiptap/extension-dropcursor'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
 import {
   LanguageSuggestion,
@@ -67,17 +68,16 @@ export const extensions = [
   frontMatter,
   Search,
   HexColorHighlighter,
+  Dropcursor.configure({
+    width: 2,
+    color: '#00a8ff'
+  }),
   StarterKit.configure({
     codeBlock: false,
-    horizontalRule: false
+    // horizontalRule: false,
+    dropcursor: false
   }),
   CustomCodeBlock,
-  ExcalidrawNode.configure({
-    HTMLAttributes: {
-      style: 'height: 500px;display:block',
-      class: 'not-prose'
-    }
-  }),
   TaskList.configure({
     itemTypeName: 'taskItem',
     HTMLAttributes: {
@@ -110,6 +110,11 @@ export const extensions = [
   TableCell.configure({
     HTMLAttributes: {
       class: 'border border-slate-300 focus:bg-cyan-50 hover:z-20 p-2'
+    }
+  }),
+  ExcalidrawNode.configure({
+    HTMLAttributes: {
+      class: 'not-prose'
     }
   }),
   SlashCommandSuggestion,

@@ -7,9 +7,13 @@ import { v4 as uuidv4 } from 'uuid'
 const ExcalidrawWrapper = (props: {
   editor: Editor
   node: Node
+  selected: boolean
+  getPos: () => number | undefined
   updateAttributes: (attributes: Attrs | null) => void
 }): ReactNode => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null)
+  const containerRef = useRef(null)
+  const [id, setId] = useState('id_' + uuidv4())
   const node = props.node
   const attrs = node.attrs
   const width = attrs.width ? attrs.width : '800px'
@@ -59,42 +63,59 @@ const ExcalidrawWrapper = (props: {
     }
     return false
   }
+
+  const styleObj = {
+    width: width,
+    height: height,
+    position: 'relative',
+    boxShadow: props.selected
+      ? 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'
+      : 'none'
+  }
+
+  const dragHandlerStyle = {
+    display: props.selected ? 'inherit' : 'none'
+  }
   return (
     <>
-      <NodeViewWrapper
-        style={{
-          width: width,
-          height: height
-        }}
-      >
-        <Excalidraw
-          initialData={initialData}
-          onChange={dataUpdate}
-          zenModeEnabled={true}
-          ref={(api): void => setExcalidrawAPI(api)}
-        >
-          <MainMenu>
-            <MainMenu.Group>
-              <MainMenu.DefaultItems.LoadScene />
-              <MainMenu.DefaultItems.Export />
-              <MainMenu.DefaultItems.SaveAsImage />
-              <MainMenu.DefaultItems.Help />
-              <MainMenu.DefaultItems.ClearCanvas />
-            </MainMenu.Group>
-            <MainMenu.Group title={'Panel'}>
-              <MainMenu.Item onSelect={toggleZenMode}>
-                Zen Mode {getZenMode() ? '(On)' : '(Off)'}
-              </MainMenu.Item>
-              <MainMenu.Item onSelect={toggleGridMode}>
-                Grid Mode {getGridMode() ? '(On)' : '(Off)'}
-              </MainMenu.Item>
-            </MainMenu.Group>
-            <MainMenu.Group title={'Theme'}>
-              <MainMenu.DefaultItems.ToggleTheme />
-              <MainMenu.DefaultItems.ChangeCanvasBackground />
-            </MainMenu.Group>
-          </MainMenu>
-        </Excalidraw>
+      <NodeViewWrapper style={styleObj} ref={containerRef}>
+        <div
+          className="drag-handle"
+          contentEditable="false"
+          draggable="true"
+          data-drag-handle
+          style={dragHandlerStyle}
+        />
+        <div style={{ width: '100%', height: '100%' }} contentEditable={false}>
+          <Excalidraw
+            initialData={initialData}
+            onChange={dataUpdate}
+            zenModeEnabled={true}
+            ref={(api): void => setExcalidrawAPI(api)}
+          >
+            <MainMenu>
+              <MainMenu.Group>
+                <MainMenu.DefaultItems.LoadScene />
+                <MainMenu.DefaultItems.Export />
+                <MainMenu.DefaultItems.SaveAsImage />
+                <MainMenu.DefaultItems.Help />
+                <MainMenu.DefaultItems.ClearCanvas />
+              </MainMenu.Group>
+              <MainMenu.Group title={'Panel'}>
+                <MainMenu.Item onSelect={toggleZenMode}>
+                  Zen Mode {getZenMode() ? '(On)' : '(Off)'}
+                </MainMenu.Item>
+                <MainMenu.Item onSelect={toggleGridMode}>
+                  Grid Mode {getGridMode() ? '(On)' : '(Off)'}
+                </MainMenu.Item>
+              </MainMenu.Group>
+              <MainMenu.Group title={'Theme'}>
+                <MainMenu.DefaultItems.ToggleTheme />
+                <MainMenu.DefaultItems.ChangeCanvasBackground />
+              </MainMenu.Group>
+            </MainMenu>
+          </Excalidraw>
+        </div>
       </NodeViewWrapper>
     </>
   )

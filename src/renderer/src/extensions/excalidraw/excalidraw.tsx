@@ -26,7 +26,8 @@ declare module '@tiptap/core' {
 const ExcalidrawNode = Node.create<ExcalidrawOptions>({
   name: 'excalidraw',
   group: 'block',
-  selectable: false,
+  selectable: true,
+  isolating: true,
   atom: true,
   draggable: true,
   inline: false,
