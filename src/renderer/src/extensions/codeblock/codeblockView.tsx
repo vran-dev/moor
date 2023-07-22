@@ -363,11 +363,10 @@ export class CodeblockView implements NodeView {
       const decorationSet = innerDecoration as DecorationSet
       const localDecoraions = decorationSet.find()
       const decorations = localDecoraions.map((decoration: Decoration) => {
-        return { from: decoration.from, to: decoration.to }
+        return { from: decoration.from, to: decoration.to, className: decoration.type.attrs.class }
       })
-      const classes = decorations.length ? ['search-match'] : []
       this.updating = true
-      replaceClassEffects(this.cm, decorations, classes)
+      replaceClassEffects(this.cm, decorations)
       this.updating = false
     }
     const newText = node.textContent,

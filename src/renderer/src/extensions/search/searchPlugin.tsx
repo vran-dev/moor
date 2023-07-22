@@ -3,7 +3,7 @@ import { Decoration, DecorationSet, EditorView, DecorationSource } from '@tiptap
 import { Node } from '@tiptap/pm/model'
 import { Editor } from '@tiptap/core'
 
-const search = (doc: Node, searchKeyword: string | null | RegExp): DecorationSet => {
+const search = (doc: Node, searchKeyword: string | null | RegExp | undefined): DecorationSet => {
   interface MergedTextNode {
     text: string
     from: number
@@ -37,12 +37,18 @@ const search = (doc: Node, searchKeyword: string | null | RegExp): DecorationSet
   })
 
   const searchMatches: Decoration[] = []
+  let active = false
   mergedTextNodes.forEach((mergedTextNode) => {
     let match
     while ((match = regex.exec(mergedTextNode.text))) {
       const from = mergedTextNode.from + match.index
       const to = from + match[0].length
-      searchMatches.push(Decoration.inline(from, to, { class: 'search-match' }))
+      if (active) {
+        searchMatches.push(Decoration.inline(from, to, { class: 'search-match' }))
+      } else {
+        searchMatches.push(Decoration.inline(from, to, { class: 'search-match active' }))
+        active = true
+      }
     }
   })
   return DecorationSet.create(doc, searchMatches)
@@ -53,6 +59,7 @@ export interface SearchPluginOption extends PluginSpec<DecorationSet> {
   getEditor: () => Editor | null
   setUpdating: (updating: boolean) => void
   setSearchKeyword: (searchKeyword: string | null | undefined) => void
+  getSearchKeyword: () => string | null | undefined
 }
 
 class SearchPlugin extends Plugin {
@@ -63,18 +70,43 @@ class SearchPlugin extends Plugin {
     this.option = option
   }
 
-  searchByKeyword = (view: EditorView, keyword: string | null | undefined): void => {
+  searchByKeyword = (
+    view: EditorView,
+    keyword: string | null | undefined,
+    callback?: (option: SearchPluginOption) => void
+  ): void => {
+    let searchMethod: string
+    if (keyword && this.option.getSearchKeyword() === keyword) {
+      searchMethod = 'next'
+    } else {
+      searchMethod = 'search'
+    }
     this.option.setSearchKeyword(keyword)
     this.option.setUpdating(true)
-    view.dispatch(view.state.tr.setMeta('search', DecorationSet.empty))
+    view.dispatch(view.state.tr.setMeta('search', searchMethod))
     this.option.setUpdating(false)
+    if (callback) {
+      callback(this.option)
+    }
   }
+}
+
+export class SearchPluginState {
+  updating = false
+  currentMatchIndex = 0
+  totalMatchCount = 0
+  searchKey: string | null | undefined
+  editor: Editor | null | undefined
+  matches: DecorationSet | null | undefined
 }
 
 const searchPluginInit = (): SearchPlugin => {
   let updating = false
   let searchKeyword: string | null | undefined = null
   let editor: Editor | null = null
+  let currentMatchIndex = 0
+  let totalMatchCount = 0
+  let matches: DecorationSet | null
   return new SearchPlugin({
     name: 'search',
     state: {
@@ -84,7 +116,32 @@ const searchPluginInit = (): SearchPlugin => {
 
       apply(tr, value, oldState, newState): DecorationSet {
         if (updating) {
-          return search(tr.doc, searchKeyword)
+          const method = tr.getMeta('search')
+          if (method === 'search' || totalMatchCount === 0) {
+            matches = search(tr.doc, searchKeyword)
+            totalMatchCount = matches?.find()?.length || 0
+            currentMatchIndex = 0
+          } else if (method === 'next') {
+            //next
+            const decorations = matches?.find() || []
+            const nextIndex = (currentMatchIndex + 1) % decorations.length
+            const next = decorations[nextIndex]
+            const prev = decorations[currentMatchIndex]
+            const newDecorations = decorations.map((d) => {
+              if (d.from === next.from && d.to === next.to) {
+                return Decoration.inline(d.from, d.to, { class: 'search-match active' })
+              } else if (d.from === prev.from && d.to === prev.to) {
+                return Decoration.inline(d.from, d.to, { class: 'search-match' })
+              }
+              return d
+            })
+            matches = DecorationSet.create(tr.doc, newDecorations)
+            currentMatchIndex = nextIndex
+            editor?.view.domAtPos(next.from)?.node.scrollIntoView?.(true)
+          } else {
+            // prev
+          }
+          return matches
         }
 
         if (tr.docChanged) {
@@ -101,6 +158,18 @@ const searchPluginInit = (): SearchPlugin => {
 
     setSearchKeyword(searchKeywordValue: string | null | undefined): void {
       searchKeyword = searchKeywordValue
+    },
+
+    getSearchKeyword(): string | null | undefined {
+      return searchKeyword
+    },
+
+    getTotalMatchCount(): number {
+      return totalMatchCount
+    },
+
+    getCurrentMatchIndex(): number {
+      return currentMatchIndex
     },
 
     setEditor(editorValue: Editor): void {
@@ -122,10 +191,12 @@ const searchPluginInit = (): SearchPlugin => {
 export class SearchBoxView {
   container: HTMLElement
   input: HTMLInputElement
+  countSpan: HTMLSpanElement
 
-  constructor(container: HTMLElement, input: HTMLInputElement) {
+  constructor(container: HTMLElement, input: HTMLInputElement, countSpan: HTMLSpanElement) {
     this.container = container
     this.input = input
+    this.countSpan = countSpan
   }
 
   show(): void {
@@ -139,6 +210,18 @@ export class SearchBoxView {
 
   updateTextValue(value: string): void {
     this.input.value = value ? value : ''
+  }
+
+  updateCountSpan(currentMatchIndex: number, totalMatchCount: number): void {
+    if (!totalMatchCount) {
+      this.countSpan.innerHTML = ''
+      return
+    }
+    if (totalMatchCount == 0) {
+      this.countSpan.innerHTML = '0/0'
+      return
+    }
+    this.countSpan.innerHTML = `${currentMatchIndex + 1}/${totalMatchCount}`
   }
 }
 
@@ -172,7 +255,7 @@ export const createSearchBoxView = (
   input.type = 'text'
   input.classList.add('search-page-box-input')
   input.placeholder = 'Search in page'
-  input.addEventListener('change', find)
+  input.addEventListener('input', find)
   input.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
       find(event)
@@ -186,7 +269,12 @@ export const createSearchBoxView = (
   })
   input.value = defaultValue || ''
   wrapper.appendChild(input)
-  return new SearchBoxView(wrapper, input)
+
+  const countSpan = document.createElement('span')
+  countSpan.classList.add('search-page-box-count')
+  countSpan.innerText = ''
+  wrapper.appendChild(countSpan)
+  return new SearchBoxView(wrapper, input, countSpan)
 }
 
 export const searchPlugin = searchPluginInit()

@@ -32,7 +32,9 @@ export const Search = Extension.create<SearchOption>({
           if (keyword) {
             searchBox?.updateTextValue(keyword)
           }
-          searchPlugin.searchByKeyword(this.editor.view, keyword)
+          searchPlugin.searchByKeyword(this.editor.view, keyword, (option) => {
+            searchBox?.updateCountSpan(option.getCurrentMatchIndex(), option.getTotalMatchCount())
+          })
           return true
         },
       showSearchPageBox:
@@ -53,6 +55,7 @@ export const Search = Extension.create<SearchOption>({
               searchBox.container,
               this.editor.view.dom.parentElement
             )
+            searchBox.show()
           }
           return true
         },
@@ -71,8 +74,8 @@ export const Search = Extension.create<SearchOption>({
   addKeyboardShortcuts() {
     return {
       'Mod-f': (): boolean => {
-        this.editor.commands.showSearchPageBox()
         const searchKey = getSelectionText(this.editor.view)
+        this.editor.commands.showSearchPageBox()
         if (searchKey) {
           this.editor.commands.search(searchKey)
         }

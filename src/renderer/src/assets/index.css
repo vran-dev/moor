@@ -298,6 +298,7 @@ ul[data-type="taskList"] li>div {
     display: block;
     padding: 0.625rem;
     padding-left: 2.5rem;
+    padding-right: 3.5rem;
     border-radius: 0.5rem;
     border-width: 1px;
     border-color: #D1D5DB;
@@ -306,6 +307,18 @@ ul[data-type="taskList"] li>div {
     line-height: 1.25rem;
     color: #111827;
     background-color: #F9FAFB;
+}
+
+.search-page-box-count {
+    display: flex;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding-right: 0.875rem;
+    align-items: center;
+    pointer-events: none;
+    color: #a6a9ae;
 }
 
 ::-webkit-scrollbar {
