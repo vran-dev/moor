@@ -340,7 +340,10 @@ export class CodeblockView implements NodeView {
     if (dir < 0 ? main.from > 0 : main.to < state.doc.length) {
       return false
     }
-    const targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize)
+    const targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize + 1)
+    if (targetPos < 0 || targetPos > this.view.state.doc.content.size) {
+      return false
+    }
     const selection = Selection.near(this.view.state.doc.resolve(targetPos), dir)
     const tr = this.view.state.tr.setSelection(selection).scrollIntoView()
     this.view.dispatch(tr)
