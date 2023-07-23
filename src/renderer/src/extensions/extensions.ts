@@ -21,6 +21,7 @@ import {
 import { Markdown } from 'tiptap-markdown'
 import { Node } from 'prosemirror-model'
 import { frontMatter } from './matter/frontMatter'
+import Highlight from '@tiptap/extension-highlight'
 
 const customPlaceholderExtension = Placeholder.configure({
   placeholder: ({ editor, node, pos }) => {
@@ -68,6 +69,9 @@ export const extensions = [
   frontMatter,
   Search,
   HexColorHighlighter,
+  Highlight.configure({
+    multicolor: true
+  }),
   Dropcursor.configure({
     width: 2,
     color: '#00a8ff'
