@@ -93,29 +93,22 @@ export const extensions = [
   }),
   customPlaceholderExtension,
   Underline,
-  CustomLink,
+  CustomLink.configure({
+    HTMLAttributes: {
+      class: 'not-prose link'
+    }
+  }),
   CustomImage,
   CustomTable.configure({
     resizable: false,
+    allowTableNodeSelection: true,
     HTMLAttributes: {
-      class: 'table-auto border border-stone-300 hover:outline hover:outline-blue-300'
+      class: 'border-y'
     }
   }),
-  TableHeader.configure({
-    HTMLAttributes: {
-      class: 'border border-slate-300 bg-gray-100 dark:bg-gray-800 p-2'
-    }
-  }),
-  TableRow.configure({
-    HTMLAttributes: {
-      class: 'dark:border-stone-800'
-    }
-  }),
-  TableCell.configure({
-    HTMLAttributes: {
-      class: 'border border-slate-300 focus:bg-cyan-50 hover:z-20 p-2'
-    }
-  }),
+  TableHeader,
+  TableRow,
+  TableCell,
   ExcalidrawNode.configure({
     HTMLAttributes: {
       class: 'not-prose'

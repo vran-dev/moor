@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { extensions } from '@renderer/extensions/extensions'
 import { defualtContent } from './defaultContent'
 import { BubbleMenu } from '@renderer/extensions/bubble/bubbleMenu'
+import { LinkFormComponent } from '@renderer/extensions/link/linkFormComponent'
 
 const autoParse = (data?: string): object | string | null => {
   if (!data) {
@@ -61,6 +62,7 @@ const Tiptap = (props: { content?: string }): JSX.Element => {
 
   return (
     <>
+      <LinkFormComponent editor={editor} onSave={(input) => {}} onReset={() => {}} />
       <BubbleMenu editor={editor} />
       <EditorContent editor={editor} className="editor-view" />
     </>

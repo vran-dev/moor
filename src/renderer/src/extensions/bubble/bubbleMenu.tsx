@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Editor, BubbleMenu as TiptapBubbleMenu, useEditor } from '@tiptap/react'
 import { useState } from 'react'
 import {
@@ -11,6 +12,8 @@ import {
 } from '@renderer/components/Icons'
 import { ColorSelector } from './colorSelector'
 import '@renderer/assets/bubble-menu.css'
+import { LinkSelector } from './linkSelector'
+import { linkFormPluginKey } from '../link/linkFormPlugin'
 
 interface BubbleMenuItem {
   icon: ({ className, width, height }) => JSX.Element
@@ -35,12 +38,12 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       symbol: 'italic',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleItalic().run()
     },
-    {
-      icon: LinkIcon,
-      name: 'Link',
-      symbol: 'link',
-      onclick: (): boolean | undefined => editor?.chain().focus().toggleLink({ href: '' }).run()
-    },
+    // {
+    //   icon: LinkIcon,
+    //   name: 'Link',
+    //   symbol: 'link',
+    //   onclick: (): boolean | undefined => editor?.chain().focus().toggleLink({ href: '' }).run()
+    // },
     {
       icon: StrikethroughIcon,
       name: 'Strikethrough',
@@ -67,6 +70,13 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
     }
   ]
 
+  const [isLinkOpen, setIsLinkOpen] = useState(false)
+
+  const changeLinkForm = () => {
+    // setIsLinkOpen(!isLinkOpen)
+    const metaTr = editor?.view.state.tr.setMeta(linkFormPluginKey, { visible: !isLinkOpen })
+    editor?.view.dispatch(metaTr)
+  }
   const bubbleMenuProps = {
     ...props,
     shouldShow: ({ editor }): boolean => {
@@ -82,7 +92,10 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       return editor.view.state.selection.content().size > 0
     },
     tippyOptions: {
-      moveTransition: 'transform 0.15s ease-out'
+      moveTransition: 'transform 0.15s ease-out',
+      onHidden: () => {
+        setIsLinkOpen(false)
+      }
     }
   }
   return (
@@ -93,6 +106,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
           onChange={(): void => setIsEditable(!isEditable)}
           className="bubble-menu"
         >
+          <ColorSelector editor={editor} />
           {menuItems.map((item) => (
             <button key={item.name} onClick={item.onclick} className={'bubble-menu-item'}>
               {item.icon({
@@ -102,7 +116,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
               })}
             </button>
           ))}
-          <ColorSelector editor={editor} />
+          <LinkSelector editor={editor} isOpen={isLinkOpen} setIsOpen={() => changeLinkForm()} />
         </TiptapBubbleMenu>
       )}
     </>
