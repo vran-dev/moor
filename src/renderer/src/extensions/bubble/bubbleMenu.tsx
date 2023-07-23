@@ -65,11 +65,28 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       onclick: (): boolean | undefined => editor?.chain().focus().toggleCode().run()
     }
   ]
+
+  const bubbleMenuProps = {
+    ...props,
+    shouldShow: ({ editor }): boolean => {
+      console.log(editor.isActive('image'))
+      if (editor.isActive('image')) {
+        return false
+      }
+      if (editor.isActive('excalidraw')) {
+        return false
+      }
+      return editor.view.state.selection.content().size > 0
+    },
+    tippyOptions: {
+      moveTransition: 'transform 0.15s ease-out'
+    }
+  }
   return (
     <>
       {editor && (
         <TiptapBubbleMenu
-          editor={editor}
+          {...bubbleMenuProps}
           onChange={(): void => setIsEditable(!isEditable)}
           className="bubble-menu"
         >
