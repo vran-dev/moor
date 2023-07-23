@@ -95,7 +95,7 @@ export const suggestSlashCommands = ({ query }: { query: string }) => {
     {
       name: 'Code Block',
       icon: CodeBlockIcon,
-      description: 'create code block',
+      description: 'create codeblock',
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Plain' }).run()
       }

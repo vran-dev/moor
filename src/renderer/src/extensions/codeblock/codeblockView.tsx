@@ -44,6 +44,7 @@ export class CodeblockView implements NodeView {
   id: string
 
   cm: CodeMirror
+  dragHandlerDom?: HTMLElement
   updating: boolean
   LanguageBlocks: LanguageBlock[]
   languageCompartment: Compartment
@@ -83,6 +84,7 @@ export class CodeblockView implements NodeView {
 
     this.LanguageBlocks = languageBlocks
     this.initLanguageSelect()
+    this.initDragHandler()
     this.dom.appendChild(this.cm.dom)
     this.matchLanguage(
       this.node.attrs.language,
@@ -103,7 +105,13 @@ export class CodeblockView implements NodeView {
 
   forwardUpdate(update: ViewUpdate): void {
     if (this.updating || !this.cm.hasFocus) {
+      if (this.dragHandlerDom) {
+        this.dragHandlerDom.style.display = 'none'
+      }
       return
+    }
+    if (this.dragHandlerDom) {
+      this.dragHandlerDom.style.display = 'inherit'
     }
     let offset = this.getPos() + 1
     const cmSelection = update.state.selection.main
@@ -127,6 +135,16 @@ export class CodeblockView implements NodeView {
       tr.setSelection(TextSelection.create(tr.doc, selFrom, selTo))
       this.view.dispatch(tr)
     }
+  }
+
+  private initDragHandler(): void {
+    const dragDiv = document.createElement('div')
+    dragDiv.classList.add('drag-handle')
+    dragDiv.setAttribute('data-drag-handle', '')
+    dragDiv.setAttribute('content-editable', 'false')
+    dragDiv.style.display = 'none'
+    this.dragHandlerDom = dragDiv
+    this.dom.appendChild(dragDiv)
   }
 
   private initLanguageSelect(): void {
@@ -407,9 +425,21 @@ export class CodeblockView implements NodeView {
 
   selectNode(): void {
     this.cm.focus()
+    if (this.dragHandlerDom) {
+      this.dragHandlerDom.style.display = 'inherit'
+    }
   }
 
-  stopEvent(): boolean {
+  deselectNode(): void {
+    if (this.dragHandlerDom) {
+      this.dragHandlerDom.style.display = 'none'
+    }
+  }
+
+  stopEvent(e): boolean {
+    if (e instanceof DragEvent) {
+      return false
+    }
     return true
   }
 

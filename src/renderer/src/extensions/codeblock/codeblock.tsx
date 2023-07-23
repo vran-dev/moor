@@ -1,11 +1,11 @@
 import { CodeBlock, backtickInputRegex, tildeInputRegex } from '@tiptap/extension-code-block'
-import { CodeblockView } from './codeblockView'
 import { InputRule, InputRuleFinder, callOrReturn } from '@tiptap/react'
 import { NodeType } from 'prosemirror-model'
 import { ExtendedRegExpMatchArray } from '@tiptap/react'
 import { suggestLanguages } from './suggestLanguages'
 import { Plugin, PluginKey, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
+import { CodeblockView } from './codeblockView'
 
 export function textblockTypeInputRule(config: {
   find: InputRuleFinder
@@ -43,6 +43,9 @@ export const markdownCodeBlockContentRegex = /^```(\w*)\n([\s\S]*?)\n```$/
 
 export const CustomCodeBlock = CodeBlock.extend({
   inline: false,
+  draggable: true,
+  selectable: true,
+  atom: true,
 
   addNodeView() {
     const editor = this.editor

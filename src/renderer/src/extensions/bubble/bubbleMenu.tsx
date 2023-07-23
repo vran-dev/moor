@@ -70,11 +70,13 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
   const bubbleMenuProps = {
     ...props,
     shouldShow: ({ editor }): boolean => {
-      console.log(editor.isActive('image'))
       if (editor.isActive('image')) {
         return false
       }
       if (editor.isActive('excalidraw')) {
+        return false
+      }
+      if (editor.isActive('codeBlock')) {
         return false
       }
       return editor.view.state.selection.content().size > 0

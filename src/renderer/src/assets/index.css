@@ -140,6 +140,7 @@ body {
 .codeblock {
     background-color: #FAFAFA;
     padding: 12px;
+    position: relative;
 }
 
 .codeblock-preview {
@@ -147,7 +148,6 @@ body {
     padding: 5px;
     margin: 20px auto;
 }
-
 
 .codeblock+.codeblock {
     margin-top: 20px;
@@ -424,4 +424,8 @@ front-matter {
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
+}
+
+.relative {
+    position: relative
 }
