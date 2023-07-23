@@ -10,6 +10,7 @@ import {
   QuoteIcon
 } from '@renderer/components/Icons'
 import { ColorSelector } from './colorSelector'
+import '@renderer/assets/bubble-menu.css'
 
 interface BubbleMenuItem {
   icon: ({ className, width, height }) => JSX.Element
