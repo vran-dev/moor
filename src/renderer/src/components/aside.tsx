@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import '@renderer/assets/layout-aside.css'
 
 const ipcRenderer = window.electron.ipcRenderer
 
@@ -67,13 +68,15 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
     return (
       <>
         <div className="aside" ref={containerRef}>
-          {tree.map((item: { name: string }, index: number) => {
-            return (
-              <button key={index} className="tree-item" onClick={openFile(item?.name)}>
-                {item?.name}
-              </button>
-            )
-          })}
+          <div className="aside-inner">
+            {tree.map((item: { name: string }, index: number) => {
+              return (
+                <button key={index} className="tree-item" onClick={openFile(item?.name)}>
+                  {item?.name}
+                </button>
+              )
+            })}
+          </div>
           <div className="resize-x" onMouseDown={onMouseDown} ref={resizeBorderRef}></div>
         </div>
       </>
