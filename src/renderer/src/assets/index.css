@@ -232,7 +232,7 @@ body {
     background-color: #F3F4F6;
 }
 
-.bubble-menu-item.active {
+.bubble-menu-item .active {
     color: #1D4ED8;
 }
 
