@@ -13,8 +13,6 @@ import {
 import { ColorSelector } from './colorSelector'
 import '@renderer/assets/bubble-menu.css'
 import { LinkSelector } from './linkSelector'
-import { linkFormPluginKey } from '../link/linkFormPlugin'
-
 interface BubbleMenuItem {
   icon: ({ className, width, height }) => JSX.Element
   name: string
@@ -70,13 +68,6 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
     }
   ]
 
-  const [isLinkOpen, setIsLinkOpen] = useState(false)
-
-  const changeLinkForm = () => {
-    // setIsLinkOpen(!isLinkOpen)
-    const metaTr = editor?.view.state.tr.setMeta(linkFormPluginKey, { visible: !isLinkOpen })
-    editor?.view.dispatch(metaTr)
-  }
   const bubbleMenuProps = {
     ...props,
     shouldShow: ({ editor }): boolean => {
@@ -92,10 +83,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       return editor.view.state.selection.content().size > 0
     },
     tippyOptions: {
-      moveTransition: 'transform 0.15s ease-out',
-      onHidden: () => {
-        setIsLinkOpen(false)
-      }
+      moveTransition: 'transform 0.15s ease-out'
     }
   }
   return (
@@ -116,7 +104,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
               })}
             </button>
           ))}
-          <LinkSelector editor={editor} isOpen={isLinkOpen} setIsOpen={() => changeLinkForm()} />
+          <LinkSelector editor={editor} />
         </TiptapBubbleMenu>
       )}
     </>

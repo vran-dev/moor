@@ -78,14 +78,15 @@ export class LinkFormView {
   blurHandler = ({ event }: { event: FocusEvent }) => {
     if (this.preventHide) {
       this.preventHide = false
-
+      console.log('prevent hide')
       return
     }
 
     if (event?.relatedTarget && this.element.parentNode?.contains(event.relatedTarget as Node)) {
+      console.log('prevent hide 2')
       return
     }
-
+    console.log('hided!!!')
     this.hide()
   }
 
@@ -98,6 +99,8 @@ export class LinkFormView {
   }
 
   hide() {
+    const metaTr = this.editor?.view.state.tr.setMeta(linkFormPluginKey, { visible: false })
+    this.editor?.view.dispatch(metaTr)
     this.tippy?.hide()
   }
 
@@ -144,16 +147,17 @@ export class LinkFormView {
 
     console.log('updating: ', this.pluginState())
     if (!this.pluginState().visible) {
+      this.preventHide = false
       return
     }
     console.log('updating 2')
 
     // const isSame = !selectionChanged && !docChanged
-
     // if (composing || isSame) {
     //   return
     // }
 
+    this.preventHide = true
     this.createTooltip()
 
     // support for CellSelections

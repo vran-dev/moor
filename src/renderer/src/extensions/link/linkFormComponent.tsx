@@ -19,9 +19,9 @@ export const LinkFormComponent = (props: {
   const { updateDelay, pluginKey = 'linkForm', shouldShow, tippyOptions } = props
 
   // Autofocus on input by default
-  useEffect(() => {
-    inputRef.current && inputRef.current?.focus()
-  })
+  // useEffect(() => {
+  //   inputRef.current && inputRef.current?.focus()
+  // })
   useEffect(() => {
     if (!element) {
       return

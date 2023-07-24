@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Editor } from '@tiptap/core'
 import { Dispatch, FC, SetStateAction, useEffect, useRef, useState } from 'react'
+import { linkFormPluginKey } from '../link/linkFormPlugin'
 
 interface LinkSelectorProps {
   editor: Editor
-  isOpen: boolean
-  setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-export const LinkSelector: FC<LinkSelectorProps> = ({ editor, isOpen, setIsOpen }) => {
+export const LinkSelector: FC<LinkSelectorProps> = ({ editor }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [meta, setMeta] = useState({})
+  const [url, setUrl] = useState(null)
+  const isOpen = false
 
   // Autofocus on input by default
   useEffect(() => {
@@ -19,6 +20,7 @@ export const LinkSelector: FC<LinkSelectorProps> = ({ editor, isOpen, setIsOpen 
 
   const getUrlInfo = async (e) => {
     const url = e.target.value
+    setUrl(url)
     if (!url) {
       setMeta({})
       return
@@ -62,12 +64,29 @@ export const LinkSelector: FC<LinkSelectorProps> = ({ editor, isOpen, setIsOpen 
     setMeta(meta)
   }
 
+  const setLink = (e) => {
+    const metaTr = editor?.view.state.tr.setMeta(linkFormPluginKey, { visible: true })
+    editor?.view.dispatch(metaTr)
+    editor.chain().focus().run()
+    // setIsOpen(true)
+    // editor
+    //   .chain()
+    //   .focus()
+    //   .setLink({ href: url || '' })
+    //   .run()
+  }
+
+  const unsetLink = (e) => {
+    editor.chain().focus().unsetLink().run()
+    setUrl(null)
+  }
+
   return (
     <div className="relative">
       <button
         className="link-menu"
-        onClick={() => {
-          setIsOpen(!isOpen)
+        onClick={(e) => {
+          setLink(e)
         }}
       >
         <p className="text">↗</p>
@@ -75,15 +94,7 @@ export const LinkSelector: FC<LinkSelectorProps> = ({ editor, isOpen, setIsOpen 
       </button>
       {isOpen && (
         <div className={'link-wrapper'}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              const input = e.target[0] as HTMLInputElement
-              editor.chain().focus().setLink({ href: input.value }).run()
-              setIsOpen(false)
-            }}
-            className="link-form"
-          >
+          <div className="link-form">
             <input
               ref={inputRef}
               type="text"
@@ -93,22 +104,17 @@ export const LinkSelector: FC<LinkSelectorProps> = ({ editor, isOpen, setIsOpen 
             />
 
             {editor.getAttributes('link').href ? (
-              <button
-                onClick={() => {
-                  editor.chain().focus().unsetLink().run()
-                  setIsOpen(false)
-                }}
-              >
+              <button onClick={(e) => unsetLink(e)}>
                 {/* <Trash className="h-4 w-4" /> */}
                 Delete
               </button>
             ) : (
-              <button>
+              <button onClick={(e) => setLink(e)}>
                 {/* <Check className="h-4 w-4" /> */}
                 Save
               </button>
             )}
-          </form>
+          </div>
           {meta.title && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div className={'bg-white'}>{meta.title}</div>
