@@ -19,10 +19,12 @@ interface BubbleMenuItem {
   symbol: string
   onclick: () => boolean | undefined
 }
+import { linkFormPluginKey } from '../link/linkFormPlugin'
 
 export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
   const editor = props.editor
   const [isEditable, setIsEditable] = useState(true)
+  const [tippy, setTippy] = useState(null)
   const menuItems: BubbleMenuItem[] = [
     {
       icon: BoldIcon,
@@ -83,8 +85,21 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       return editor.view.state.selection.content().size > 0
     },
     tippyOptions: {
-      moveTransition: 'transform 0.15s ease-out'
+      moveTransition: 'transform 0.15s ease-out',
+      onShow(instance) {
+        setTippy(instance)
+        return true
+      }
     }
+  }
+
+  const onLinkClick = () => {
+    const metaTr = editor?.view.state.tr.setMeta(linkFormPluginKey, {
+      visible: true,
+      decorations: []
+    })
+    editor?.view.dispatch(metaTr)
+    tippy?.hide()
   }
   return (
     <>
@@ -104,7 +119,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
               })}
             </button>
           ))}
-          <LinkSelector editor={editor} />
+          <LinkSelector editor={editor} onClick={(e) => onLinkClick()} />
         </TiptapBubbleMenu>
       )}
     </>

@@ -104,11 +104,14 @@ export class SearchPluginState {
   searchKey: string | null | undefined
   editor: Editor | null | undefined
   matches: DecorationSet | null | undefined
+  currentPos?: number
   searching = false
 
   updateMatches(matches: DecorationSet | undefined, currentMatchIndex?: number): void {
     this.matches = matches
-    this.totalMatchCount = matches?.find()?.length || 0
+    const decorations = matches?.find() || []
+    this.currentPos = decorations[currentMatchIndex || 0]?.from
+    this.totalMatchCount = decorations?.length || 0
     this.currentMatchIndex = currentMatchIndex || -1
   }
 
@@ -175,6 +178,7 @@ export const searchPluginInit = (editor: Editor): SearchPlugin => {
           const prev = decorations[Math.max(value.currentMatchIndex, 0)]
           const newDecorations = decorations.map((d) => {
             if (d.from === next.from && d.to === next.to) {
+              value.currentPos = d.from
               return Decoration.inline(d.from, d.to, { class: 'search-match active' })
             } else if (d.from === prev.from && d.to === prev.to) {
               return Decoration.inline(d.from, d.to, { class: 'search-match' })
@@ -183,9 +187,10 @@ export const searchPluginInit = (editor: Editor): SearchPlugin => {
           })
           value.matches = DecorationSet.create(tr.doc, newDecorations)
           value.currentMatchIndex = nextIndex
-          if (next) {
-            value.editor?.view.domAtPos(next.from)?.node.scrollIntoView?.()
-          }
+          // FIXME cause decoration not workp
+          // if (next) {
+          //   value.editor?.view.domAtPos(next.from)?.node.scrollIntoView?.()
+          // }
         } else {
           const matches = search(tr.doc, value.searchKey)
           value.updateMatches(matches)

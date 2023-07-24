@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
 import { Editor, isNodeSelection, isTextSelection, posToDOMRect } from '@tiptap/react'
-import { EditorView } from 'prosemirror-view'
+import { Decoration, DecorationSet, DecorationSource, EditorView } from 'prosemirror-view'
 import tippy, { Instance, Props } from 'tippy.js'
-
 export interface LinkFormPluginProps {
   pluginKey: PluginKey | string
   editor: Editor
@@ -41,24 +40,6 @@ export class LinkFormView {
   }
 
   public shouldShow = ({ view, state, from, to }) => {
-    const { doc, selection } = state
-    const { empty } = selection
-    // Sometime check for `empty` is not enough.
-    // Doubleclick an empty paragraph returns a node size of 2.
-    // So we check also for an empty text size.
-    const isEmptyTextBlock = !doc.textBetween(from, to).length && isTextSelection(state.selection)
-
-    // When clicking on a element inside the bubble menu the editor "blur" event
-    // is called and the bubble menu item is focussed. In this case we should
-    // consider the menu as part of the editor and keep showing the menu
-    const isChildOfMenu = this.element.contains(document.activeElement)
-
-    const hasEditorFocus = view.hasFocus() || isChildOfMenu
-
-    if (!hasEditorFocus || empty || isEmptyTextBlock || !this.editor.isEditable) {
-      return false
-    }
-
     return true
   }
 
@@ -78,15 +59,12 @@ export class LinkFormView {
   blurHandler = ({ event }: { event: FocusEvent }) => {
     if (this.preventHide) {
       this.preventHide = false
-      console.log('prevent hide')
       return
     }
 
     if (event?.relatedTarget && this.element.parentNode?.contains(event.relatedTarget as Node)) {
-      console.log('prevent hide 2')
       return
     }
-    console.log('hided!!!')
     this.hide()
   }
 
@@ -145,18 +123,24 @@ export class LinkFormView {
     const { state, composing } = view
     const { selection } = state
 
-    console.log('updating: ', this.pluginState())
+    const isSame = !selectionChanged && !docChanged
     if (!this.pluginState().visible) {
-      this.preventHide = false
       return
     }
-    console.log('updating 2')
-
-    // const isSame = !selectionChanged && !docChanged
-    // if (composing || isSame) {
-    //   return
-    // }
-
+    if (this.pluginState().visible && (selectionChanged || docChanged)) {
+      if (this.tippy?.state.isShown) {
+        this.hide()
+      }
+      const metaTr = this.editor?.view.state.tr.setMeta(linkFormPluginKey, {
+        visible: false,
+        decorations: []
+      })
+      this.editor?.view.dispatch(metaTr)
+      return
+    }
+    if (!this.pluginState().visible && (composing || isSame)) {
+      return
+    }
     this.preventHide = true
     this.createTooltip()
 
@@ -165,21 +149,19 @@ export class LinkFormView {
     const from = Math.min(...ranges.map((range) => range.$from.pos))
     const to = Math.max(...ranges.map((range) => range.$to.pos))
 
-    // const shouldShow = this.shouldShow?.({
-    //   editor: this.editor,
-    //   view,
-    //   state,
-    //   oldState,
-    //   from,
-    //   to
-    // })
+    const shouldShow = this.shouldShow?.({
+      editor: this.editor,
+      view,
+      state,
+      oldState,
+      from,
+      to
+    })
 
-    // if (!shouldShow) {
-    //   console.log('ignored')
-    //   this.hide()
-
-    //   return
-    // }
+    if (!shouldShow) {
+      this.hide()
+      return
+    }
 
     this.tippy?.setProps({
       getReferenceClientRect:
@@ -210,7 +192,7 @@ export class LinkFormView {
 
   destroy() {
     if (this.tippy?.popper.firstChild) {
-      ;(this.tippy.popper.firstChild as HTMLElement).removeEventListener(
+      ; (this.tippy.popper.firstChild as HTMLElement).removeEventListener(
         'blur',
         this.tippyBlurHandler
       )
@@ -243,26 +225,48 @@ export class LinkFormView {
 
     // maybe we have to hide tippy on its own blur event as well
     if (this.tippy?.popper.firstChild) {
-      ;(this.tippy.popper.firstChild as HTMLElement).addEventListener('blur', this.tippyBlurHandler)
+      ; (this.tippy.popper.firstChild as HTMLElement).addEventListener('blur', this.tippyBlurHandler)
     }
   }
 }
 export const linkFormPluginKey = new PluginKey('link-form-plugin')
 
+interface LinkPluginState {
+  visible: boolean // show plugin view
+  decorations?: Decoration[] | undefined
+}
+
 export const LinkFormPlugin = (options: LinkFormPluginProps) => {
   return new Plugin({
     key: linkFormPluginKey,
     state: {
-      init: () => {
-        return { visible: false }
+      init: (): LinkPluginState => {
+        return { visible: false, decorations: [] }
       },
-      apply: (tr, value) => {
-        const meta = tr.getMeta(linkFormPluginKey)
-        console.log(meta)
+      apply: (tr, value, oldState, newState): LinkPluginState => {
+        const meta: LinkPluginState = tr.getMeta(linkFormPluginKey)
         if (meta) {
+          if (meta.visible) {
+            const { from, to } = newState.selection
+            const decoration = Decoration.inline(from, to, {
+              class: 'selection-focus'
+            })
+            return { visible: true, decorations: [decoration] }
+          }
           return meta
         }
         return value
+      }
+    },
+    props: {
+      decorations(state): DecorationSource {
+        const pluginState: LinkPluginState | undefined = this.getState(state)
+        // maybe decorations: [null], shold filter non null values
+        const decorations = (pluginState?.decorations || []).filter((d) => d != null)
+        if (!decorations.length) {
+          return DecorationSet.empty
+        }
+        return DecorationSet.create(state.doc, decorations)
       }
     },
     view: (view) =>

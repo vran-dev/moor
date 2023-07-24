@@ -390,3 +390,12 @@ front-matter {
 .relative {
     position: relative
 }
+
+.selection-focus {
+    /* material design selection style */
+    background-color: #d8e8fa;
+    color: #4e4e4e;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: #d8e8fa;
+}

@@ -67,7 +67,6 @@ export const extensions = [
     transformPastedText: true
   }),
   frontMatter,
-  Search,
   HexColorHighlighter,
   Highlight.configure({
     multicolor: true
@@ -115,5 +114,6 @@ export const extensions = [
     }
   }),
   SlashCommandSuggestion,
-  LanguageSuggestion
+  LanguageSuggestion,
+  Search
 ]
