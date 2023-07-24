@@ -303,8 +303,7 @@ export class CodeblockView implements NodeView {
         mac: 'Escape',
         run: (): boolean => {
           this.editor?.commands.hideSearchPageBox()
-          this.editor?.commands.search()
-          return true
+          return false
         }
       },
       {

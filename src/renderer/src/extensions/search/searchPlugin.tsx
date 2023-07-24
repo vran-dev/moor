@@ -71,30 +71,6 @@ class SearchPlugin extends Plugin<SearchPluginState> {
     super(option)
     this.option = option
   }
-
-  searchByKeyword = (
-    view: EditorView,
-    keyword: string | null | undefined,
-    callback?: (option: SearchPluginOption) => void
-  ): void => {
-    const state: SearchPluginState | undefined = this.getState(view.state)
-    let searchMethod: string
-    if (keyword && state?.searchKey === keyword) {
-      searchMethod = 'next'
-    } else {
-      searchMethod = 'search'
-    }
-    if (!state) {
-      return
-    }
-    state.searchKey = keyword
-    state.updating = true
-    view.dispatch(view.state.tr.setMeta('search', searchMethod))
-    state.updating = false
-    if (callback) {
-      callback(state)
-    }
-  }
 }
 
 export class SearchPluginState {
@@ -102,7 +78,6 @@ export class SearchPluginState {
   currentMatchIndex = 0
   totalMatchCount = 0
   searchKey: string | null | undefined
-  editor: Editor | null | undefined
   matches: DecorationSet | null | undefined
   currentPos?: number
   searching = false
@@ -118,13 +93,11 @@ export class SearchPluginState {
   static empty: SearchPluginState = new SearchPluginState()
 
   static create(
-    editor: Editor,
     searchKey?: string | null | undefined,
     matches?: DecorationSet | undefined | null
   ): SearchPluginState {
     const state = new SearchPluginState()
     state.searchKey = searchKey
-    state.editor = editor
     state.currentMatchIndex = -1
     state.totalMatchCount = matches?.find()?.length || 0
     state.matches = matches
@@ -137,12 +110,16 @@ export const searchPluginInit = (editor: Editor): SearchPlugin => {
     name: 'search',
     state: {
       init(): SearchPluginState {
-        return SearchPluginState.create(editor)
+        return SearchPluginState.create()
       },
 
       apply(tr, value, oldState, newState): SearchPluginState {
-        if (tr.getMeta('searching')) {
-          value.searching = tr.getMeta('searching')
+        const searching = tr.getMeta('searching')
+        if (searching === true || searching === false) {
+          value.searching = searching
+        }
+        if (!value.searching) {
+          return value
         }
         if (value.updating) {
           return value
@@ -187,7 +164,7 @@ export const searchPluginInit = (editor: Editor): SearchPlugin => {
           })
           value.matches = DecorationSet.create(tr.doc, newDecorations)
           value.currentMatchIndex = nextIndex
-          // FIXME cause decoration not workp
+          // FIXME may cause decoration not work
           // if (next) {
           //   value.editor?.view.domAtPos(next.from)?.node.scrollIntoView?.()
           // }
@@ -205,7 +182,11 @@ export const searchPluginInit = (editor: Editor): SearchPlugin => {
 
     props: {
       decorations(state): DecorationSource | null | undefined {
-        return this.getState(state)?.matches
+        const pluginState = this.getState(state)
+        if (pluginState && pluginState.searching) {
+          return pluginState.matches
+        }
+        return null
       }
     }
   })
@@ -264,7 +245,8 @@ height="16"
 
 export const createSearchBoxView = (
   defaultValue: string | null,
-  find: (event) => void
+  find: (event) => void,
+  escape: () => void
 ): SearchBoxView => {
   const wrapper = document.createElement('div')
   wrapper.classList.add('search-page-box')
@@ -282,12 +264,10 @@ export const createSearchBoxView = (
   input.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && wrapper.style.display !== 'none') {
       find(event)
-      return
     }
     if (event.key === 'Escape') {
       wrapper.style.display = 'none'
-      find(null)
-      return
+      escape()
     }
   })
   input.value = defaultValue || ''

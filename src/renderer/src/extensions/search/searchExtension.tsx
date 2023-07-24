@@ -45,24 +45,31 @@ export const Search = Extension.create<SearchOption>({
       showSearchPageBox:
         (keyword?: string | null | undefined) =>
         (props): boolean => {
+          props.dispatch?.(props.state.tr.setMeta('searching', true))
           const searchKey = keyword || getSelectionText(this.editor.view)
           if (searchBox) {
             searchBox.show()
           } else {
-            searchBox = createSearchBoxView(searchKey, (event) => {
-              if (event) {
-                this.editor.commands.search(event.target.value)
-              } else {
-                this.editor.commands.search(null)
+            searchBox = createSearchBoxView(
+              searchKey,
+              (event) => {
+                if (event) {
+                  this.editor.commands.search(event.target.value)
+                } else {
+                  this.editor.commands.search(null)
+                }
+              },
+              () => {
+                this.editor.commands.hideSearchPageBox()
               }
-            })
+            )
             this.editor.view.dom.parentElement?.parentElement?.insertBefore(
               searchBox.container,
               this.editor.view.dom.parentElement
             )
             searchBox.show()
+            // TODO add cancel event
           }
-          props.dispatch?.(props.state.tr.setMeta('searching', true))
           return true
         },
       hideSearchPageBox:
@@ -70,7 +77,6 @@ export const Search = Extension.create<SearchOption>({
         (props): boolean => {
           if (searchBox) {
             searchBox.hide()
-            this.editor.commands.search(null)
           }
           props.dispatch?.(props.state.tr.setMeta('searching', false))
           return true

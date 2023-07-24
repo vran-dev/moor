@@ -113,7 +113,7 @@ export const extensions = [
       class: 'not-prose'
     }
   }),
+  Search,
   SlashCommandSuggestion,
-  LanguageSuggestion,
-  Search
+  LanguageSuggestion
 ]
