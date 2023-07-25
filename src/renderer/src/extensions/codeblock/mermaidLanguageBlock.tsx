@@ -3,16 +3,7 @@ import mermaid from 'mermaid'
 import Zoomable from '@renderer/common/zoomable'
 import { CommandProps } from '../suggestion/suggestComponent'
 import { waitForElm } from '../suggestion/suggestion'
-
-const debounce = (fn: (...args: any[]) => void, delay: number): (() => void) => {
-  let timer: number
-  return function (...args: any[]) {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
-      fn(...args)
-    }, delay)
-  }
-}
+import { debounce } from '@renderer/common/debounce'
 
 export class LivePreview {
   id: string

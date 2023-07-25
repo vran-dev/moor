@@ -9,6 +9,7 @@ export interface BubbleColorMenuItem {
 
 interface ColorSelectorProps {
   editor: Editor
+  className?: string
 }
 
 const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
@@ -34,35 +35,31 @@ const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
   }
 ]
 
-export const ColorSelector: FC<ColorSelectorProps> = ({ editor }) => {
+export const ColorSelector: FC<ColorSelectorProps> = ({ editor, className }) => {
   const activeHighlightItem =
     HIGHLIGHT_COLORS.find(({ color }) => editor.isActive('highlight', { color: color })) ||
     HIGHLIGHT_COLORS[0]
   return (
-    <div className="relative w-full">
-      {
-        <section className="color-list">
-          {HIGHLIGHT_COLORS.map(({ name, color }, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                editor.commands.unsetHighlight()
-                name !== 'Default' && editor.commands.setHighlight({ color })
-              }}
-              className="color-item"
-            >
-              <div
-                className="inner"
-                style={{
-                  backgroundColor: color
-                }}
-              >
-                {activeHighlightItem?.name === name ? 'A' : ''}
-              </div>
-            </button>
-          ))}
-        </section>
-      }
+    <div className={className}>
+      {HIGHLIGHT_COLORS.map(({ name, color }, index) => (
+        <button
+          key={index}
+          onClick={() => {
+            editor.commands.unsetHighlight()
+            name !== 'Default' && editor.commands.setHighlight({ color })
+          }}
+          className="color-item"
+        >
+          <div
+            className="inner"
+            style={{
+              backgroundColor: color
+            }}
+          >
+            {activeHighlightItem?.name === name ? 'A' : ''}
+          </div>
+        </button>
+      ))}
     </div>
   )
 }

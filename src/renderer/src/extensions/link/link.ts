@@ -1,11 +1,6 @@
-import { InputRule, posToDOMRect } from '@tiptap/core'
-import { Plugin } from 'prosemirror-state'
-import { TextSelection } from '@tiptap/pm/state'
+import { InputRule } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
-import tippy from 'tippy.js'
-import 'tippy.js/themes/light.css'
-import { Node } from 'prosemirror-model'
-
+import { LinkInputSelectionPlugin } from './linkInputSelectionPlugin'
 const markdownLinkRegex = /(?<!!)\[(.+?)\]\((\S+?)\)/
 
 export const CustomLink = Link.extend({
@@ -30,5 +25,9 @@ export const CustomLink = Link.extend({
         }
       })
     ]
+  },
+
+  addProseMirrorPlugins() {
+    return [LinkInputSelectionPlugin({ visible: false, decorations: [] })]
   }
 })
