@@ -11,7 +11,6 @@ import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import { Search } from '@renderer/extensions/search/searchExtension'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
 import {
@@ -22,6 +21,7 @@ import { Markdown } from 'tiptap-markdown'
 import { Node } from 'prosemirror-model'
 import { frontMatter } from './matter/frontMatter'
 import Highlight from '@tiptap/extension-highlight'
+import { Find } from './search/findExtension'
 
 const customPlaceholderExtension = Placeholder.configure({
   placeholder: ({ editor, node, pos }) => {
@@ -84,10 +84,13 @@ export const extensions = [
   TaskList.configure({
     itemTypeName: 'taskItem',
     HTMLAttributes: {
-      class: 'not-prose'
+      class: 'not-prose pl-2'
     }
   }),
   TaskItem.configure({
+    HTMLAttributes: {
+      class: 'flex items-start my-4'
+    },
     nested: true
   }),
   customPlaceholderExtension,
@@ -113,7 +116,7 @@ export const extensions = [
       class: 'not-prose'
     }
   }),
-  Search,
+  Find,
   SlashCommandSuggestion,
   LanguageSuggestion
 ]

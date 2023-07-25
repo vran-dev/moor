@@ -1,6 +1,7 @@
 import { Extension } from '@tiptap/react'
-import { SearchBoxView, SearchMeta, createSearchBoxView, searchPluginInit } from './searchPlugin'
 import { getSelectionText } from '@renderer/common/prosemirrorSelections'
+import { FindPluginState, findPlugin, findPluginKey } from './findPlugin'
+import { SearchBoxView, createSearchBoxView } from './findView'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -20,8 +21,8 @@ export interface SearchOption {
   ignoreCase: boolean
 }
 
-export const Search = Extension.create<SearchOption>({
-  name: 'search',
+export const Find = Extension.create<SearchOption>({
+  name: 'find-extension',
 
   addCommands() {
     let searchBox: SearchBoxView | null = null
@@ -29,25 +30,30 @@ export const Search = Extension.create<SearchOption>({
       search:
         (keyword) =>
         (props): boolean => {
-          if (keyword) {
-            searchBox?.updateTextValue(keyword)
+          // update input value
+          searchBox?.updateTextValue(keyword)
+          // dispatch event
+          const pluginState = findPluginKey.getState(props.state)
+          pluginState.setSearchTerm(keyword)
+          pluginState.updating = true
+          props.editor.view.dispatch(props.tr)
+          pluginState.updating = false
+          // update search count
+          const findPluginState: FindPluginState = findPluginKey.getState(props.state)
+          searchBox?.updateCountSpan(findPluginState.index || 0, findPluginState.total || 0)
+          // scroll into view
+          const pos = findPluginState.currentMatchPos()
+          if (pos) {
+            this.editor?.view.domAtPos(pos)?.node.scrollIntoView?.()
           }
-          const meta: SearchMeta = {
-            searchKey: keyword,
-            direction: 'next',
-            callback: (state) => {
-              searchBox?.updateCountSpan(state.currentMatchIndex, state.totalMatchCount)
-            }
-          }
-          props.dispatch?.(props.state.tr.setMeta('search', meta))
           return true
         },
       showSearchPageBox:
         (keyword?: string | null | undefined) =>
         (props): boolean => {
-          props.dispatch?.(props.state.tr.setMeta('searching', true))
           const searchKey = keyword || getSelectionText(this.editor.view)
           if (searchBox) {
+            searchBox.updateTextValue(searchKey)
             searchBox.show()
           } else {
             searchBox = createSearchBoxView(
@@ -56,7 +62,7 @@ export const Search = Extension.create<SearchOption>({
                 if (event) {
                   this.editor.commands.search(event.target.value)
                 } else {
-                  this.editor.commands.search(null)
+                  this.editor.commands.search()
                 }
               },
               () => {
@@ -78,7 +84,8 @@ export const Search = Extension.create<SearchOption>({
           if (searchBox) {
             searchBox.hide()
           }
-          props.dispatch?.(props.state.tr.setMeta('searching', false))
+          findPluginKey.getState(props.state).unsetState()
+          this.editor.view.focus()
           return true
         }
     }
@@ -96,12 +103,13 @@ export const Search = Extension.create<SearchOption>({
       },
       Escape: (): boolean => {
         this.editor.commands.hideSearchPageBox()
+        this.editor.view.focus()
         return false
       }
     }
   },
 
   addProseMirrorPlugins() {
-    return [searchPluginInit(this.editor)]
+    return [findPlugin()]
   }
 })
