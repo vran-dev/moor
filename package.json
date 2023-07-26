@@ -31,6 +31,7 @@
     "@excalidraw/excalidraw": "^0.15.2-3ddcc48",
     "@lezer/highlight": "^1.1.6",
     "@reduxjs/toolkit": "^1.9.5",
+    "@tanstack/react-virtual": "^3.0.0-beta.54",
     "@tiptap/extension-bubble-menu": "^2.0.3",
     "@tiptap/extension-highlight": "^2.0.4",
     "@tiptap/extension-image": "^2.0.3",

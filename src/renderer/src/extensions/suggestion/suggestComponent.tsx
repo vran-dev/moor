@@ -1,3 +1,4 @@
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Editor, Range } from '@tiptap/react'
 import {
   useState,
@@ -8,6 +9,8 @@ import {
   useImperativeHandle,
   forwardRef
 } from 'react'
+
+import '@renderer/assets/suggest.css'
 
 export interface CommandItemProps {
   name: string
@@ -73,58 +76,72 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
     setSelectedIndex(0)
   }, [items])
 
+  const rowVirtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => commandListContainer.current,
+    estimateSize: () => 60
+  })
+
   const commandListContainer = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
-    const container = commandListContainer?.current
-    const item = container?.children[selectedIndex] as HTMLElement
-    if (item && container) updateScrollView(container, item)
+    if (selectedIndex !== undefined) {
+      // FIXME when scroll to bottom, the last item is not visible fully
+      rowVirtualizer.scrollToIndex(selectedIndex, {})
+    }
   }, [selectedIndex])
 
   return items.length > 0 ? (
     <>
-      <div
-        id="slash-command"
-        ref={commandListContainer}
-        className="z-999 h-auto max-h-[330px] w-72 overflow-y-auto overflow-x-hidden rounded-md border border-stone-200 bg-white px-1 py-2 shadow-md"
-      >
-        {items.map((item: CommandItemProps, index: number) => {
-          return (
-            <button
-              className={`flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm text-stone-600 hover:bg-stone-100 ${
-                index === selectedIndex ? 'bg-stone-100 text-stone-900' : ''
-              }`}
-              key={index}
-              onClick={(): void => selectItem(index)}
-            >
-              {item.icon && (
-                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-stone-200 bg-white">
-                  {item.icon ? item.icon({ className: 'icon', width: 20, height: 20 }) : null}
-                </div>
-              )}
-              <div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-xs text-stone-500">{item.description}</p>
+      <div ref={commandListContainer} className="suggest-main">
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              transform: `translateY(${rowVirtualizer.getVirtualItems()[0].start}px)`
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => (
+              <div
+                key={virtualItem.key}
+                data-index={virtualItem.index}
+                ref={rowVirtualizer.measureElement}
+              >
+                <button
+                  className={`item ${virtualItem.index === selectedIndex ? 'selected' : ''}`}
+                  onClick={(): void => selectItem(virtualItem.index)}
+                >
+                  {items[virtualItem.index].icon && (
+                    <div className="icon">
+                      {items[virtualItem.index].icon
+                        ? items[virtualItem.index].icon({
+                            className: '',
+                            width: 20,
+                            height: 20
+                          })
+                        : null}
+                    </div>
+                  )}
+                  <div className={'content'}>
+                    <p className="title">{items[virtualItem.index].name}</p>
+                    <p className="description">{items[virtualItem.index].description}</p>
+                  </div>
+                </button>
               </div>
-            </button>
-          )
-        })}
+            ))}
+          </div>
+        </div>
       </div>
     </>
   ) : null
 })
 SuggestReactComponent.displayName = 'SuggestComponent'
 export const SuggestComponent = SuggestReactComponent
-
-export const updateScrollView = (container: HTMLElement, item: HTMLElement): void => {
-  const containerHeight = container.offsetHeight
-  const itemHeight = item ? item.offsetHeight : 0
-
-  const top = item.offsetTop
-  const bottom = top + itemHeight
-
-  if (top < container.scrollTop) {
-    container.scrollTop -= container.scrollTop - top + 5
-  } else if (bottom > containerHeight + container.scrollTop) {
-    container.scrollTop += bottom - containerHeight - container.scrollTop + 5
-  }
-}

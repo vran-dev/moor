@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron'
 import { IpcHandler } from './ipcInterface'
 const { dialog } = require('electron')
 import * as fs from 'node:fs'
+import path from 'path'
 
 export const writeFileChannel = 'file-write'
 
@@ -86,10 +87,54 @@ const openDirectoryHandler: IpcHandler = {
   }
 }
 
+interface FileInfo {
+  name: string
+  path: string
+  size: number
+}
+
+// 获取目录下的所有文件和子目录
+const listFilesRecursive = (dir, fileName): FileInfo[] => {
+  const files = fs.readdirSync(dir)
+  let fileList: FileInfo[] = []
+  for (const file of files) {
+    const filePath = path.join(dir, file)
+    const stats = fs.statSync(filePath)
+    if (stats.isDirectory()) {
+      // 如果是目录，递归获取其下的文件
+      fileList = fileList.concat(listFilesRecursive(filePath, fileName))
+    } else if (stats.isFile()) {
+      if (!fileName || fileName === '') {
+        fileList.push({
+          name: file,
+          path: filePath,
+          size: stats.size
+        })
+      } else if (file.includes(fileName)) {
+        fileList.push({
+          name: file,
+          path: filePath,
+          size: stats.size
+        })
+      }
+    }
+  }
+  return fileList
+}
+const listFilesRecursiveHandler: IpcHandler = {
+  name: 'list-files-recursive',
+  handle: (event, ...args) => {
+    const dir = args[0]
+    const term = args[1]
+    return listFilesRecursive(dir, term)
+  }
+}
+
 export const handlers = [
   openFileDialogHandler,
   openDirectoryHandler,
   listFileHandler,
   readFileHandler,
-  writeFileHandler
+  writeFileHandler,
+  listFilesRecursiveHandler
 ]

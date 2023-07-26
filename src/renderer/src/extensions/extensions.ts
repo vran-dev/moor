@@ -15,7 +15,8 @@ import Dropcursor from '@tiptap/extension-dropcursor'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
 import {
   LanguageSuggestion,
-  SlashCommandSuggestion
+  SlashCommandSuggestion,
+  LinkSuggestion
 } from '@renderer/extensions/suggestion/suggestExtension'
 import { Markdown } from 'tiptap-markdown'
 import { Node } from 'prosemirror-model'
@@ -118,5 +119,6 @@ export const extensions = [
   }),
   Find,
   SlashCommandSuggestion,
-  LanguageSuggestion
+  LanguageSuggestion,
+  LinkSuggestion
 ]

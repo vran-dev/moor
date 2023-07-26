@@ -7,6 +7,7 @@ import { Plugin, PluginKey } from 'prosemirror-state'
 import { Suggestion } from './suggestion'
 import { suggestLanguages } from '../codeblock/suggestLanguages'
 import { suggestSlashCommands } from '../slash/slashItems'
+import { suggestLinks } from '../link/suggestLinks'
 
 const defaultRender = (): any => {
   let component: ReactRenderer | null = null
@@ -107,4 +108,30 @@ const LanguageSuggestion = Extension.create({
   }
 })
 
-export { SlashCommandSuggestion, LanguageSuggestion }
+const LinkSuggestion = Extension.create({
+  name: 'linkSuggestion',
+  addOptions() {
+    return {
+      suggestion: {
+        char: '[[',
+        pluginKey: new PluginKey('linkSuggestion'),
+        items: suggestLinks,
+        render: defaultRender,
+        command: ({ editor, range, props }: { editor: Editor; range: Range; props: any }): void => {
+          props.command({ editor, range })
+        }
+      }
+    }
+  },
+
+  addProseMirrorPlugins(): Plugin[] {
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion
+      })
+    ]
+  }
+})
+
+export { SlashCommandSuggestion, LanguageSuggestion, LinkSuggestion }
