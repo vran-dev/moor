@@ -1,4 +1,4 @@
-import { useVirtualizer } from '@tanstack/react-virtual'
+import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual'
 import { Editor, Range } from '@tiptap/react'
 import {
   useState,
@@ -84,6 +84,9 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
 
   const commandListContainer = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
+    if (!rowVirtualizer || !rowVirtualizer.scrollElement) {
+      return
+    }
     if (selectedIndex !== undefined) {
       // FIXME when scroll to bottom, the last item is not visible fully
       rowVirtualizer.scrollToIndex(selectedIndex, {})
@@ -131,8 +134,8 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
                     </div>
                   )}
                   <div className={'content'}>
-                    <p className="title">{items[virtualItem.index].name}</p>
-                    <p className="description">{items[virtualItem.index].description}</p>
+                    <div className="title">{items[virtualItem.index].name}</div>
+                    <div className="description">{items[virtualItem.index].description}</div>
                   </div>
                 </button>
               </div>

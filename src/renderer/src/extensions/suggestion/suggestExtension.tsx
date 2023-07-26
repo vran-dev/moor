@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { Extension, Editor, Range, ReactRenderer } from '@tiptap/react'
+import { Extension, Editor, Range, ReactRenderer, textInputRule } from '@tiptap/react'
 import { CommandProps, SuggestComponent } from './suggestComponent'
 import tippy from 'tippy.js'
 import { Plugin, PluginKey } from 'prosemirror-state'
@@ -122,6 +122,14 @@ const LinkSuggestion = Extension.create({
         }
       }
     }
+  },
+  addInputRules() {
+    return [
+      textInputRule({
+        find: /【{2}/,
+        replace: '[['
+      })
+    ]
   },
 
   addProseMirrorPlugins(): Plugin[] {

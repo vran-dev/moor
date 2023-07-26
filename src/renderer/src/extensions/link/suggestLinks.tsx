@@ -10,12 +10,14 @@ const ipcRenderer = window.electron.ipcRenderer
 
 export const suggestLinks = ({ query }: { query: string }): Promise<LinkItem[]> => {
   return ipcRenderer
-    .invoke('list-files-recursive', '/Users/vrtia/workspace/data/Vran', query)
+    .invoke('list-files-recursive', 'E:/ObsidianWorkspace/Vran', query)
     .then((result) => {
       return result.map((item) => {
+        const standardPath = item.path.replaceAll('\\', '/')
+        const description = standardPath.substring(0, standardPath.lastIndexOf('/'))
         return {
           name: item.name,
-          description: item.path,
+          description: description,
           command: ({ editor, range }: CommandProps): void => {
             editor.commands.insertContentAt(range, `[[${item.path}]]`)
           }
