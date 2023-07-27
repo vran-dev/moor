@@ -45,8 +45,11 @@ export const ColorSelector: FC<ColorSelectorProps> = ({ editor, className }) => 
         <button
           key={index}
           onClick={() => {
-            editor.commands.unsetHighlight()
-            name !== 'Default' && editor.commands.setHighlight({ color })
+            if (name == 'Default') {
+              editor.commands.unsetHighlight()
+            } else {
+              editor.commands.setHighlight({ color })
+            }
           }}
           className="color-item"
         >

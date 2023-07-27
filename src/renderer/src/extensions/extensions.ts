@@ -69,9 +69,6 @@ export const extensions = [
   }),
   frontMatter,
   HexColorHighlighter,
-  Highlight.configure({
-    multicolor: true
-  }),
   Dropcursor.configure({
     width: 2,
     color: '#00a8ff'
@@ -120,5 +117,8 @@ export const extensions = [
   Find,
   SlashCommandSuggestion,
   LanguageSuggestion,
-  LinkSuggestion
+  LinkSuggestion,
+  Highlight.configure({
+    multicolor: true
+  })
 ]
