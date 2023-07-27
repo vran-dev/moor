@@ -127,6 +127,15 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       if (editor.isActive('codeBlock')) {
         return false
       }
+      if (!editor.view.state.selection) {
+        return false
+      }
+
+      if (editor.view.state.selection.node) {
+        // const node = editor.view.state.selection.node
+        // console.log(node)
+        return false
+      }
       return editor.view.state.selection.content().size > 0
     },
     tippyOptions: {

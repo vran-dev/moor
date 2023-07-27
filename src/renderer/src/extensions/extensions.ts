@@ -67,6 +67,7 @@ export const extensions = [
   Markdown.configure({
     transformPastedText: true
   }),
+
   frontMatter,
   HexColorHighlighter,
   Dropcursor.configure({
@@ -109,16 +110,16 @@ export const extensions = [
   TableHeader,
   TableRow,
   TableCell,
-  ExcalidrawNode.configure({
-    HTMLAttributes: {
-      class: 'not-prose'
-    }
-  }),
   Find,
   SlashCommandSuggestion,
   LanguageSuggestion,
   LinkSuggestion,
   Highlight.configure({
     multicolor: true
+  }),
+  ExcalidrawNode.configure({
+    HTMLAttributes: {
+      class: 'not-prose'
+    }
   })
 ]

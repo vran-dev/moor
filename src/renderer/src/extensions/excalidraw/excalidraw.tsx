@@ -1,5 +1,7 @@
 import { Node, nodeInputRule, mergeAttributes, ReactNodeViewRenderer } from '@tiptap/react'
 import ExcalidrawWrapper from './excalidrawWrapper'
+import { NodeSelection } from 'prosemirror-state'
+import { createParagraphNear } from 'prosemirror-commands'
 
 const inputRegex = /^```excalidraw\n/
 
@@ -72,7 +74,77 @@ const ExcalidrawNode = Node.create<ExcalidrawOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ExcalidrawWrapper)
+    const editor = this.editor
+    return ReactNodeViewRenderer(ExcalidrawWrapper, {
+      stopEvent({ event }) {
+        const eventType = event.type
+
+        // if mod+enter, jump to next node or create new paragraph node
+        if (eventType === 'mousedown') {
+          // right click
+          if (event.button === 2) {
+            event.preventDefault()
+            return true
+          }
+        }
+
+        // ignore keydown and keyup events above Excalidraw canvas
+        if (eventType === 'keydown') {
+          const keyboardEvent = event as KeyboardEvent
+          const jump = (): void | false => {
+            const view = editor.view
+            if (!createParagraphNear(view.state, view.dispatch)) {
+              console.log('create p')
+              return false
+            }
+            view.focus()
+          }
+          // mac use command+enter
+          if (keyboardEvent.metaKey && keyboardEvent.key === 'Enter') {
+            jump()
+          }
+          // windows/linux use ctrl+enter
+          if (keyboardEvent.ctrlKey && keyboardEvent.key === 'Enter') {
+            jump()
+          }
+          return true
+        }
+
+        if (eventType === 'keyup') {
+          event.preventDefault()
+          return true
+        }
+
+        // ignore drag events above Excalidraw canvas when target is not a drag handle
+        const isDragEvent = event.type === 'dragstart'
+        const target = event.target
+        if (isDragEvent && target && target instanceof HTMLElement) {
+          const ele = target as HTMLElement
+          if (!ele.hasAttribute('data-drag-handle')) {
+            event.preventDefault()
+            return true
+          } else {
+            return false
+          }
+        }
+
+        // select current node
+        if (event.type === 'mousedown') {
+          const mouseEvent = event as MouseEvent
+          const view = editor.view
+          const pos = view.posAtCoords({ left: mouseEvent.clientX, top: mouseEvent.clientY })
+          if (pos) {
+            const selection = NodeSelection.create(view.state.doc, pos.pos)
+            const transaction = view.state.tr.setSelection(selection)
+            view.dispatch(transaction)
+          }
+        }
+        return true
+      },
+      attrs: {
+        style: 'width:  800px; height: 600px;'
+      }
+    })
   },
 
   addInputRules() {

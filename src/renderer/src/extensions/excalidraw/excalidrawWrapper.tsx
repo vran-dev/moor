@@ -14,6 +14,8 @@ const ExcalidrawWrapper = (props: {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null)
   const containerRef = useRef(null)
   const [id, setId] = useState('id_' + uuidv4())
+  const dataDragHandleRef = useRef(null)
+
   const node = props.node
   const attrs = node.attrs
   const width = attrs.width ? attrs.width : '800px'
@@ -65,8 +67,8 @@ const ExcalidrawWrapper = (props: {
   }
 
   const styleObj = {
-    width: width,
-    height: height,
+    width: '100%',
+    height: '100%',
     position: 'relative',
     boxShadow: props.selected
       ? 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'
@@ -80,17 +82,18 @@ const ExcalidrawWrapper = (props: {
     <>
       <NodeViewWrapper style={styleObj} ref={containerRef}>
         <div
+          ref={dataDragHandleRef}
           className="drag-handle"
           contentEditable="false"
           draggable="true"
           data-drag-handle
           style={dragHandlerStyle}
         />
-        <div style={{ width: '100%', height: '100%' }} contentEditable={false}>
+        <div style={{ width: '100%', height: '100%' }}>
           <Excalidraw
             initialData={initialData}
             onChange={dataUpdate}
-            zenModeEnabled={true}
+            zenModeEnabled={false}
             ref={(api): void => setExcalidrawAPI(api)}
           >
             <MainMenu>

@@ -15,7 +15,8 @@ import {
   defaultHighlightStyle,
   LanguageSupport,
   bracketMatching,
-  indentOnInput
+  indentOnInput,
+  foldGutter
 } from '@codemirror/language'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
@@ -149,11 +150,13 @@ export class CodeblockView implements NodeView {
 
   private initLanguageSelect(): void {
     const langSelect = document.createElement('select')
+    langSelect.classList.add('languages')
     const selectedLang = this.node.attrs.language || 'Plain'
     this.dom.appendChild(langSelect)
 
     const langOptions = this.LanguageBlocks.map((langBlock) => {
       const option = document.createElement('option')
+      option.classList.add('item')
       option.value = langBlock.name
       option.text = langBlock.name
       if (langBlock.name.toLowerCase() === selectedLang.toLowerCase()) {
