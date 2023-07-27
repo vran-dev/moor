@@ -1,4 +1,4 @@
-import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Editor, Range } from '@tiptap/react'
 import {
   useState,
@@ -14,9 +14,11 @@ import '@renderer/assets/suggest.css'
 
 export interface CommandItemProps {
   name: string
-  icon: ({ className, width, height }) => ReactNode
+  icon?: ReactNode
   description: string
   command: (command: CommandProps) => void
+  onSelect?: ({ editor }) => void
+  onUnselect?: ({ editor }) => void
 }
 
 export interface CommandProps {
@@ -34,6 +36,7 @@ export interface CommandOptions {
 const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode => {
   const { items, command, editor, range } = props
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const prevSelectedIndexRef = useRef<number>(0)
   const selectItem = (index: number): void => {
     const item = items[index]
     if (item) {
@@ -71,6 +74,31 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
       return false
     }
   }))
+
+  useEffect(() => {
+    if (selectedIndex !== undefined) {
+      const item = items[selectedIndex]
+      if (item && item.onSelect) {
+        item.onSelect({ editor })
+      }
+    }
+
+    if (prevSelectedIndexRef.current !== undefined) {
+      const prevItem = items[prevSelectedIndexRef.current]
+      if (prevItem && prevItem.onUnselect) {
+        prevItem.onUnselect({ editor })
+      }
+    }
+    prevSelectedIndexRef.current = selectedIndex
+    return () => {
+      if (selectedIndex !== undefined) {
+        const curr = items[prevSelectedIndexRef.current]
+        if (curr && curr.onUnselect) {
+          curr.onUnselect({ editor })
+        }
+      }
+    }
+  }, [selectedIndex])
 
   useEffect(() => {
     setSelectedIndex(0)
@@ -124,13 +152,7 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
                 >
                   {items[virtualItem.index].icon && (
                     <div className="icon">
-                      {items[virtualItem.index].icon
-                        ? items[virtualItem.index].icon({
-                            className: '',
-                            width: 20,
-                            height: 20
-                          })
-                        : null}
+                      {items[virtualItem.index].icon ? items[virtualItem.index].icon : null}
                     </div>
                   )}
                   <div className={'content'}>

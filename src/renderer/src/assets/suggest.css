@@ -29,12 +29,12 @@
 }
 
 .suggest-main .item:hover {
-    background-color: rgb(245 245 244);
+    background-color: #f5f5f4;
 }
 
 .suggest-main .item.selected {
-    background-color: rgb(245 245 244);
-    color: rgb(28 25 23);
+    background-color: #f5f5f4;
+    color: #1c1917;
 }
 
 .suggest-main .item .icon {

@@ -376,13 +376,13 @@ export function Heading3Icon({
 }
 
 export function ExcalidrawIcon({
-  className = 'icon',
   width = 16,
-  height = 16
+  height = 16,
+  className = ''
 }: {
-  className: string
-  width: number
-  height: number
+  className?: string
+  width?: number
+  height?: number
 }): JSX.Element {
   return (
     <svg

@@ -477,3 +477,15 @@ ul[data-type="taskList"] li[data-checked="true"]>div>p {
 .codeblock .languages .item:hover {
     background-color: rgb(245 245 244);
 }
+
+table tr.selected {
+    background-color: rgb(245 245 244);
+}
+
+table tr th.selected {
+    background-color: rgb(245 245 244);
+}
+
+table tr td.selected {
+    background-color: rgb(245 245 244);
+}

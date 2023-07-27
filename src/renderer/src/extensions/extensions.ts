@@ -5,8 +5,6 @@ import CustomTable from '@renderer/extensions/table/table'
 import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeBlock'
 import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
 import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import TableCell from '@tiptap/extension-table-cell'
 import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
@@ -23,6 +21,8 @@ import { Node } from 'prosemirror-model'
 import { frontMatter } from './matter/frontMatter'
 import Highlight from '@tiptap/extension-highlight'
 import { Find } from './search/findExtension'
+import { CustomTableRow } from './table/tableRow'
+import { CustomTableCell } from './table/tableCell'
 
 const customPlaceholderExtension = Placeholder.configure({
   placeholder: ({ editor, node, pos }) => {
@@ -108,8 +108,8 @@ export const extensions = [
     }
   }),
   TableHeader,
-  TableRow,
-  TableCell,
+  CustomTableRow,
+  CustomTableCell,
   Find,
   SlashCommandSuggestion,
   LanguageSuggestion,

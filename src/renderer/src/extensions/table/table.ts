@@ -1,6 +1,6 @@
 import { Table } from '@tiptap/extension-table'
 import { InputRule } from '@tiptap/core'
-import { NodeSelection, TextSelection } from '@tiptap/pm/state'
+import { TextSelection } from '@tiptap/pm/state'
 import { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { NodeType, Schema } from '@tiptap/pm/model'
 

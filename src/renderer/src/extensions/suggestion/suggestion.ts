@@ -1,4 +1,5 @@
-import { Editor, Range } from '@tiptap/core'
+import { Editor } from '@tiptap/react'
+import { Range } from '@tiptap/core'
 import { EditorState, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet, EditorView } from '@tiptap/pm/view'
 
