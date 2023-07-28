@@ -23,6 +23,7 @@ import Highlight from '@tiptap/extension-highlight'
 import { Find } from './search/findExtension'
 import { CustomTableRow } from './table/tableRow'
 import { CustomTableCell } from './table/tableCell'
+import { CustomTableHeader } from './table/tableHeader'
 
 const customPlaceholderExtension = Placeholder.configure({
   placeholder: ({ editor, node, pos }) => {
@@ -107,7 +108,7 @@ export const extensions = [
       class: 'border-y'
     }
   }),
-  TableHeader,
+  CustomTableHeader,
   CustomTableRow,
   CustomTableCell,
   Find,

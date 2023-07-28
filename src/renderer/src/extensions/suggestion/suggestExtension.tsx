@@ -27,11 +27,17 @@ const defaultRender = (): any => {
         showOnCreate: true,
         interactive: true,
         trigger: 'manual',
-        placement: 'bottom-start'
+        placement: 'bottom-start',
+        onHide(instance) {
+          component?.ref?.onHide(instance)
+        }
       })
     },
 
     onUpdate: (props: { editor: Editor; clientRect: DOMRect }) => {
+      if (!popup?.[0].state.isShown) {
+        return
+      }
       component?.updateProps(props)
       if (!props.clientRect) {
         return
@@ -45,6 +51,9 @@ const defaultRender = (): any => {
       if (props.event.key === 'Escape') {
         popup?.[0].hide()
         return true
+      }
+      if (!popup?.[0].state.isShown) {
+        return false
       }
       return component?.ref?.onKeyDown(props)
     },

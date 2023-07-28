@@ -30,11 +30,10 @@ const ICON_PROPS = {
   color: '#131313'
 }
 
-const selectColumn = ({ editor, className }) => {
-  const anchor = editor.view.state.selection.$anchor
-  const cellPos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => anchor.pos, 'tableCell')
-  const tablePos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => anchor.pos, 'table')
-  const rowPos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => anchor.pos, 'tableRow')
+const selectTableColumn = ({ editor, range, className }) => {
+  const cellPos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'tableCell')
+  const tablePos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'table')
+  const rowPos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'tableRow')
   const cellNode = editor.state.doc.nodeAt(cellPos)
   let colIndex = 0
   let colMatched = false
@@ -56,6 +55,9 @@ const selectColumn = ({ editor, className }) => {
   let rowCol = 0
   let match = false
   editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === 'table' && match) {
+      return false
+    }
     if (node === tableNode) {
       if (match) {
         return false
@@ -67,7 +69,7 @@ const selectColumn = ({ editor, className }) => {
         rowIndex++
         rowCol = 0
       }
-      if (node.type.name === 'tableCell') {
+      if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
         if (colIndex === rowCol) {
           rowCol++
           const { state, dispatch } = editor.view
@@ -80,6 +82,37 @@ const selectColumn = ({ editor, className }) => {
       }
     }
   })
+}
+
+const selectTableRow = ({ editor, range, className }) => {
+  const rowNodePos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'tableRow')
+  if (rowNodePos) {
+    const { state, dispatch } = editor.view
+    const tr = editor.view.state.tr.setNodeAttribute(rowNodePos, 'className', className)
+    dispatch(tr)
+  }
+}
+
+const selectTable = ({ editor, range, className }) => {
+  const tableNodePos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'table')
+  if (tableNodePos) {
+    const tableNode = editor.state.doc.nodeAt(tableNodePos)
+    let match = false
+    editor.state.doc.descendants((node, pos) => {
+      if (node.type.name === 'table' && match) {
+        return false
+      }
+      if (node === tableNode) {
+        match = true
+      }
+      if (match && node.type.name === 'tableRow') {
+        const { state, dispatch } = editor.view
+        const tr = editor.view.state.tr.setNodeAttribute(pos, 'className', className)
+        dispatch(tr)
+        return false
+      }
+    })
+  }
 }
 
 export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query: string }) => {
@@ -126,33 +159,11 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       name: 'Delete Current Row',
       description: 'Delete row at the current position',
       icon: <AiOutlineDeleteRow {...ICON_PROPS} />,
-      onUnselect: ({ editor }: { editor: Editor }) => {
-        const selection = editor.view.state.selection
-        const anchor = selection.$anchor
-        const rowNodePos = ProsemirrorNodes.getAncestorNodePos(
-          editor.view,
-          () => anchor.pos,
-          'tableRow'
-        )
-        if (rowNodePos) {
-          const { state, dispatch } = editor.view
-          const tr = editor.view.state.tr.setNodeAttribute(rowNodePos, 'className', '')
-          dispatch(tr)
-        }
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableRow({ editor: editor, range: range, className: 'selected' })
       },
-      onSelect: ({ editor }: { editor: Editor }) => {
-        const selection = editor.view.state.selection
-        const anchor = selection.$anchor
-        const rowNodePos = ProsemirrorNodes.getAncestorNodePos(
-          editor.view,
-          () => anchor.pos,
-          'tableRow'
-        )
-        if (rowNodePos) {
-          const { state, dispatch } = editor.view
-          const tr = editor.view.state.tr.setNodeAttribute(rowNodePos, 'className', 'selected')
-          dispatch(tr)
-        }
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableRow({ editor: editor, range: range, className: '' })
       },
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).deleteRow().run()
@@ -165,17 +176,23 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).deleteColumn().run()
       },
-      onSelect: ({ editor }: { editor: Editor }) => {
-        selectColumn({ editor: editor, className: 'selected' })
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableColumn({ editor: editor, range: range, className: 'selected' })
       },
-      onUnselect: ({ editor }: { editor: Editor }) => {
-        selectColumn({ editor: editor, className: '' })
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableColumn({ editor: editor, range: range, className: '' })
       }
     },
     {
       name: 'Delete Table',
       description: 'Delete entire table at the current position',
       icon: <AiOutlineDelete {...ICON_PROPS} />,
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTable({ editor: editor, range: range, className: 'selected' })
+      },
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTable({ editor: editor, range: range, className: '' })
+      },
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).deleteTable().run()
       }

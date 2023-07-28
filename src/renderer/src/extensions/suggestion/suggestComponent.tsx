@@ -17,8 +17,8 @@ export interface CommandItemProps {
   icon?: ReactNode
   description: string
   command: (command: CommandProps) => void
-  onSelect?: ({ editor }) => void
-  onUnselect?: ({ editor }) => void
+  onSelect?: ({ editor, range }: { editor: Editor; range: Range }) => void
+  onUnselect?: ({ editor, range }: { editor: Editor; range: Range }) => void
 }
 
 export interface CommandProps {
@@ -36,7 +36,8 @@ export interface CommandOptions {
 const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode => {
   const { items, command, editor, range } = props
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const prevSelectedIndexRef = useRef<number>(0)
+  const prevSelectedItem = useRef<CommandItemProps>()
+
   const selectItem = (index: number): void => {
     const item = items[index]
     if (item) {
@@ -56,52 +57,48 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
     selectItem(selectedIndex)
   }
 
-  useImperativeHandle(ref, () => ({
-    onKeyDown: ({ event }): boolean => {
-      if (!items || items.length === 0) return false
-      if (event.key === 'ArrowUp') {
-        upHandler()
-        return true
-      }
-      if (event.key === 'ArrowDown') {
-        downHandler()
-        return true
-      }
-      if (event.key === 'Enter') {
-        enterHandler()
-        return true
-      }
-      return false
+  const triggerUnSelectIndex = (index: number | undefined): void => {
+    if (index !== undefined) {
+      const prevItem = items[index]
+      triggerUnSelectItem(prevItem)
     }
-  }))
+  }
+
+  const triggerSelectIndex = (index: number | undefined): void => {
+    if (index !== undefined) {
+      const item = items[index]
+      if (item && item.onSelect) {
+        item.onSelect({ editor, range })
+      }
+    }
+  }
+
+  const triggerUnSelectItem = (item: CommandItemProps | null | undefined): void => {
+    if (item && item.onUnselect) {
+      item.onUnselect({ editor, range })
+    }
+  }
 
   useEffect(() => {
+    triggerUnSelectItem(prevSelectedItem.current)
+    triggerSelectIndex(selectedIndex)
     if (selectedIndex !== undefined) {
-      const item = items[selectedIndex]
-      if (item && item.onSelect) {
-        item.onSelect({ editor })
-      }
+      prevSelectedItem.current = items[selectedIndex]
+    } else {
+      prevSelectedItem.current = undefined
     }
-
-    if (prevSelectedIndexRef.current !== undefined) {
-      const prevItem = items[prevSelectedIndexRef.current]
-      if (prevItem && prevItem.onUnselect) {
-        prevItem.onUnselect({ editor })
-      }
-    }
-    prevSelectedIndexRef.current = selectedIndex
     return () => {
-      if (selectedIndex !== undefined) {
-        const curr = items[prevSelectedIndexRef.current]
-        if (curr && curr.onUnselect) {
-          curr.onUnselect({ editor })
-        }
-      }
+      triggerUnSelectIndex(selectedIndex)
     }
   }, [selectedIndex])
 
   useEffect(() => {
-    setSelectedIndex(0)
+    triggerUnSelectItem(prevSelectedItem.current)
+    if (items.length) {
+      prevSelectedItem.current = items[0]
+      setSelectedIndex(0)
+      triggerSelectIndex(0)
+    }
   }, [items])
 
   const rowVirtualizer = useVirtualizer({
@@ -120,6 +117,30 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
       rowVirtualizer.scrollToIndex(selectedIndex, {})
     }
   }, [selectedIndex])
+
+  useImperativeHandle(ref, () => ({
+    onKeyDown: ({ event }): boolean => {
+      if (!items || items.length === 0) return false
+      if (event.key === 'ArrowUp') {
+        upHandler()
+        return true
+      }
+      if (event.key === 'ArrowDown') {
+        downHandler()
+        return true
+      }
+      if (event.key === 'Enter') {
+        enterHandler()
+        return true
+      }
+      return false
+    },
+
+    onHide: ({ instance }): void => {
+      triggerUnSelectIndex(selectedIndex)
+      triggerUnSelectItem(prevSelectedItem.current)
+    }
+  }))
 
   return items.length > 0 ? (
     <>

@@ -94,7 +94,6 @@ const ExcalidrawNode = Node.create<ExcalidrawOptions>({
           const jump = (): void | false => {
             const view = editor.view
             if (!createParagraphNear(view.state, view.dispatch)) {
-              console.log('create p')
               return false
             }
             view.focus()
