@@ -25,6 +25,7 @@ export interface SuggestionOptions<I = any> {
     onKeyDown?: (props: SuggestionKeyDownProps) => boolean
   }
   allow?: (props: { editor: Editor; state: EditorState; range: Range }) => boolean
+  metaCombinationKey?: string
 }
 
 export interface SuggestionProps<I = any> {
@@ -79,7 +80,8 @@ export function Suggestion<I = any>({
   command = () => null,
   items = () => [],
   render = () => ({}),
-  allow = () => true
+  allow = () => true,
+  metaCombinationKey = undefined
 }: SuggestionOptions<I>): Plugin {
   let props: SuggestionProps<I> | undefined
   const renderer = render?.()
@@ -261,7 +263,14 @@ export function Suggestion<I = any>({
     props: {
       // Call the keydown hook if suggestion is active.
       handleKeyDown(view, event) {
+        // metaCombinationKey
         const { active, range } = plugin.getState(view.state)
+        if (metaCombinationKey && event.key === metaCombinationKey) {
+          if (event.ctrlKey || event.metaKey) {
+            console.log('ctrlKey or metaKey')
+            return false
+          }
+        }
         if (!active) {
           return false
         }

@@ -76,7 +76,8 @@ const SlashCommandSuggestion = Extension.create({
         render: defaultRender,
         command: ({ editor, range, props }: { editor: Editor; range: Range; props: any }): void => {
           props.command({ editor, range })
-        }
+        },
+        metaCombinationKey: '/'
       }
     }
   },
