@@ -40,12 +40,12 @@ export function findSuggestionMatch(config: Trigger): SuggestionMatch {
 
   // JavaScript doesn't have lookbehinds. This hacks a check that first character
   // is a space or the start of the line
-  const matchPrefix = match.input.slice(Math.max(0, match.index - 1), match.index)
-  const matchPrefixIsAllowed = new RegExp(`^[${allowedPrefixes?.join('')}\0]?$`).test(matchPrefix)
+  // const matchPrefix = match.input.slice(Math.max(0, match.index - 1), match.index)
+  // const matchPrefixIsAllowed = new RegExp(`^[${allowedPrefixes?.join('')}]?$`).test(matchPrefix)
 
-  if (allowedPrefixes !== null && !matchPrefixIsAllowed) {
-    return null
-  }
+  // if (allowedPrefixes !== null && !matchPrefixIsAllowed) {
+  //   return null
+  // }
 
   // The absolute position of the match in the document
   const from = textFrom + match.index

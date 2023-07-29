@@ -104,7 +104,17 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
   const rowVirtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => commandListContainer.current,
-    estimateSize: () => 60
+    estimateSize: (index) => {
+      const item = items[index]
+      if (item) {
+        if (item.description) {
+          return 52
+        } else {
+          return 32
+        }
+      }
+      return 0
+    }
   })
 
   const commandListContainer = useRef<HTMLDivElement>(null)
