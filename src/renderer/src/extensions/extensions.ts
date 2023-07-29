@@ -102,7 +102,7 @@ export const extensions = [
   }),
   CustomImage,
   CustomTable.configure({
-    resizable: false,
+    resizable: true,
     allowTableNodeSelection: true,
     HTMLAttributes: {
       class: 'border-y'

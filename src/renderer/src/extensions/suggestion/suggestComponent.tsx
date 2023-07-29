@@ -103,6 +103,8 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
 
   const rowVirtualizer = useVirtualizer({
     count: items.length,
+    scrollPaddingStart: 12,
+    scrollPaddingEnd: 12,
     getScrollElement: () => commandListContainer.current,
     estimateSize: (index) => {
       const item = items[index]
@@ -156,13 +158,12 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
 
   return items.length > 0 ? (
     <>
-      <div ref={commandListContainer} className="suggest-main">
+      <div ref={commandListContainer} className="suggest-wrapper">
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize()}px`,
-            width: '100%',
-            position: 'relative'
+            height: `${rowVirtualizer.getTotalSize()}px`
           }}
+          className="suggest-main"
         >
           <div
             style={{
