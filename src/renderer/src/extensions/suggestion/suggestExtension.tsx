@@ -52,9 +52,10 @@ const defaultRender = (): any => {
         popup?.[0].hide()
         return true
       }
-      // if (!popup?.[0].state.isShown) {
-      //   return false
-      // }
+      console.log(popup?.[0].state)
+      if (!popup?.[0].state.isVisible) {
+        return false
+      }
       return component?.ref?.onKeyDown(props)
     },
 
