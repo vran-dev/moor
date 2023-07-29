@@ -26,8 +26,7 @@ import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
 const ICON_SIZE = 20
 
 const ICON_PROPS = {
-  size: ICON_SIZE,
-  color: '#131313'
+  size: ICON_SIZE
 }
 
 const selectTableColumn = ({ editor, range, className }) => {
@@ -86,6 +85,7 @@ const selectTableColumn = ({ editor, range, className }) => {
 
 const selectTableRow = ({ editor, range, className }) => {
   const rowNodePos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'tableRow')
+  console.log('select table row ', editor.state.doc.nodeAt(rowNodePos), className, rowNodePos)
   if (rowNodePos) {
     const { state, dispatch } = editor.view
     const tr = editor.view.state.tr.setNodeAttribute(rowNodePos, 'className', className)
@@ -129,6 +129,12 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       description: 'Insert new row before current row',
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).addRowBefore().run()
+      },
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableRow({ editor: editor, range: range, className: 'select-top' })
+      },
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableRow({ editor: editor, range: range, className: '' })
       }
     },
     {
@@ -137,6 +143,12 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       icon: <AiOutlineInsertRowBelow {...ICON_PROPS} />,
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).addRowAfter().run()
+      },
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableRow({ editor: editor, range: range, className: 'select-bottom' })
+      },
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableRow({ editor: editor, range: range, className: '' })
       }
     },
     {
@@ -145,6 +157,12 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       icon: <AiOutlineInsertRowLeft {...ICON_PROPS} />,
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).addColumnBefore().run()
+      },
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableColumn({ editor: editor, range: range, className: 'select-left' })
+      },
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableColumn({ editor: editor, range: range, className: '' })
       }
     },
     {
@@ -153,6 +171,12 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       icon: <AiOutlineInsertRowRight {...ICON_PROPS} />,
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).addColumnAfter().run()
+      },
+      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableColumn({ editor: editor, range: range, className: 'select-right' })
+      },
+      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+        selectTableColumn({ editor: editor, range: range, className: '' })
       }
     },
     {

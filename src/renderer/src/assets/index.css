@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --highlight-color: #7852ee;
+    --highlight-text-color: #FFFFFF;
+}
+
 body {
     overflow: hidden;
     height: 100vh;
@@ -132,7 +137,7 @@ body {
 
 .image-container:hover {
     border-style: solid;
-    border-color: #62cd87;
+    border-color: var(--highlight-color);
     border-width: 1px;
 }
 
@@ -141,7 +146,7 @@ body {
     width: 10px;
     height: 10px;
     background-color: #FFFFFF;
-    border: 1px solid #cccCCC;
+    border: 1px solid var(--highlight-color);
     box-sizing: border-box;
 }
 
@@ -165,31 +170,6 @@ body {
     float: left;
     height: 0;
     pointer-events: none;
-}
-
-/* task list & item */
-
-ul[data-type="taskList"] {
-    list-style: none;
-    padding: 0;
-}
-
-ul[data-type="taskList"] p {
-    margin: 0;
-}
-
-ul[data-type="taskList"] li {
-    display: flex;
-}
-
-ul[data-type="taskList"] li>label {
-    flex: 0 0 auto;
-    margin-right: 0.5rem;
-    user-select: none;
-}
-
-ul[data-type="taskList"] li>div {
-    flex: 1 1 auto;
 }
 
 /* zoom */
@@ -392,11 +372,8 @@ front-matter {
 
 .selection-focus {
     /* material design selection style */
-    background-color: #d8e8fa;
-    color: #4e4e4e;
-    border-radius: 5px;
-    border-width: 1px;
-    border-color: #d8e8fa;
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
 }
 
 /* Custom TODO list checkboxes – shoutout to this awesome tutorial: https://moderncss.dev/pure-css-custom-checkbox-style/ */
@@ -456,6 +433,16 @@ ul[data-type="taskList"] li[data-checked="true"]>div>p {
     text-decoration-thickness: 2px;
 }
 
+ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"] {
+    border: 2px solid var(--highlight-color);
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
+}
+
+ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"]:hover {
+    opacity: 0.8;
+}
+
 .codeblock .languages {
     overflow-y: scroll;
 }
@@ -475,17 +462,41 @@ ul[data-type="taskList"] li[data-checked="true"]>div>p {
 }
 
 .codeblock .languages .item:hover {
-    background-color: rgb(245 245 244);
+    background-color: #f5f5f4;
 }
 
 table tr.selected {
-    background-color: rgb(245 245 244);
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
 }
 
 table tr th.selected {
-    background-color: rgb(245 245 244);
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
+}
+table tr td.selected {
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
 }
 
-table tr td.selected {
-    background-color: rgb(245 245 244);
+table tr.select-top {
+    border-top: 3px solid var(--highlight-color);
+}
+
+table tr.select-bottom {
+    border-bottom: 3px solid var(--highlight-color);
+}
+
+table tr th.select-left {
+    border-left: 3px solid var(--highlight-color);
+}
+table tr td.select-left {
+    border-left: 3px solid var(--highlight-color);
+}
+
+table tr th.select-right {
+    border-right: 3px solid var(--highlight-color);
+}
+table tr td.select-right {
+    border-right: 3px solid var(--highlight-color);
 }

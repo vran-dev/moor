@@ -52,8 +52,8 @@
 }
 
 .bubble-menu-item:hover {
-  color: #1D4ED8;
-  background-color: #F3F4F6;
+  color: var(--highlight-text-color);
+  background-color: var(--highlight-color);
 }
 
 .bubble-menu-item.active {

@@ -140,6 +140,8 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
         return true
       }
       if (event.key === 'Enter') {
+        triggerUnSelectItem(prevSelectedItem.current)
+        triggerUnSelectIndex(selectedIndex)
         enterHandler()
         return true
       }
@@ -147,8 +149,9 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
     },
 
     onHide: ({ instance }): void => {
-      triggerUnSelectIndex(selectedIndex)
+      console.log('onHide', prevSelectedItem.current, selectedIndex)
       triggerUnSelectItem(prevSelectedItem.current)
+      triggerUnSelectIndex(selectedIndex)
     }
   }))
 
