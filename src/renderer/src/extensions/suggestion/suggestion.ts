@@ -267,6 +267,9 @@ export function Suggestion<I = any>({
         const { active, range } = plugin.getState(view.state)
         if (metaCombinationKey && event.key === metaCombinationKey) {
           if (event.ctrlKey || event.metaKey) {
+            const pos = editor.state.selection.$from.pos
+            const tr = view.state.tr.insertText(char, pos)
+            view.dispatch(tr)
             return false
           }
         }
