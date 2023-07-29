@@ -4,7 +4,6 @@ import CustomImage from '@renderer/extensions/image/image'
 import CustomTable from '@renderer/extensions/table/table'
 import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeBlock'
 import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
-import TableHeader from '@tiptap/extension-table-header'
 import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
@@ -14,7 +13,8 @@ import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighligh
 import {
   LanguageSuggestion,
   SlashCommandSuggestion,
-  LinkSuggestion
+  LinkSuggestion,
+  EmojiSuggestion
 } from '@renderer/extensions/suggestion/suggestExtension'
 import { Markdown } from 'tiptap-markdown'
 import { Node } from 'prosemirror-model'
@@ -115,6 +115,7 @@ export const extensions = [
   SlashCommandSuggestion,
   LanguageSuggestion,
   LinkSuggestion,
+  EmojiSuggestion,
   Highlight.configure({
     multicolor: true
   }),

@@ -137,7 +137,6 @@ export function Suggestion<I = any>({
                   const currentDecorationNode = view.dom.querySelector(
                     `[data-decoration-id="${decorationId}"]`
                   )
-
                   return currentDecorationNode?.getBoundingClientRect() || null
                 }
               : null
