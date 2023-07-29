@@ -267,7 +267,6 @@ export function Suggestion<I = any>({
         const { active, range } = plugin.getState(view.state)
         if (metaCombinationKey && event.key === metaCombinationKey) {
           if (event.ctrlKey || event.metaKey) {
-            console.log('ctrlKey or metaKey')
             return false
           }
         }

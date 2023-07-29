@@ -85,7 +85,6 @@ const selectTableColumn = ({ editor, range, className }) => {
 
 const selectTableRow = ({ editor, range, className }) => {
   const rowNodePos = ProsemirrorNodes.getAncestorNodePos(editor.view, () => range.from, 'tableRow')
-  console.log('select table row ', editor.state.doc.nodeAt(rowNodePos), className, rowNodePos)
   if (rowNodePos) {
     const { state, dispatch } = editor.view
     const tr = editor.view.state.tr.setNodeAttribute(rowNodePos, 'className', className)

@@ -149,7 +149,6 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
     },
 
     onHide: ({ instance }): void => {
-      console.log('onHide', prevSelectedItem.current, selectedIndex)
       triggerUnSelectItem(prevSelectedItem.current)
       triggerUnSelectIndex(selectedIndex)
     }
