@@ -52,6 +52,7 @@
     "@tiptap/starter-kit": "^2.0.3",
     "@tiptap/suggestion": "^2.0.3",
     "@uiw/codemirror-theme-github": "^4.21.9",
+    "dayjs": "^1.11.9",
     "electron-updater": "^5.3.0",
     "emoji-mart": "^5.5.2",
     "mermaid": "^10.2.4",

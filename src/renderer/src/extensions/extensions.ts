@@ -7,7 +7,6 @@ import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
 import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
-import TaskItem from '@tiptap/extension-task-item'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
 import {
@@ -24,6 +23,7 @@ import { Find } from './search/findExtension'
 import { CustomTableRow } from './table/tableRow'
 import { CustomTableCell } from './table/tableCell'
 import { CustomTableHeader } from './table/tableHeader'
+import { TaskItem } from './task/taskItem'
 
 const customPlaceholderExtension = Placeholder.configure({
   placeholder: ({ editor, node, pos }) => {
@@ -78,7 +78,17 @@ export const extensions = [
   StarterKit.configure({
     codeBlock: false,
     // horizontalRule: false,
-    dropcursor: false
+    dropcursor: false,
+    bulletList: {
+      HTMLAttributes: {
+        class: 'not-prose'
+      }
+    },
+    orderedList: {
+      HTMLAttributes: {
+        class: 'not-prose'
+      }
+    }
   }),
   CustomCodeBlock,
   TaskList.configure({

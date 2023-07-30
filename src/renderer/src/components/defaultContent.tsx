@@ -74,7 +74,11 @@ export const defualtContent = {
       content: [
         {
           type: 'taskItem',
-          attrs: { checked: false },
+          attrs: {
+            checked: true,
+            createTime: '2023-07-30 00:00:00',
+            doneTime: '2023-07-31 00:00:00'
+          },
           content: [
             { type: 'paragraph', content: [{ type: 'text', text: 'task' }] },
             {

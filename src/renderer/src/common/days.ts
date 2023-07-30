@@ -1,0 +1,1 @@
+export const DEFAULT_DATETIME_PATTERN = 'YYYY-MM-DD HH:mm:ss'
