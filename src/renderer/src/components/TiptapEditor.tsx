@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { extensions } from '@renderer/extensions/extensions'
 import { defualtContent } from './defaultContent'
 import { BubbleMenu } from '@renderer/extensions/bubble/bubbleMenu'
+import '@renderer/assets/editor.css'
 
 const autoParse = (data?: string): object | string | null => {
   if (!data) {
