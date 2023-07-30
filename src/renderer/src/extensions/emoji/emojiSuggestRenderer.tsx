@@ -59,7 +59,9 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }): boolean => {
-      if (!props.items || props.items.length === 0) return false
+      if (!props.items || !emojiRows.length) {
+        return false
+      }
       if (event.key === 'ArrowUp') {
         setSelectRow((selectRow - 1 + emojiRows.length) % emojiRows.length)
         return true
@@ -80,6 +82,9 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
         return true
       }
       if (event.key === 'ArrowRight') {
+        if (!emojiRows.length) {
+          return false
+        }
         if (selectCol === emojiRows[selectRow].length - 1) {
           setSelectRow((selectRow + 1) % emojiRows.length)
         }
@@ -115,13 +120,13 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
   }))
 
   useEffect(() => {
-    if (selectRow !== undefined && selectRow !== null) {
+    if (exists(selectRow) && exists(rowVirtualizer) && emojiRows.length > 0) {
       rowVirtualizer.scrollToIndex(selectRow)
     }
   }, [selectRow])
 
   useEffect(() => {
-    if (exists(selectRow) && exists(selectCol)) {
+    if (exists(selectRow) && exists(selectCol) && emojiRows.length > 0) {
       const emoji = emojiRows[selectRow][selectCol]
       setSelectEmoji(emoji)
     } else {
@@ -145,65 +150,66 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
 
   return (
     <>
-      <div className="emoji-container">
-        <div className="emoji-picker" ref={emojiPickerContainer}>
-          <div
-            className="inner"
-            style={{
-              width: '100%',
-              height: `${rowVirtualizer.getTotalSize()}px`
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              return (
-                <div
-                  className="row"
-                  key={virtualRow.index}
-                  style={{
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualRow.size}px`,
-                    transform: `translateY(${virtualRow.start}px)`
-                  }}
-                >
-                  {emojiRows[virtualRow.index].map((emoji, colIndex) => {
-                    return (
-                      <div
-                        className="col"
-                        key={colIndex}
-                        onClick={() => onClickEmoji(emoji)}
-                        onMouseOver={() => onSelectEmoji(emoji, virtualRow.index, colIndex)}
-                      >
+      {emojiRows.length > 0 && (
+        <div className="emoji-container">
+          <div className="emoji-picker" ref={emojiPickerContainer}>
+            <div
+              className="inner"
+              style={{
+                width: '100%',
+                height: `${rowVirtualizer.getTotalSize()}px`
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                return (
+                  <div
+                    className="row"
+                    key={virtualRow.index}
+                    style={{
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`
+                    }}
+                  >
+                    {emojiRows[virtualRow.index].map((emoji, colIndex) => {
+                      return (
                         <div
-                          className={`emoji ${
-                            selectRow === virtualRow.index && selectCol === colIndex
-                              ? 'selected'
-                              : ''
-                          }`}
-                          style={{
-                            backgroundColor:
-                              selectRow === virtualRow.index && selectCol === colIndex
-                                ? emojiButtonColors[selectCol % emojiButtonColors.length]
-                                : '',
-                            transition: 'background-color 0.2s linear'
-                          }}
+                          className="col"
+                          key={colIndex}
+                          onClick={() => onClickEmoji(emoji)}
+                          onMouseOver={() => onSelectEmoji(emoji, virtualRow.index, colIndex)}
                         >
-                          {virtualRow.index === selectRow && (
-                            <span className="indicator">{(colIndex + 1) % numberOfColumns}</span>
-                          )}
-                          {emoji.skins[0].native}
+                          <div
+                            className={`emoji ${selectRow === virtualRow.index && selectCol === colIndex
+                                ? 'selected'
+                                : ''
+                              }`}
+                            style={{
+                              backgroundColor:
+                                selectRow === virtualRow.index && selectCol === colIndex
+                                  ? emojiButtonColors[selectCol % emojiButtonColors.length]
+                                  : '',
+                              transition: 'background-color 0.2s linear'
+                            }}
+                          >
+                            {virtualRow.index === selectRow && (
+                              <span className="indicator">{(colIndex + 1) % numberOfColumns}</span>
+                            )}
+                            {emoji.skins[0].native}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })}
+                      )
+                    })}
+                  </div>
+                )
+              })}
+            </div>
           </div>
+          {selectEmoji && <div className="emoji-preview">{selectEmoji.name}</div>}
         </div>
-        {selectEmoji && <div className="emoji-preview">{selectEmoji.name}</div>}
-      </div>
+      )}
     </>
   )
 })

@@ -1,11 +1,13 @@
 import { escapeForRegEx, Range } from '@tiptap/core'
 import { ResolvedPos } from '@tiptap/pm/model'
+import { regex } from 'uuidv4'
 
 export interface Trigger {
   char: string
   allowSpaces: boolean
   allowedPrefixes: string[] | null
   startOfLine: boolean
+  from: number
   $position: ResolvedPos
 }
 
@@ -16,7 +18,7 @@ export type SuggestionMatch = {
 } | null
 
 export function findSuggestionMatch(config: Trigger): SuggestionMatch {
-  const { char, allowSpaces, allowedPrefixes, startOfLine, $position } = config
+  const { char, allowSpaces, allowedPrefixes, startOfLine, from, $position } = config
 
   const escapedChar = escapeForRegEx(char)
   const suffix = new RegExp(`\\s${escapedChar}$`)
@@ -25,15 +27,18 @@ export function findSuggestionMatch(config: Trigger): SuggestionMatch {
     ? new RegExp(`${prefix}${escapedChar}.*?(?=\\s${escapedChar}|$)`, 'gm')
     : new RegExp(`${prefix}(?:^)?${escapedChar}[^\\s${escapedChar}]*`, 'gm')
 
-  const text = $position.nodeBefore?.isText && $position.nodeBefore.text
-
-  if (!text) {
+  const nodeText = $position.nodeBefore?.isText && $position.nodeBefore.text
+  if (!nodeText) {
     return null
   }
 
-  const textFrom = $position.pos - text.length
-  const match = Array.from(text.matchAll(regexp)).pop()
+  const nodeTextLength = nodeText.length
+  const newInputTextLength = $position.pos - from
+  const inputText = nodeText.slice(nodeTextLength - newInputTextLength)
+  // console.log('from=', from, 'position.pos=',$position.pos, 'nodeText=', nodeText, 'inputText=',inputText, regexp)
 
+  const textFrom = from
+  const match = Array.from(inputText.matchAll(regexp)).pop()
   if (!match || match.input === undefined || match.index === undefined) {
     return null
   }
@@ -48,27 +53,27 @@ export function findSuggestionMatch(config: Trigger): SuggestionMatch {
   // }
 
   // The absolute position of the match in the document
-  const from = textFrom + match.index
-  let to = from + match[0].length
+  const matchFrom = textFrom + match.index
+  let to = matchFrom + match[0].length
 
   // Edge case handling; if spaces are allowed and we're directly in between
   // two triggers
-  if (allowSpaces && suffix.test(text.slice(to - 1, to + 1))) {
+  if (allowSpaces && suffix.test(inputText.slice(to - 1, to + 1))) {
     match[0] += ' '
     to += 1
   }
 
+  const matchedTextLength = to - matchFrom
   // If the $position is located within the matched substring, return that range
-  if (from < $position.pos && to >= $position.pos) {
+  if (matchFrom < $position.pos && (to >= $position.pos || matchedTextLength === match[0].length)) {
     return {
       range: {
-        from,
-        to
+        from: matchFrom,
+        to: $position.pos
       },
       query: match[0].slice(char.length),
       text: match[0]
     }
   }
-
   return null
 }

@@ -133,7 +133,7 @@ export function Suggestion<I = any>({
             clientRect: decorationNode
               ? () => {
                   // because of `items` can be asynchrounous we’ll search for the current decoration node
-                  const { decorationId } = this.key?.getState(editor.state) // eslint-disable-line
+                const { decorationId } = this.key?.getState(editor.state) // eslint-disable-line
                   const currentDecorationNode = view.dom.querySelector(
                     `[data-decoration-id="${decorationId}"]`
                   )
@@ -223,25 +223,28 @@ export function Suggestion<I = any>({
             next.active = false
           }
 
-          // Try to match against where our cursor currently is
-          const match = findSuggestionMatch({
-            char,
-            allowSpaces,
-            allowedPrefixes,
-            startOfLine,
-            $position: selection.$from
-          })
-          const decorationId = `id_${Math.floor(Math.random() * 0xffffffff)}`
+          if (selection.$from.pos >= prev.range.from && transaction.docChanged) {
+            // Try to match against where our cursor currently is
+            const match = findSuggestionMatch({
+              char,
+              allowSpaces,
+              allowedPrefixes,
+              startOfLine,
+              from: prev.range.from,
+              $position: selection.$from
+            })
+            const decorationId = `id_${Math.floor(Math.random() * 0xffffffff)}`
 
-          // If we found a match, update the current state to show it
-          if (match && allow({ editor, state, range: match.range })) {
-            next.active = true
-            next.decorationId = prev.decorationId ? prev.decorationId : decorationId
-            next.range = match.range
-            next.query = match.query
-            next.text = match.text
-          } else {
-            next.active = false
+            // If we found a match, update the current state to show it
+            if (match && allow({ editor, state, range: match.range })) {
+              next.active = true
+              next.decorationId = prev.decorationId ? prev.decorationId : decorationId
+              next.range = match.range
+              next.query = match.query
+              next.text = match.text
+            } else {
+              next.active = false
+            }
           }
         } else {
           next.active = false
@@ -250,11 +253,15 @@ export function Suggestion<I = any>({
         // Make sure to empty the range if suggestion is inactive
         if (!next.active) {
           next.decorationId = null
-          next.range = { from: 0, to: 0 }
+          const mappingFrom = transaction.mapping.map(from)
+          const newFrom = mappingFrom < prev.range.from ? mappingFrom : prev.range.from
+          next.range = {
+            from: transaction.docChanged ? newFrom : from,
+            to: 0
+          }
           next.query = null
           next.text = null
         }
-
         return next
       }
     },
