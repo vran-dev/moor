@@ -24,6 +24,8 @@ const emojiButtonColors = [
   'rgba(211,209,255,.7)'
 ]
 
+const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+
 export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
   const emojiPickerContainer = useRef<HTMLDivElement>(null)
   const [selectEmoji, setSelectEmoji] = useState(null)
@@ -83,6 +85,20 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
         const currCols = emojiRows[selectRow].length
         setSelectCol((selectCol + 1) % currCols)
         return true
+      }
+      if (numberKeys.includes(event.key)) {
+        if (exists(selectRow)) {
+          const rowCount = emojiRows[selectRow].length
+          const col = (parseInt(event.key, 10) - 1 + numberOfColumns) % numberOfColumns
+          if (col >= rowCount) {
+            return true
+          }
+          if (exists(emojiRows[selectRow][col])) {
+            onClickEmoji(emojiRows[selectRow][col])
+            return true
+          }
+        }
+        return false
       }
       if (event.key === 'Enter') {
         onClickEmoji(emojiRows[selectRow][selectCol])
@@ -170,6 +186,9 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
                             transition: 'background-color 0.2s linear'
                           }}
                         >
+                          {virtualRow.index === selectRow && (
+                            <span className="indicator">{(colIndex + 1) % numberOfColumns}</span>
+                          )}
                           {emoji.skins[0].native}
                         </div>
                       </div>
