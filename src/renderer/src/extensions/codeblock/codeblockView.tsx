@@ -3,7 +3,7 @@ import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } fro
 import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
-import { EditorView as CodeMirror, keymap as cmKeymap } from '@codemirror/view'
+import { EditorView as CodeMirror, keymap as cmKeymap, lineNumbers } from '@codemirror/view'
 import {
   defaultKeymap,
   history,
@@ -18,6 +18,7 @@ import {
   indentOnInput,
   foldGutter
 } from '@codemirror/language'
+import { githubLightInit } from '@uiw/codemirror-theme-github'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { Compartment } from '@codemirror/state'
@@ -71,14 +72,21 @@ export class CodeblockView implements NodeView {
         indentOnInput(),
         autocompletion(),
         CodeMirror.lineWrapping,
-        // foldGutter(),
+        foldGutter(),
         // highlightActiveLine(),
         // drawSelection(),
+        lineNumbers(),
         history(),
         closeBrackets(),
         bracketMatching(),
         syntaxHighlighting(defaultHighlightStyle),
         this.languageCompartment.of([]),
+        githubLightInit({
+          settings: {
+            background: '#FAFAFA',
+            gutterBackground: '#FAFAFA'
+          }
+        }),
         CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))
       ]
     })

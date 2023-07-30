@@ -176,6 +176,10 @@ ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"]:ho
 .codeblock .languages .item:hover {
   background-color: #f5f5f4;
 }
+/* override tailwind prose style */
+.codeblock img {
+  margin:0;
+}
 
 /* hex color extension */
 .color {
