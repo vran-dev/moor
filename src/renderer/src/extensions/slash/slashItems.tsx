@@ -17,7 +17,8 @@ import {
   AiOutlineInsertRowLeft,
   AiOutlineInsertRowRight,
   AiOutlineDeleteRow,
-  AiOutlineDeleteColumn
+  AiOutlineDeleteColumn,
+  AiOutlineSmile
 } from 'react-icons/ai'
 import { LuHeading1, LuHeading2, LuHeading3, LuHeading4 } from 'react-icons/lu'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
@@ -306,6 +307,16 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
       description: 'create codeblock',
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Plain' }).run()
+      }
+    },
+    {
+      name: 'Emoji',
+      icon: <AiOutlineSmile {...ICON_PROPS} />,
+      description: 'select emoji from picker',
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).deleteRow().run()
+        const tr = editor.view.state.tr.insertText('::')
+        editor.view.dispatch(tr)
       }
     },
     {

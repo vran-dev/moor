@@ -38,6 +38,7 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
   const emojiRows: [][] = toTwoDimensional(flattedEmojiData || [], numberOfColumns)
 
   useEffect(() => {
+    setSelectEmoji(null)
     setSelectCol(0)
     setSelectRow(0)
   }, [props.items])
@@ -123,6 +124,8 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
     if (exists(selectRow) && exists(selectCol)) {
       const emoji = emojiRows[selectRow][selectCol]
       setSelectEmoji(emoji)
+    } else {
+      setSelectEmoji(null)
     }
   }, [selectRow, selectCol])
 
