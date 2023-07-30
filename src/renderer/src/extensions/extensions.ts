@@ -81,12 +81,12 @@ export const extensions = [
     dropcursor: false,
     bulletList: {
       HTMLAttributes: {
-        class: 'not-prose'
+        class: 'not-prose bullet-list'
       }
     },
     orderedList: {
       HTMLAttributes: {
-        class: 'not-prose'
+        class: 'not-prose ordered-list'
       }
     }
   }),

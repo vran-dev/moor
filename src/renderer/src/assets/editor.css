@@ -42,23 +42,23 @@
 /* li:hover{
   color: var(--highlight-color);
 } */
-ul {
+.bullet-list {
   list-style-type: revert;
   margin-top: 1.25em;
   margin-bottom: 1.25em;
   padding-left: 1.625em;
 }
 
-ul>li {
+.bullet-list>li {
   padding-left: 0.375em;
 }
 
-li {
+.bullet-list li {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
 
-ol {
+.ordered-list {
   list-style-type: decimal;
   margin-top: 1.25em;
   margin-bottom: 1.25em;
