@@ -200,7 +200,7 @@ export const TaskItem = Node.create<TaskItemOptions>({
             return false
           }
 
-          console.log(updatedNode)
+
           listItem.dataset.checked = updatedNode.attrs.checked
           if (updatedNode.attrs.checked) {
             checkbox.setAttribute('checked', 'checked')
