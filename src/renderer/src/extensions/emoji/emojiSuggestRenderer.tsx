@@ -11,6 +11,10 @@ const isNotBlank = (str: string): boolean => {
   return str !== null && str !== undefined && str !== ''
 }
 
+const exists = (obj: any): boolean => {
+  return obj !== null && obj !== undefined
+}
+
 const emojiButtonColors = [
   'rgba(155,223,88,.7)',
   'rgba(149,211,254,.7)',
@@ -30,6 +34,11 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
   const matchedEmojiData = (props.items as EmojiData[]) || []
   const flattedEmojiData = matchedEmojiData.flatMap((emojiData) => emojiData.emojis)
   const emojiRows: [][] = toTwoDimensional(flattedEmojiData || [], numberOfColumns)
+
+  useEffect(() => {
+    setSelectCol(0)
+    setSelectRow(0)
+  }, [props.items])
 
   const rowVirtualizer = useVirtualizer({
     count: emojiRows.length,
@@ -83,6 +92,8 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
     },
     onHide: () => {
       // do nothing
+      setSelectRow(0)
+      setSelectCol(0)
     }
   }))
 
@@ -91,6 +102,13 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
       rowVirtualizer.scrollToIndex(selectRow)
     }
   }, [selectRow])
+
+  useEffect(() => {
+    if (exists(selectRow) && exists(selectCol)) {
+      const emoji = emojiRows[selectRow][selectCol]
+      setSelectEmoji(emoji)
+    }
+  }, [selectRow, selectCol])
 
   const onClickEmoji = (emoji) => {
     const editor: Editor = props.editor
@@ -101,8 +119,9 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
     editor.view.dispatch(tr)
   }
 
-  const onSelectEmoji = (emoji) => {
-    setSelectEmoji(emoji)
+  const onSelectEmoji = (emoji, row, col) => {
+    setSelectRow(row)
+    setSelectCol(col)
   }
 
   return (
@@ -135,7 +154,7 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
                         className="col"
                         key={colIndex}
                         onClick={() => onClickEmoji(emoji)}
-                        onMouseOver={() => onSelectEmoji(emoji)}
+                        onMouseOver={() => onSelectEmoji(emoji, virtualRow.index, colIndex)}
                       >
                         <div
                           className={`emoji ${
@@ -143,6 +162,13 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
                               ? 'selected'
                               : ''
                           }`}
+                          style={{
+                            backgroundColor:
+                              selectRow === virtualRow.index && selectCol === colIndex
+                                ? emojiButtonColors[selectCol % emojiButtonColors.length]
+                                : '',
+                            transition: 'background-color 0.2s linear'
+                          }}
                         >
                           {emoji.skins[0].native}
                         </div>

@@ -22,8 +22,6 @@ export const defaultSuggestRenderer = (): any => {
         interactive: true,
         trigger: 'manual',
         placement: 'bottom-start',
-        sticky: true,
-        flipOnUpdate: true,
         onHide(instance) {
           component?.ref?.onHide(instance)
         }

@@ -68,7 +68,7 @@
 
 .emoji.selected {
   border-radius: 6px;
-  border-width: 1px;
+  /* border-width: 1px; */
   background-color: var(--highlight-color);
   color: var(--highlight-text-color);
 }
