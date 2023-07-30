@@ -2,9 +2,7 @@
 import { Editor, BubbleMenu as TiptapBubbleMenu, isActive, useEditor } from '@tiptap/react'
 import { useEffect, useState } from 'react'
 import {
-  BoldIcon,
   ItalicIcon,
-  LinkIcon,
   CodeIcon,
   StrikethroughIcon,
   UnderlineIcon,
