@@ -37,6 +37,7 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
   const { items, command, editor, range } = props
   const [selectedIndex, setSelectedIndex] = useState(0)
   const prevSelectedItem = useRef<CommandItemProps>()
+  const [mouseSelectEnabled, settMouseSelectEnabled] = useState(false)
 
   const selectItem = (index: number): void => {
     const item = items[index]
@@ -133,6 +134,7 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }): boolean => {
       if (!items || items.length === 0) return false
+      settMouseSelectEnabled(false)
       if (event.key === 'ArrowUp') {
         upHandler()
         return true
@@ -158,7 +160,11 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
 
   return items.length > 0 ? (
     <>
-      <div ref={commandListContainer} className="suggest-wrapper">
+      <div
+        ref={commandListContainer}
+        className="suggest-wrapper"
+        onMouseMove={() => settMouseSelectEnabled(true)}
+      >
         <div
           style={{
             height: `${rowVirtualizer.getTotalSize()}px`
@@ -179,6 +185,7 @@ const SuggestReactComponent = forwardRef((props: CommandOptions, ref): ReactNode
                 key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={rowVirtualizer.measureElement}
+                onMouseOver={(): void => mouseSelectEnabled && setSelectedIndex(virtualItem.index)}
               >
                 <button
                   className={`item ${virtualItem.index === selectedIndex ? 'selected' : ''}`}
