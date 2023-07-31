@@ -101,8 +101,10 @@ export function Suggestion<I = any>({
           const stopped = prev.active && !next.active
           const changed = !started && !stopped && prev.query !== next.query
           const handleStart = started || moved
-          const handleChange = changed && !moved
-          const handleExit = stopped || moved
+          // const handleChange = changed && !moved
+          const handleChange = changed
+          // const handleExit = stopped || moved
+          const handleExit = stopped
 
           // Cancel when suggestion isn't active
           if (!handleStart && !handleChange && !handleExit) {
@@ -270,7 +272,8 @@ export function Suggestion<I = any>({
       // Call the keydown hook if suggestion is active.
       handleKeyDown(view, event) {
         // metaCombinationKey
-        const { active, range } = plugin.getState(view.state)
+        const pluginState = plugin.getState(view.state)
+        const { active, range } = pluginState
         if (metaCombinationKey && event.key === metaCombinationKey) {
           if (event.ctrlKey || event.metaKey) {
             const pos = editor.state.selection.$from.pos

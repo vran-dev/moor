@@ -31,6 +31,7 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
   const [selectEmoji, setSelectEmoji] = useState(null)
   const [selectRow, setSelectRow] = useState(0)
   const [selectCol, setSelectCol] = useState(0)
+  const [mouseSelectEnabled, settMouseSelectEnabled] = useState(false)
 
   const numberOfColumns = 10
   const matchedEmojiData = (props.items as EmojiData[]) || []
@@ -62,6 +63,7 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
       if (!props.items || !emojiRows.length) {
         return false
       }
+      settMouseSelectEnabled(false)
       if (event.key === 'ArrowUp') {
         setSelectRow((selectRow - 1 + emojiRows.length) % emojiRows.length)
         return true
@@ -151,7 +153,7 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
   return (
     <>
       {emojiRows.length > 0 && (
-        <div className="emoji-container">
+        <div className="emoji-container" onMouseMove={() => settMouseSelectEnabled(true)}>
           <div className="emoji-picker" ref={emojiPickerContainer}>
             <div
               className="inner"
@@ -179,13 +181,16 @@ export const EmojiComponentRef = forwardRef((props: any, ref): JSX.Element => {
                           className="col"
                           key={colIndex}
                           onClick={() => onClickEmoji(emoji)}
-                          onMouseOver={() => onSelectEmoji(emoji, virtualRow.index, colIndex)}
+                          onMouseOver={() =>
+                            mouseSelectEnabled && onSelectEmoji(emoji, virtualRow.index, colIndex)
+                          }
                         >
                           <div
-                            className={`emoji ${selectRow === virtualRow.index && selectCol === colIndex
+                            className={`emoji ${
+                              selectRow === virtualRow.index && selectCol === colIndex
                                 ? 'selected'
                                 : ''
-                              }`}
+                            }`}
                             style={{
                               backgroundColor:
                                 selectRow === virtualRow.index && selectCol === colIndex
