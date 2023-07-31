@@ -91,6 +91,7 @@ interface FileInfo {
   name: string
   path: string
   size: number
+  children?: FileInfo[]
 }
 
 // 获取目录下的所有文件和子目录
@@ -101,7 +102,6 @@ const listFilesRecursive = (dir, fileName): FileInfo[] => {
     const filePath = path.join(dir, file)
     const stats = fs.statSync(filePath)
     if (stats.isDirectory()) {
-      // 如果是目录，递归获取其下的文件
       fileList = fileList.concat(listFilesRecursive(filePath, fileName))
     } else if (stats.isFile()) {
       if (!fileName || fileName === '') {
@@ -130,11 +130,48 @@ const listFilesRecursiveHandler: IpcHandler = {
   }
 }
 
+const listFileTree = (dir, searchTerm): FileInfo[] => {
+  const files = fs.readdirSync(dir)
+  const fileList: FileInfo[] = []
+  for (const file of files) {
+    const filePath = path.join(dir, file)
+    const stats = fs.statSync(filePath)
+    if (stats.isDirectory()) {
+      const childDir: FileInfo = {
+        name: file,
+        path: filePath,
+        size: stats.size,
+        children: []
+      }
+      const childFiles = listFileTree(filePath, searchTerm)
+      childDir.children = childDir.children?.concat(childFiles)
+      fileList.push(childDir)
+    } else if (stats.isFile()) {
+      fileList.push({
+        name: file,
+        path: filePath,
+        size: stats.size
+      })
+    }
+  }
+  return fileList
+}
+
+const listFileTreeHandler: IpcHandler = {
+  name: 'list-file-tree',
+  handle: (event, ...args) => {
+    const dir = args[0]
+    const term = args[1]
+    return listFileTree(dir, term)
+  }
+}
+
 export const handlers = [
   openFileDialogHandler,
   openDirectoryHandler,
   listFileHandler,
   readFileHandler,
   writeFileHandler,
-  listFilesRecursiveHandler
+  listFilesRecursiveHandler,
+  listFileTreeHandler
 ]

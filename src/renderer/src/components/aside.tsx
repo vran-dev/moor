@@ -1,11 +1,70 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useLayoutEffect } from 'react'
 import '@renderer/assets/layout-aside.css'
+import { NodeRendererProps, Tree } from 'react-arborist'
+import { AiOutlineFolder } from 'react-icons/ai'
 
 const ipcRenderer = window.electron.ipcRenderer
 
 export interface FileInfo {
   name: string
   path: string
+  children?: FileInfo[]
+}
+
+export class FileTree {
+  id: string
+  name: string
+  path: string
+  children?: FileTree[] | null
+
+  constructor(id: string, name: string, path: string, children?: FileTree[]) {
+    this.id = id
+    this.name = name
+    this.path = path
+    this.children = children
+  }
+
+  static createTree(files: FileInfo[]): FileTree[] {
+    return files.map((item) => FileTree.createTreeItem(item))
+  }
+
+  static createTreeItem(f: FileInfo): FileTree {
+    return {
+      id: f.path,
+      name: f.name,
+      path: f.path,
+      children: f.children ? f.children.map((item) => FileTree.createTreeItem(item)) : null
+    }
+  }
+}
+function TreeNode({ node, style, dragHandle }: NodeRendererProps<any>) {
+  /* This node instance can do many things. See the API reference. */
+  return (
+    <div style={style} ref={dragHandle} onClick={() => node.toggle()}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '5px',
+          alignItems: 'flex-start',
+          // justifyContent: 'flex-start',
+          verticalAlign: 'top'
+        }}
+      >
+        <div style={{ width: '16px' }}>{!node.isLeaf && <AiOutlineFolder />}</div>
+        <span
+          style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            verticalAlign: 'top'
+          }}
+        >
+          {node.data.name}
+        </span>
+      </div>
+    </div>
+  )
 }
 
 export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Element => {
@@ -13,6 +72,8 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
   const [workspace, setWorkspace] = useState('')
   const containerRef = useRef(null)
   const resizeBorderRef = useRef(null)
+  const [asideWidth, setAsideWidth] = useState(300)
+  const [asideHeight, setAsideHeight] = useState(800)
 
   const openDirectoryDialog = () => {
     ipcRenderer.invoke('open-directory-dialog').then((result) => {
@@ -25,16 +86,17 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
       }
 
       setWorkspace(files[0])
-      ipcRenderer.invoke('list-files', files[0]).then((r) => {
-        setTree(r)
+      ipcRenderer.invoke('list-file-tree', files[0]).then((r: FileInfo[]) => {
+        setTree(FileTree.createTree(r))
       })
     })
   }
 
-  const openFile = (fileName: string) => () => {
+  const openFile = (fileName: string, path: string) => () => {
+    console.log(workspace + '/' + fileName)
     props.onOpenFile({
       name: fileName,
-      path: workspace + '/' + fileName
+      path: path
     })
   }
 
@@ -49,7 +111,7 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
       const diff = e.clientX - initialX
       const newWidth = Math.max(initialX + diff, min)
       containerRef.current.style.minWidth = `${newWidth}px`
-      // setAsideWidth(newWidth)
+      setAsideWidth(newWidth)
     }
 
     const onMouseUP = (e): void => {
@@ -63,19 +125,39 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
     document.addEventListener('mouseup', onMouseUP)
   }
 
+  useLayoutEffect(() => {
+    setAsideHeight(containerRef.current?.clientHeight)
+    const resizeListner = (): void => {
+      setAsideHeight(containerRef.current?.clientHeight)
+    }
+    window.addEventListener('resize', resizeListner)
+    return () => {
+      window.removeEventListener('resize', resizeListner)
+    }
+  })
+
   if (tree.length > 0) {
     //foreach tree
     return (
       <>
         <div className="aside" ref={containerRef}>
           <div className="aside-inner">
-            {tree.map((item: { name: string }, index: number) => {
+            <Tree
+              initialData={tree}
+              openByDefault={false}
+              width={asideWidth - 20}
+              height={asideHeight}
+              onActivate={(node): void => openFile(node.data.name, node.data.path)()}
+            >
+              {TreeNode}
+            </Tree>
+            {/* {tree.map((item: { name: string }, index: number) => {
               return (
                 <button key={index} className="tree-item" onClick={openFile(item?.name)}>
                   {item?.name}
                 </button>
               )
-            })}
+            })} */}
           </div>
           <div className="resize-x" onMouseDown={onMouseDown} ref={resizeBorderRef}></div>
         </div>
