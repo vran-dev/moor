@@ -23,7 +23,15 @@ export const CustomTableHeader = TableHeader.extend({
         }
       },
       className: {
-        default: null
+        default: null,
+        parseHTML: element => {
+          return element.getAttribute('class')
+        },
+        renderHTML: attributes => {
+          return {
+            class: attributes.className ? attributes.className : null
+          }
+        }
       }
     }
   },

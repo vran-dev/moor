@@ -11,13 +11,11 @@ export const CustomTableRow = TableRow.extend({
       className: {
         default: null,
         parseHTML: element => {
-          return {
-            className: element.getAttribute('class')
-          }
+          return element.getAttribute('class')
         },
         renderHTML: attributes => {
           return {
-            class: attributes.className
+            class: attributes.className ? attributes.className : null
           }
         }
       }

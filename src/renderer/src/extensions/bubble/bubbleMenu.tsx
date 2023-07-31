@@ -138,6 +138,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
     },
     tippyOptions: {
       moveTransition: 'transform 0.15s ease-out',
+      appendTo: () => editor?.view.dom.parentNode,
       onShow(instance) {
         setTippy(instance)
         return true

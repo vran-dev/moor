@@ -23,14 +23,12 @@ export const CustomTableCell = TableCell.extend({
       },
       className: {
         default: null,
-        parseHTML: (element): any => {
-          return {
-            className: element.getAttribute('class')
-          }
+        parseHTML: element => {
+          return element.getAttribute('class')
         },
-        renderHTML: (attributes): any => {
+        renderHTML: attributes => {
           return {
-            class: attributes.className
+            class: attributes.className ? attributes.className : null
           }
         }
       }
