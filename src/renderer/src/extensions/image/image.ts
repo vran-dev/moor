@@ -7,8 +7,6 @@ import { v4 as uuidv4 } from 'uuid'
 export const CustomImage = Image.extend({
   name: 'image',
 
-  inline: false,
-
   addNodeView() {
     return (props) => {
       return new ImageView(props.node, props.editor.view, props.getPos)

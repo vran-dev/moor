@@ -21,6 +21,15 @@ interface BubbleMenuItem {
 import { LinkInput } from './linkInput'
 import { LinkInputSelectionPluginKey } from '../link/linkInputSelectionPlugin'
 import { Selection, Transaction } from 'prosemirror-state'
+import {
+  AiOutlineBgColors,
+  AiOutlineBold,
+  AiOutlineItalic,
+  AiOutlineStrikethrough,
+  AiOutlineUnderline
+} from 'react-icons/ai'
+import { LiaQuoteLeftSolid } from 'react-icons/lia'
+import { FiCode } from 'react-icons/fi'
 
 export interface BubbleColorMenuItem {
   name: string
@@ -40,41 +49,42 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
 
   const menuItems: BubbleMenuItem[] = [
     {
+      icon: () => <AiOutlineBold />,
       name: 'B',
       symbol: 'bold',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleBold().run(),
       isActive: () => editorIsActive('bold')
     },
     {
-      icon: ItalicIcon,
+      icon: () => <AiOutlineItalic />,
       name: 'Italic',
       symbol: 'italic',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleItalic().run(),
       isActive: () => editorIsActive('italic')
     },
     {
-      icon: StrikethroughIcon,
+      icon: () => <AiOutlineStrikethrough />,
       name: 'Strikethrough',
       symbol: 'strike',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleStrike().run(),
       isActive: () => editorIsActive('strike')
     },
     {
-      icon: UnderlineIcon,
+      icon: () => <AiOutlineUnderline />,
       name: 'Underline',
       symbol: 'underline',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleUnderline().run(),
       isActive: () => editorIsActive('underline')
     },
     {
-      icon: QuoteIcon,
+      icon: () => <LiaQuoteLeftSolid />,
       name: 'Blockquote',
       symbol: 'blockquote',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleBlockquote().run(),
       isActive: () => editorIsActive('blockquote')
     },
     {
-      icon: CodeIcon,
+      icon: () => <FiCode />,
       name: 'Code',
       symbol: 'code',
       onclick: (): boolean | undefined => editor?.chain().focus().toggleCode().run(),
@@ -83,6 +93,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
     {
       name: 'A',
       symbol: '',
+      icon: () => <AiOutlineBgColors />,
       onclick: (): boolean | undefined => {
         setShowColorSelector(!showColorSelector)
         return true
@@ -165,11 +176,11 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
           >
             {showColorSelector && <ColorSelector editor={editor} className="bubble-menu-row" />}
             <div className="bubble-menu-row bubble-menu-bg">
-              {menuItems.map((item) => (
+              {menuItems.map((item, index) => (
                 <button
                   key={item.name}
                   onClick={item.onclick}
-                  className={item.isActive() ? 'bubble-menu-item active' : 'bubble-menu-item'}
+                  className={`bubble-menu-item ${item.isActive() ? 'active' : ''}`}
                 >
                   {item.icon
                     ? item.icon({

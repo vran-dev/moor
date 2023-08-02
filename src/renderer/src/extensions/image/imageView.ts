@@ -32,7 +32,6 @@ export class ImageView implements NodeView {
     this.id = node.attrs.id ? node.attrs.id : uuidv4()
 
     this.img = document.createElement('img')
-    this.img.classList.add('not-prose')
     this.img.src = node.attrs.src
     this.img.alt = node.attrs.alt
     this.img.style.width = '100%'

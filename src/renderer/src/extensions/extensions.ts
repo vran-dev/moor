@@ -93,19 +93,14 @@ export const extensions = [
   CustomCodeBlock,
   TaskList.configure({
     itemTypeName: 'taskItem',
-    HTMLAttributes: {
-    }
+    HTMLAttributes: {}
   }),
   TaskItem.configure({
     nested: true
   }),
   customPlaceholderExtension,
   Underline,
-  CustomLink.configure({
-    HTMLAttributes: {
-      class: 'link'
-    }
-  }),
+  CustomLink.configure({}),
   CustomImage,
   CustomTable.configure({
     resizable: true,
@@ -123,7 +118,6 @@ export const extensions = [
     multicolor: true
   }),
   ExcalidrawNode.configure({
-    HTMLAttributes: {
-    }
+    HTMLAttributes: {}
   })
 ]

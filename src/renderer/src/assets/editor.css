@@ -9,7 +9,14 @@
   padding: 1.25rem;
 }
 
-code {
+.editor-view blockquote {
+  background: #fefefe;
+  border-left: 6px solid #EEE;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+}
+
+.editor-view code {
   color: #EB5757;
   background-color: #87837826;
   border-radius: 3px;
@@ -22,6 +29,39 @@ code {
 
   &::after {
       content: none !important
+  }
+}
+
+.editor-view a {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  &::after {
+    content: "";
+    background: rgba(40, 125, 238, 0.6);
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 4px;
+    z-index: -1;
+  }
+}
+
+.editor-view u {
+  position: relative;
+  text-decoration: none;
+  
+  &::after {
+    content: "";
+    background: #484848;
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    z-index: -1;
   }
 }
 
@@ -170,20 +210,6 @@ ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"] {
 
 ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"]:hover {
   opacity: 0.8;
-}
-
-/* link */
-.link {
-  text-decoration: underline;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-  cursor: pointer;
-  color: rgb(120 113 108);
-}
-
-.link:hover {
-  color: rgb(68 64 60);
 }
 
 .selection-focus {
@@ -379,12 +405,10 @@ front-matter {
   background-position: center;
 }
 
-
 .image-container {
   width: 100%;
   height: auto;
-  border: 1px solid transparent;
-  padding: 3px;
+  padding: 5px;
 }
 
 .image-container>img {
@@ -393,7 +417,7 @@ front-matter {
   margin: 0 auto;
 }
 
-.image-container:hover {
+.image-container:hover>img {
   border-style: solid;
   border-color: var(--highlight-color);
   border-width: 1px;
@@ -403,21 +427,22 @@ front-matter {
   position: absolute;
   width: 10px;
   height: 10px;
-  background-color: #FFFFFF;
+  background-color: var(--highlight-color);
   border: 1px solid var(--highlight-color);
   box-sizing: border-box;
 }
 
 .resize-handle-left {
   top: 50%;
-  left: -5px;
+  left: 0px;
   transform: translateY(-50%);
   cursor: w-resize;
+  z-index: 9999;
 }
 
 .resize-handle-right {
   top: 50%;
-  right: -5px;
+  right: 0px;
   transform: translateY(-50%);
   cursor: e-resize;
 }
