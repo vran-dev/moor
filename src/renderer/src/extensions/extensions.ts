@@ -81,12 +81,12 @@ export const extensions = [
     dropcursor: false,
     bulletList: {
       HTMLAttributes: {
-        class: 'not-prose bullet-list'
+        class: 'bullet-list'
       }
     },
     orderedList: {
       HTMLAttributes: {
-        class: 'not-prose ordered-list'
+        class: 'ordered-list'
       }
     }
   }),
@@ -94,7 +94,6 @@ export const extensions = [
   TaskList.configure({
     itemTypeName: 'taskItem',
     HTMLAttributes: {
-      class: 'not-prose'
     }
   }),
   TaskItem.configure({
@@ -104,16 +103,13 @@ export const extensions = [
   Underline,
   CustomLink.configure({
     HTMLAttributes: {
-      class: 'not-prose link'
+      class: 'link'
     }
   }),
   CustomImage,
   CustomTable.configure({
     resizable: true,
-    allowTableNodeSelection: true,
-    HTMLAttributes: {
-      class: 'border-y'
-    }
+    allowTableNodeSelection: true
   }),
   CustomTableHeader,
   CustomTableRow,
@@ -128,7 +124,6 @@ export const extensions = [
   }),
   ExcalidrawNode.configure({
     HTMLAttributes: {
-      class: 'not-prose'
     }
   })
 ]

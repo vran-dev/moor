@@ -6,6 +6,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+  padding: 1.25rem;
 }
 
 /* codemirror editor */
@@ -66,6 +67,10 @@
 }
 
 /* Custom TODO list checkboxes – shoutout to this awesome tutorial: https://moderncss.dev/pure-css-custom-checkbox-style/ */
+li p {
+  margin: 0;
+}
+
 ul[data-type="taskList"] li>label {
   margin-right: 0.2rem;
   user-select: none;
@@ -79,6 +84,7 @@ ul[data-type="taskList"] li>label {
 
 ul[data-type="taskList"] {
   padding-left: 0.5rem;
+  margin-top: 1.25rem;
 }
 
 ul[data-type="taskList"] li {
@@ -236,6 +242,10 @@ ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"]:ho
 }
 
 /* table */
+
+.tableWrapper+.tableWrapper {
+  margin-top: 1.25rem;
+}
 
 table tr.selected {
   background-color: var(--highlight-color);

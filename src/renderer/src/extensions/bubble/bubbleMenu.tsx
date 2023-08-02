@@ -180,6 +180,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
                     : item.name}
                 </button>
               ))}
+
               <LinkBubbleMenu
                 editor={editor}
                 onClick={(e) => onLinkClick()}

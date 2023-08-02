@@ -199,7 +199,7 @@ export const frontMatter = Node.create({
     return ({ editor, node, getPos, HTMLAttributes, decorations, extension }) => {
       const dom = document.createElement('front-matter')
       dom.innerHTML = node.textContent
-      dom.classList.add('front-matter', 'not-prose')
+      dom.classList.add('front-matter')
       return {
         // dom: dom,
         contentDOM: dom

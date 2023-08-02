@@ -23,7 +23,7 @@ const MermaidWrapper = (props: {
   return (
     <>
       <NodeViewWrapper>
-        <div className="not-prose">
+        <div>
           <pre ref={containerRef} contentEditable={false}>{data}</pre>
         </div>
       </NodeViewWrapper>

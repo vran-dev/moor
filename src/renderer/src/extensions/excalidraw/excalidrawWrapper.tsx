@@ -80,7 +80,7 @@ const ExcalidrawWrapper = (props: {
   }
   return (
     <>
-      <NodeViewWrapper style={styleObj} ref={containerRef} className="not-prose">
+      <NodeViewWrapper style={styleObj} ref={containerRef}>
         <div
           ref={dataDragHandleRef}
           className="drag-handle"
@@ -89,7 +89,7 @@ const ExcalidrawWrapper = (props: {
           data-drag-handle
           style={dragHandlerStyle}
         />
-        <div style={{ width: '100%', height: '100%', position: 'relative' }} className="not-prose">
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
           <Excalidraw
             initialData={initialData}
             onChange={dataUpdate}

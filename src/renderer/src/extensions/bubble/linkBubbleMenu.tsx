@@ -11,16 +11,14 @@ export const LinkBubbleMenu = ({
   isActive: boolean
 }) => {
   return (
-    <div>
-      <button
-        className="link-menu"
-        onClick={(e) => {
-          onClick(e)
-        }}
-      >
-        <p className="text">↗</p>
-        <p className={isActive ? 'active' : ''}>Link</p>
-      </button>
-    </div>
+    <button
+      className="bubble-menu-item link-menu"
+      onClick={(e) => {
+        onClick(e)
+      }}
+    >
+      <div className="text">↗</div>
+      <div className={isActive ? 'active' : ''}>Link</div>
+    </button>
   )
 }
