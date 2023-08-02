@@ -187,7 +187,7 @@ export const TaskItem = Node.create<TaskItemOptions>({
       indicator.className = 'indicator'
 
       listItem.append(indicator)
-      if (node.attrs.checked) {
+      if (node.attrs.checked && node.attrs.doneTime) {
         indicator.innerHTML = `done time: ${dayjs(node.attrs.doneTime).format(
           DEFAULT_DATETIME_PATTERN
         )}`
