@@ -200,11 +200,12 @@ export const TaskItem = Node.create<TaskItemOptions>({
             return false
           }
 
-
           listItem.dataset.checked = updatedNode.attrs.checked
           if (updatedNode.attrs.checked) {
             checkbox.setAttribute('checked', 'checked')
-            indicator.innerHTML = `done time: ${updatedNode.attrs.doneTime}`
+            if (updatedNode.attrs.doneTime) {
+              indicator.innerHTML = `done time: ${updatedNode.attrs.doneTime}`
+            }
           } else {
             indicator.innerHTML = ''
             checkbox.removeAttribute('checked')
@@ -243,7 +244,9 @@ export const TaskItem = Node.create<TaskItemOptions>({
         type: this.type,
         getAttributes: (match) => ({
           checked: match[match.length - 1] === 'x',
-          createTime: dayjs().format(DEFAULT_DATETIME_PATTERN)
+          createTime: dayjs().format(DEFAULT_DATETIME_PATTERN),
+          doneTime:
+            match[match.length - 1] === 'x' ? dayjs().format(DEFAULT_DATETIME_PATTERN) : null
         })
       }),
       wrappingInputRule({
@@ -251,7 +254,9 @@ export const TaskItem = Node.create<TaskItemOptions>({
         type: this.type,
         getAttributes: (match) => ({
           checked: match[match.length - 1] === 'x',
-          createTime: dayjs().format(DEFAULT_DATETIME_PATTERN)
+          createTime: dayjs().format(DEFAULT_DATETIME_PATTERN),
+          doneTime:
+            match[match.length - 1] === 'x' ? dayjs().format(DEFAULT_DATETIME_PATTERN) : null
         })
       })
     ]

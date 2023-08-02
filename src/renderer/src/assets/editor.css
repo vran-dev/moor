@@ -203,7 +203,6 @@ ul[data-type="taskList"] li[data-checked="true"]>div>p {
 }
 
 ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"] {
-  border: 2px solid var(--highlight-color);
   background-color: var(--highlight-color);
   color: var(--highlight-text-color);
 }
