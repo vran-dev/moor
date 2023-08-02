@@ -10,8 +10,6 @@ import {
   forwardRef
 } from 'react'
 
-import '@renderer/assets/suggest.css'
-
 export interface CommandItemProps {
   name: string
   icon?: ReactNode
