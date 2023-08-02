@@ -34,7 +34,8 @@ export function findSuggestionMatch(config: Trigger): SuggestionMatch {
 
   const nodeTextLength = nodeText.length
   const newInputTextLength = $position.pos - from
-  const inputText = nodeText.slice(nodeTextLength - newInputTextLength)
+  const inputTextStart = Math.max(0, nodeTextLength - newInputTextLength)
+  const inputText = nodeText.slice(inputTextStart)
 
   const textFrom = $position.pos - inputText.length
   const match = Array.from(inputText.matchAll(regexp)).pop()
