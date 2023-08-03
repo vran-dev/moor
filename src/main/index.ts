@@ -1,5 +1,5 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import { app, shell, BrowserWindow, ipcMain, protocol } from 'electron'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { handlers } from './handler/handlers'
@@ -48,6 +48,11 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.moor')
+
+  protocol.registerFileProtocol('app', (request, callback) => {
+    const url = request.url.slice(6)
+    callback(decodeURI(path.normalize(url)))
+  })
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
