@@ -3,6 +3,10 @@ import { InputRule } from '@tiptap/core'
 import { TextSelection } from '@tiptap/pm/state'
 import { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { NodeType, Schema } from '@tiptap/pm/model'
+import { CellSelection } from '@tiptap/pm/tables'
+import { findParentNodeClosestToPos, KeyboardShortcutCommand } from '@tiptap/core'
+import { is } from '@electron-toolkit/utils'
+import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
 
 function getTableNodeTypes(schema: Schema): { [key: string]: NodeType } {
   if (schema.cached.tableNodeTypes) {
@@ -23,13 +27,93 @@ function getTableNodeTypes(schema: Schema): { [key: string]: NodeType } {
   return roles
 }
 
+export const deleteTableWhenAllCellsSelected: KeyboardShortcutCommand = ({ editor }) => {
+  const { selection } = editor.state
+
+  if (!isCellSelection(selection)) {
+    return false
+  }
+
+  let cellCount = 0
+  const table = findParentNodeClosestToPos(selection.ranges[0].$from, (node) => {
+    return node.type.name === 'table'
+  })
+
+  table?.node.descendants((node) => {
+    if (node.type.name === 'table') {
+      return false
+    }
+
+    if (['tableCell', 'tableHeader'].includes(node.type.name)) {
+      cellCount += 1
+    }
+  })
+
+  const allCellsSelected = cellCount === selection.ranges.length
+
+  if (!allCellsSelected) {
+    return false
+  }
+
+  editor.commands.deleteTable()
+
+  return true
+}
+
+export function isCellSelection(value: unknown): value is CellSelection {
+  return value instanceof CellSelection
+}
+
 // markdown table regex
 export const inputRegex = /^\s*(\|(.*)\|)+\n$/
 
 export const CustomTable = Table.extend({
+  addKeyboardShortcuts() {
+    return {
+      Tab: (): boolean => {
+        if (this.editor.commands.goToNextCell()) {
+          return true
+        }
+
+        if (!this.editor.can().addRowAfter()) {
+          return false
+        }
+
+        return this.editor.chain().addRowAfter().goToNextCell().run()
+      },
+      'Shift-Tab': (): boolean => this.editor.commands.goToPreviousCell(),
+      Backspace: deleteTableWhenAllCellsSelected,
+      'Mod-Backspace': deleteTableWhenAllCellsSelected,
+      Delete: deleteTableWhenAllCellsSelected,
+      'Mod-Delete': deleteTableWhenAllCellsSelected,
+      'Mod-a': (): boolean => {
+        const selection = this.editor.view.state.selection
+        if (isCellSelection(selection)) {
+          // selectall
+          return this.editor.commands.selectAll()
+        }
+
+        const tablePos = ProsemirrorNodes.getAncestorNodePos(
+          this.editor.view,
+          () => selection.$from.pos,
+          'table'
+        )
+        if (tablePos != null) {
+          const node = this.editor.state.doc.nodeAt(tablePos)
+          if (node != null) {
+            console.log(node)
+            console.log(node.resolve(1))
+            const cellSelection = CellSelection.create(node, 1)
+            this.editor.view.dispatch(this.editor.state.tr.setSelection(cellSelection))
+          }
+        }
+
+        return false
+      }
+    }
+  },
 
   addInputRules() {
-    // return [nodeInputRule({ find: inputRegex, type: this.type, getAttributes: () => ({})})]
     return [
       new InputRule({
         find: inputRegex,
