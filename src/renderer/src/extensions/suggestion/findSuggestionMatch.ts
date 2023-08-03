@@ -56,6 +56,19 @@ export function findSuggestionMatch(config: Trigger): SuggestionMatch {
   const matchFrom = textFrom + match.index
   let to = matchFrom + match[0].length
 
+  // console.log(
+  //   'from',
+  //   from,
+  //   'to',
+  //   to,
+  //   'text',
+  //   nodeText,
+  //   'inputText',
+  //   inputText,
+  //   'match',
+  //   match.index
+  // )
+
   // Edge case handling; if spaces are allowed and we're directly in between
   // two triggers
   if (allowSpaces && suffix.test(inputText.slice(to - 1, to + 1))) {

@@ -101,10 +101,10 @@ export function Suggestion<I = any>({
           const stopped = prev.active && !next.active
           const changed = !started && !stopped && prev.query !== next.query
           const handleStart = started || moved
-          // const handleChange = changed && !moved
-          const handleChange = changed
-          // const handleExit = stopped || moved
-          const handleExit = stopped
+          const handleChange = changed && !moved
+          // const handleChange = changed
+          const handleExit = stopped || moved
+          // const handleExit = stopped
 
           // Cancel when suggestion isn't active
           if (!handleStart && !handleChange && !handleExit) {
@@ -276,6 +276,8 @@ export function Suggestion<I = any>({
         const { active, range } = pluginState
         if (metaCombinationKey && event.key === metaCombinationKey) {
           if (event.ctrlKey || event.metaKey) {
+            // when key trigger, set prev active state to false
+            pluginState.active = false
             const pos = editor.state.selection.$from.pos
             const tr = view.state.tr.insertText(char, pos)
             view.dispatch(tr)
