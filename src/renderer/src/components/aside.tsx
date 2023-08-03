@@ -8,19 +8,23 @@ const ipcRenderer = window.electron.ipcRenderer
 export interface FileInfo {
   name: string
   path: string
+  workspace: string
   children?: FileInfo[]
+  isDirectory?: boolean
 }
 
 export class FileTree {
   id: string
   name: string
   path: string
+  isDirectory?: boolean | undefined
   children?: FileTree[] | null
 
-  constructor(id: string, name: string, path: string, children?: FileTree[]) {
+  constructor(id: string, name: string, path: string, isDirectory: boolean, children?: FileTree[]) {
     this.id = id
     this.name = name
     this.path = path
+    this.isDirectory = isDirectory
     this.children = children
   }
 
@@ -33,6 +37,7 @@ export class FileTree {
       id: f.path,
       name: f.name,
       path: f.path,
+      isDirectory: f.isDirectory,
       children: f.children ? f.children.map((item) => FileTree.createTreeItem(item)) : null
     }
   }
@@ -92,11 +97,12 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
     })
   }
 
-  const openFile = (fileName: string, path: string) => () => {
-    console.log(workspace + '/' + fileName)
+  const openFile = (fileInfo: FileInfo) => () => {
     props.onOpenFile({
-      name: fileName,
-      path: path
+      name: fileInfo.name,
+      path: fileInfo.path,
+      workspace: workspace,
+      isDirectory: fileInfo.isDirectory
     })
   }
 
@@ -147,17 +153,10 @@ export const Aside = (props: { onOpenFile: (file: FileInfo) => void }): JSX.Elem
               openByDefault={false}
               width={asideWidth - 20}
               height={asideHeight}
-              onActivate={(node): void => openFile(node.data.name, node.data.path)()}
+              onActivate={(node): void => !node.data.isDirectory && openFile(node.data)()}
             >
               {TreeNode}
             </Tree>
-            {/* {tree.map((item: { name: string }, index: number) => {
-              return (
-                <button key={index} className="tree-item" onClick={openFile(item?.name)}>
-                  {item?.name}
-                </button>
-              )
-            })} */}
           </div>
           <div className="resize-x" onMouseDown={onMouseDown} ref={resizeBorderRef}></div>
         </div>

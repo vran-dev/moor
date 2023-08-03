@@ -9,7 +9,7 @@ export const CustomImage = Image.extend({
 
   addNodeView() {
     return (props) => {
-      return new ImageView(props.node, props.editor.view, props.getPos)
+      return new ImageView(props.node, props.editor, props.getPos)
     }
   },
 

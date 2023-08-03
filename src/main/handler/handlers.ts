@@ -92,6 +92,7 @@ interface FileInfo {
   path: string
   size: number
   children?: FileInfo[]
+  isDirectory?: boolean
 }
 
 // 获取目录下的所有文件和子目录
@@ -108,13 +109,15 @@ const listFilesRecursive = (dir, fileName): FileInfo[] => {
         fileList.push({
           name: file,
           path: filePath,
-          size: stats.size
+          size: stats.size,
+          isDirectory: false
         })
       } else if (file.includes(fileName)) {
         fileList.push({
           name: file,
           path: filePath,
-          size: stats.size
+          size: stats.size,
+          isDirectory: false
         })
       }
     }
@@ -141,7 +144,8 @@ const listFileTree = (dir, searchTerm): FileInfo[] => {
         name: file,
         path: filePath,
         size: stats.size,
-        children: []
+        children: [],
+        isDirectory: true
       }
       const childFiles = listFileTree(filePath, searchTerm)
       childDir.children = childDir.children?.concat(childFiles)
@@ -150,7 +154,8 @@ const listFileTree = (dir, searchTerm): FileInfo[] => {
       fileList.push({
         name: file,
         path: filePath,
-        size: stats.size
+        size: stats.size,
+        isDirectory: false
       })
     }
   }
@@ -166,6 +171,23 @@ const listFileTreeHandler: IpcHandler = {
   }
 }
 
+const getAbsolutePath = (basePath, relativePath): string => {
+  if (path.isAbsolute(relativePath)) {
+    return relativePath
+  } else {
+    return path.resolve(basePath, relativePath)
+  }
+}
+
+const getAbsolutePathHandler: IpcHandler = {
+  name: 'get-absolute-path',
+  handle: (event, ...args) => {
+    const base = args[0]
+    const relativePath = args[1]
+    return getAbsolutePath(base, relativePath)
+  }
+}
+
 export const handlers = [
   openFileDialogHandler,
   openDirectoryHandler,
@@ -173,5 +195,6 @@ export const handlers = [
   readFileHandler,
   writeFileHandler,
   listFilesRecursiveHandler,
-  listFileTreeHandler
+  listFileTreeHandler,
+  getAbsolutePathHandler
 ]

@@ -18,17 +18,23 @@ const autoParse = (data?: string): object | string | null => {
   }
 }
 
-const Tiptap = (props: { content?: string }): JSX.Element => {
+const Tiptap = (props: { content?: string; path?: string; workspace?: string }): JSX.Element => {
   const [data, setData] = useState(autoParse(props.content))
   const [filePath, setFilePath] = useState('')
+  const editorAttr = {
+    spellcheck: 'false'
+  }
+  if (props.path) {
+    editorAttr['contentFilePath'] = props.path
+  }
+  if (props.workspace) {
+    editorAttr['workspace'] = props.workspace
+  }
   const editor = useEditor({
     extensions: extensions,
     content: data ? data : defualtContent,
     editorProps: {
-      attributes: {
-        class: 'prose dark:prose-invert p-3 bg-white',
-        spellcheck: 'false'
-      }
+      attributes: editorAttr
     },
     onUpdate(props: { editor: Editor; tr: Transaction }): void {
       if (!filePath) {
@@ -63,7 +69,9 @@ const Tiptap = (props: { content?: string }): JSX.Element => {
   return (
     <>
       <BubbleMenu editor={editor} />
-      <EditorContent editor={editor} className="editor-view" />
+      <div className="editor-view">
+        <EditorContent editor={editor} style={{ maxWidth: '65ch' }}/>
+      </div>
     </>
   )
 }

@@ -12,12 +12,15 @@ const App: React.FC = () => {
   const tabsRef = useRef(null)
   const [items, setItems] = useState([])
   const openFile = (fileInfo: FileInfo) => {
+    if (fileInfo.isDirectory) {
+      return
+    }
     ipcRenderer.invoke('file-read', fileInfo.path).then((result) => {
       const newTab = {
         key: fileInfo.path,
         title: fileInfo.name,
         content: () => {
-          return <Tiptap content={result}></Tiptap>
+          return <Tiptap content={result} path={fileInfo.path} workspace={fileInfo.workspace}></Tiptap>
         },
         active: true
       }

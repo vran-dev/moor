@@ -1,5 +1,6 @@
 export class ResizeableHolder {
   container: HTMLElement
+  resizeableElement: HTMLElement
   leftSide: HTMLElement
   rightSide: HTMLElement
   width: string | number | null
@@ -19,6 +20,7 @@ export class ResizeableHolder {
     this.onResize = onResize
     this.width = width
     this.height = height
+    this.resizeableElement = element
     const resizeableContainer = document.createElement('div')
     this.container = resizeableContainer
 
@@ -26,9 +28,13 @@ export class ResizeableHolder {
     resizeableContainer.classList.add('image-container') // todo delete
     if (width) {
       resizeableContainer.style.width = width
+    } else {
+      resizeableContainer.style.width = 'auto'
     }
     if (height) {
       resizeableContainer.style.height = height
+    } else {
+      resizeableContainer.style.height = 'auto'
     }
     resizeableContainer.appendChild(element)
 

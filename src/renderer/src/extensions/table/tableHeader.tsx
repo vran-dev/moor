@@ -13,6 +13,18 @@ export const CustomTableHeader = TableHeader.extend({
       rowspan: {
         default: 1
       },
+      align: {
+        default: 'left',
+        parseHTML: (element) => {
+          const align = element.getAttribute('align')
+          return align
+        },
+        renderHTML: attributes => {
+          return {
+            align: attributes.align
+          }
+        }
+      },
       colwidth: {
         default: null,
         parseHTML: (element) => {
@@ -55,6 +67,7 @@ class TableHeaderNodeView implements NodeView {
     this.getPos = getPos
     this.dom = document.createElement('th')
     this.contentDOM = this.dom
+    this.dom.align = node.attrs.align
     this.updateDomClass()
   }
 

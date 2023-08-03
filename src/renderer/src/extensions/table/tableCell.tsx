@@ -6,6 +6,7 @@ import { Decoration, DecorationSource, NodeView } from 'prosemirror-view'
 export const CustomTableCell = TableCell.extend({
   addAttributes() {
     return {
+      
       colspan: {
         default: 1
       },
@@ -19,6 +20,18 @@ export const CustomTableCell = TableCell.extend({
           const value = colwidth ? [parseInt(colwidth, 10)] : null
 
           return value
+        }
+      },
+      align: {
+        default: 'left',
+        parseHTML: (element) => {
+          const align = element.getAttribute('align')
+          return align
+        },
+        renderHTML: attributes => {
+          return {
+            align: attributes.align
+          }
         }
       },
       className: {
@@ -55,6 +68,7 @@ class TableCellNodeView implements NodeView {
     this.node = node
     this.getPos = getPos
     this.dom = document.createElement('td')
+    this.dom.align = node.attrs.align
     this.contentDOM = this.dom
     this.updateDomClass()
   }
