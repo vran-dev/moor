@@ -1,13 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Editor, BubbleMenu as TiptapBubbleMenu, isActive, useEditor } from '@tiptap/react'
 import { useEffect, useState } from 'react'
-import {
-  ItalicIcon,
-  CodeIcon,
-  StrikethroughIcon,
-  UnderlineIcon,
-  QuoteIcon
-} from '@renderer/components/Icons'
 import { ColorSelector } from './colorSelector'
 import '@renderer/assets/bubble-menu.css'
 import { LinkBubbleMenu } from './linkBubbleMenu'
@@ -26,7 +19,10 @@ import {
   AiOutlineBold,
   AiOutlineItalic,
   AiOutlineStrikethrough,
-  AiOutlineUnderline
+  AiOutlineUnderline,
+  AiOutlineAlignRight,
+  AiOutlineAlignLeft,
+  AiOutlineAlignCenter
 } from 'react-icons/ai'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { FiCode } from 'react-icons/fi'
@@ -43,11 +39,34 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
   const [showColorSelector, setShowColorSelector] = useState(false)
   const [showLinkInput, setShowLinkInput] = useState(false)
 
-  const editorIsActive = (name: string): boolean => {
-    return editor?.isActive(name)
-  }
+  const tableMenus: BubbleMenuItem[] = [
+    {
+      icon: () => <AiOutlineAlignLeft />,
+      name: 'Align Left',
+      symbol: 'align left',
+      onclick: (): boolean | undefined =>
+        editor?.chain().focus().setCellAttribute('align', 'left').run(),
+      isActive: () => editorIsActive('bold')
+    },
+    {
+      icon: () => <AiOutlineAlignCenter />,
+      name: 'Align Center',
+      symbol: 'Align Center',
+      onclick: (): boolean | undefined =>
+        editor?.chain().focus().setCellAttribute('align', 'center').run(),
+      isActive: () => editorIsActive('bold')
+    },
+    {
+      icon: () => <AiOutlineAlignRight />,
+      name: 'Align Right',
+      symbol: 'align right',
+      onclick: (): boolean | undefined =>
+        editor?.chain().focus().setCellAttribute('align', 'right').run(),
+      isActive: () => editorIsActive('bold')
+    }
+  ]
 
-  const menuItems: BubbleMenuItem[] = [
+  const commonMenus: BubbleMenuItem[] = [
     {
       icon: () => <AiOutlineBold />,
       name: 'B',
@@ -102,6 +121,12 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
     }
   ]
 
+  const menuItems = editor?.isActive('table') ? [...tableMenus, ...commonMenus] : [...commonMenus]
+
+  const editorIsActive = (name: string): boolean => {
+    return editor?.isActive(name)
+  }
+
   useEffect(() => {
     if (tippy && tippy.popperInstance) {
       tippy.popperInstance.update()
@@ -141,8 +166,6 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
       }
 
       if (editor.view.state.selection.node) {
-        // const node = editor.view.state.selection.node
-        // console.log(node)
         return false
       }
       return editor.view.state.selection.content().size > 0
@@ -150,6 +173,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
     tippyOptions: {
       moveTransition: 'transform 0.15s ease-out',
       appendTo: () => editor?.view.dom.parentNode,
+      maxWidth: '460px',
       onShow(instance) {
         setTippy(instance)
         return true
@@ -165,6 +189,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
   const onLinkClick = () => {
     setShowLinkInput(!showLinkInput)
   }
+
   return (
     <>
       {editor && (

@@ -2,11 +2,11 @@ import TableCell from '@tiptap/extension-table-cell'
 import { Editor } from '@tiptap/react'
 import { Node } from 'prosemirror-model'
 import { Decoration, DecorationSource, NodeView } from 'prosemirror-view'
+import { CellSelection } from 'prosemirror-tables'
 
 export const CustomTableCell = TableCell.extend({
   addAttributes() {
     return {
-      
       colspan: {
         default: 1
       },
@@ -28,7 +28,7 @@ export const CustomTableCell = TableCell.extend({
           const align = element.getAttribute('align')
           return align
         },
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           return {
             align: attributes.align
           }
@@ -36,10 +36,10 @@ export const CustomTableCell = TableCell.extend({
       },
       className: {
         default: null,
-        parseHTML: element => {
+        parseHTML: (element) => {
           return element.getAttribute('class')
         },
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           return {
             class: attributes.className ? attributes.className : null
           }
@@ -85,6 +85,16 @@ class TableCellNodeView implements NodeView {
   }
 
   private updateDomClass(): void {
+    if (this.node.attrs.align) {
+      this.dom.align = this.node.attrs.align
+    } else {
+      // default align left
+      this.dom.align = 'left'
+    }
+    const selection = this.editor.state.selection
+    if (selection instanceof CellSelection) {
+      return
+    }
     if (this.node.attrs.className) {
       this.dom.classList.add(this.node.attrs.className)
     } else {

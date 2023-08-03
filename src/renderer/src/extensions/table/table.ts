@@ -27,6 +27,7 @@ function getTableNodeTypes(schema: Schema): { [key: string]: NodeType } {
 export const inputRegex = /^\s*(\|(.*)\|)+\n$/
 
 export const CustomTable = Table.extend({
+
   addInputRules() {
     // return [nodeInputRule({ find: inputRegex, type: this.type, getAttributes: () => ({})})]
     return [
