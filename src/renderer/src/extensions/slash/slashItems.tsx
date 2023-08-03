@@ -18,11 +18,14 @@ import {
   AiOutlineInsertRowRight,
   AiOutlineDeleteRow,
   AiOutlineDeleteColumn,
-  AiOutlineSmile
+  AiOutlineSmile,
+  AiOutlineCalendar
 } from 'react-icons/ai'
 import { LuHeading1, LuHeading2, LuHeading3, LuHeading4 } from 'react-icons/lu'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
+import { DEFAULT_DATETIME_PATTERN } from '@renderer/common/days'
+import dayjs from 'dayjs'
 
 const ICON_SIZE = 20
 
@@ -115,6 +118,242 @@ const selectTable = ({ editor, range, className }) => {
   }
 }
 
+const defaultItems = [
+  {
+    name: 'Heading 1',
+    icon: <LuHeading1 {...ICON_PROPS} />,
+    description: 'first level heading',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).setHeading({ level: 1 }).run()
+    }
+  },
+  {
+    name: 'Heading 2',
+    icon: <LuHeading2 {...ICON_PROPS} />,
+    description: 'second level heading',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).setHeading({ level: 2 }).run()
+    }
+  },
+  {
+    name: 'Heading 3',
+    icon: <LuHeading3 {...ICON_PROPS} />,
+    description: 'third level heading',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).setHeading({ level: 3 }).run()
+    }
+  },
+  {
+    name: 'Bulleted List',
+    icon: <AiOutlineUnorderedList {...ICON_PROPS} />,
+    description: 'turn into unsorted list',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).toggleBulletList().run()
+    }
+  },
+  {
+    name: 'Ordered List',
+    icon: <AiOutlineOrderedList {...ICON_PROPS} />,
+    description: 'turn into sorted list',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).toggleOrderedList().run()
+    }
+  },
+  {
+    name: 'Table',
+    icon: <AiOutlineTable {...ICON_PROPS} />,
+    description: 'create simple table',
+    command: ({ editor, range }: CommandProps) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+        .run()
+    }
+  },
+  {
+    name: 'Task',
+    icon: <AiOutlineCheckSquare {...ICON_PROPS} />,
+    description: 'tracking todo tasks',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).toggleTaskList().run()
+    }
+  },
+  {
+    name: 'Quote',
+    icon: <LiaQuoteLeftSolid {...ICON_PROPS} />,
+    description: 'quote text',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).toggleBlockquote().run()
+    }
+  },
+  {
+    name: 'Excalidraw',
+    icon: ExcalidrawIcon({ width: ICON_SIZE, height: ICON_SIZE }),
+    description: 'drawing with Excalidraw',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).insertExcalidraw().run()
+    }
+  },
+  {
+    name: 'Code Block',
+    icon: <AiOutlineCode {...ICON_PROPS} />,
+    description: 'create codeblock',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Plain' }).run()
+    }
+  },
+  {
+    name: 'Emoji',
+    icon: <AiOutlineSmile {...ICON_PROPS} />,
+    description: 'select emoji from picker',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).deleteRow().run()
+      const tr = editor.view.state.tr.insertText('::')
+      editor.view.dispatch(tr)
+    }
+  },
+  {
+    name: 'Text',
+    icon: <AiOutlineFontSize {...ICON_PROPS} />,
+    description: 'plain text',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).setParagraph().run()
+    }
+  }
+]
+
+const tableItems = [
+  {
+    name: 'Add Row Above',
+    icon: <AiOutlineInsertRowAbove {...ICON_PROPS} />,
+    description: 'Insert new row before current row',
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).addRowBefore().run()
+    },
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableRow({ editor: editor, range: range, className: 'select-top' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableRow({ editor: editor, range: range, className: '' })
+    }
+  },
+  {
+    name: 'Add Row After',
+    description: 'Insert new row after current row',
+    icon: <AiOutlineInsertRowBelow {...ICON_PROPS} />,
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).addRowAfter().run()
+    },
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableRow({ editor: editor, range: range, className: 'select-bottom' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableRow({ editor: editor, range: range, className: '' })
+    }
+  },
+  {
+    name: 'Add Column Before',
+    description: 'Insert new column before current column',
+    icon: <AiOutlineInsertRowLeft {...ICON_PROPS} />,
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).addColumnBefore().run()
+    },
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableColumn({ editor: editor, range: range, className: 'select-left' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableColumn({ editor: editor, range: range, className: '' })
+    }
+  },
+  {
+    name: 'Add Column After',
+    description: 'Insert new column after current column',
+    icon: <AiOutlineInsertRowRight {...ICON_PROPS} />,
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).addColumnAfter().run()
+    },
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableColumn({ editor: editor, range: range, className: 'select-right' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableColumn({ editor: editor, range: range, className: '' })
+    }
+  },
+  {
+    name: 'Delete Current Row',
+    description: 'Delete row at the current position',
+    icon: <AiOutlineDeleteRow {...ICON_PROPS} />,
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableRow({ editor: editor, range: range, className: 'selected' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableRow({ editor: editor, range: range, className: '' })
+    },
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).deleteRow().run()
+    }
+  },
+  {
+    name: 'Delete Current Column',
+    description: 'Delete column at the current position',
+    icon: <AiOutlineDeleteColumn {...ICON_PROPS} />,
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).deleteColumn().run()
+    },
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableColumn({ editor: editor, range: range, className: 'selected' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTableColumn({ editor: editor, range: range, className: '' })
+    }
+  },
+  {
+    name: 'Delete Table',
+    description: 'Delete entire table at the current position',
+    icon: <AiOutlineDelete {...ICON_PROPS} />,
+    onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTable({ editor: editor, range: range, className: 'selected' })
+    },
+    onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
+      selectTable({ editor: editor, range: range, className: '' })
+    },
+    command: ({ editor, range }: CommandProps) => {
+      editor.chain().focus().deleteRange(range).deleteTable().run()
+    }
+  }
+]
+
+const timeItems = [
+  {
+    name: 'Today',
+    icon: <AiOutlineCalendar {...ICON_PROPS} />,
+    description: 'Insert date time at today',
+    command: ({ editor, range }: CommandProps) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent(dayjs().format(DEFAULT_DATETIME_PATTERN))
+        .run()
+    }
+  },
+  {
+    name: 'Tomorrow',
+    icon: <AiOutlineCalendar {...ICON_PROPS} />,
+    description: 'Insert date time at tomorrow',
+    command: ({ editor, range }: CommandProps) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent(dayjs().add(1, 'd').format(DEFAULT_DATETIME_PATTERN))
+        .run()
+    }
+  }
+]
+
 export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query: string }) => {
   const selection = editor.view.state.selection
   const isInTable = ProsemirrorNodes.hasAncestorNode(
@@ -122,212 +361,8 @@ export const suggestSlashCommands = ({ editor, query }: { editor: Editor; query:
     () => selection.$from.pos,
     'table'
   )
-  const tableItems = [
-    {
-      name: 'Add Row Above',
-      icon: <AiOutlineInsertRowAbove {...ICON_PROPS} />,
-      description: 'Insert new row before current row',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).addRowBefore().run()
-      },
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableRow({ editor: editor, range: range, className: 'select-top' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableRow({ editor: editor, range: range, className: '' })
-      }
-    },
-    {
-      name: 'Add Row After',
-      description: 'Insert new row after current row',
-      icon: <AiOutlineInsertRowBelow {...ICON_PROPS} />,
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).addRowAfter().run()
-      },
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableRow({ editor: editor, range: range, className: 'select-bottom' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableRow({ editor: editor, range: range, className: '' })
-      }
-    },
-    {
-      name: 'Add Column Before',
-      description: 'Insert new column before current column',
-      icon: <AiOutlineInsertRowLeft {...ICON_PROPS} />,
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).addColumnBefore().run()
-      },
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableColumn({ editor: editor, range: range, className: 'select-left' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableColumn({ editor: editor, range: range, className: '' })
-      }
-    },
-    {
-      name: 'Add Column After',
-      description: 'Insert new column after current column',
-      icon: <AiOutlineInsertRowRight {...ICON_PROPS} />,
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).addColumnAfter().run()
-      },
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableColumn({ editor: editor, range: range, className: 'select-right' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableColumn({ editor: editor, range: range, className: '' })
-      }
-    },
-    {
-      name: 'Delete Current Row',
-      description: 'Delete row at the current position',
-      icon: <AiOutlineDeleteRow {...ICON_PROPS} />,
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableRow({ editor: editor, range: range, className: 'selected' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableRow({ editor: editor, range: range, className: '' })
-      },
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).deleteRow().run()
-      }
-    },
-    {
-      name: 'Delete Current Column',
-      description: 'Delete column at the current position',
-      icon: <AiOutlineDeleteColumn {...ICON_PROPS} />,
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).deleteColumn().run()
-      },
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableColumn({ editor: editor, range: range, className: 'selected' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTableColumn({ editor: editor, range: range, className: '' })
-      }
-    },
-    {
-      name: 'Delete Table',
-      description: 'Delete entire table at the current position',
-      icon: <AiOutlineDelete {...ICON_PROPS} />,
-      onSelect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTable({ editor: editor, range: range, className: 'selected' })
-      },
-      onUnselect: ({ editor, range }: { editor: Editor; range: Range }) => {
-        selectTable({ editor: editor, range: range, className: '' })
-      },
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).deleteTable().run()
-      }
-    }
-  ]
 
-  const items = [
-    {
-      name: 'Heading 1',
-      icon: <LuHeading1 {...ICON_PROPS} />,
-      description: 'first level heading',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).setHeading({ level: 1 }).run()
-      }
-    },
-    {
-      name: 'Heading 2',
-      icon: <LuHeading2 {...ICON_PROPS} />,
-      description: 'second level heading',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).setHeading({ level: 2 }).run()
-      }
-    },
-    {
-      name: 'Heading 3',
-      icon: <LuHeading3 {...ICON_PROPS} />,
-      description: 'third level heading',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).setHeading({ level: 3 }).run()
-      }
-    },
-    {
-      name: 'Bulleted List',
-      icon: <AiOutlineUnorderedList {...ICON_PROPS} />,
-      description: 'turn into unsorted list',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).toggleBulletList().run()
-      }
-    },
-    {
-      name: 'Ordered List',
-      icon: <AiOutlineOrderedList {...ICON_PROPS} />,
-      description: 'turn into sorted list',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).toggleOrderedList().run()
-      }
-    },
-    {
-      name: 'Table',
-      icon: <AiOutlineTable {...ICON_PROPS} />,
-      description: 'create simple table',
-      command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-          .run()
-      }
-    },
-    {
-      name: 'Task',
-      icon: <AiOutlineCheckSquare {...ICON_PROPS} />,
-      description: 'tracking todo tasks',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).toggleTaskList().run()
-      }
-    },
-    {
-      name: 'Quote',
-      icon: <LiaQuoteLeftSolid {...ICON_PROPS} />,
-      description: 'quote text',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).toggleBlockquote().run()
-      }
-    },
-    {
-      name: 'Excalidraw',
-      icon: ExcalidrawIcon({ width: ICON_SIZE, height: ICON_SIZE }),
-      description: 'drawing with Excalidraw',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).insertExcalidraw().run()
-      }
-    },
-    {
-      name: 'Code Block',
-      icon: <AiOutlineCode {...ICON_PROPS} />,
-      description: 'create codeblock',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Plain' }).run()
-      }
-    },
-    {
-      name: 'Emoji',
-      icon: <AiOutlineSmile {...ICON_PROPS} />,
-      description: 'select emoji from picker',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).deleteRow().run()
-        const tr = editor.view.state.tr.insertText('::')
-        editor.view.dispatch(tr)
-      }
-    },
-    {
-      name: 'Text',
-      icon: <AiOutlineFontSize {...ICON_PROPS} />,
-      description: 'plain text',
-      command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).setParagraph().run()
-      }
-    }
-  ]
+  const items = [...defaultItems, ...timeItems]
   if (isInTable) {
     items.unshift(...tableItems)
   }
