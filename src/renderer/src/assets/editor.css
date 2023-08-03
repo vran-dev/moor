@@ -133,13 +133,13 @@ li p {
   margin: 0;
 }
 
-ul[data-type="taskList"] li>label {
+ul[data-type="taskList"]>li>label {
   margin-right: 0.2rem;
   user-select: none;
 }
 
 @media screen and (max-width: 768px) {
-  ul[data-type="taskList"] li>label {
+  ul[data-type="taskList"]>li>label {
     margin-right: 0.5rem;
   }
 }
@@ -149,7 +149,7 @@ ul[data-type="taskList"] {
   margin-top: 1.25rem;
 }
 
-ul[data-type="taskList"] li {
+ul[data-type="taskList"]>li {
   position: relative;
   display: flex;
   margin-top: 1rem;
@@ -157,7 +157,7 @@ ul[data-type="taskList"] li {
   align-items: flex-start;
 }
 
-ul[data-type="taskList"] li>.indicator {
+ul[data-type="taskList"]>li>.indicator {
   position: absolute;
   font-size: 10px;
   color: #777777;
@@ -166,7 +166,7 @@ ul[data-type="taskList"] li>.indicator {
   width: 200px;
 }
 
-ul[data-type="taskList"] li>label input[type="checkbox"] {
+ul[data-type="taskList"]>li>label input[type="checkbox"] {
   -webkit-appearance: none;
   appearance: none;
   background-color: #FFFFFF;
@@ -182,15 +182,15 @@ ul[data-type="taskList"] li>label input[type="checkbox"] {
   place-content: center;
 }
 
-ul[data-type="taskList"] li>label input[type="checkbox"]:hover {
+ul[data-type="taskList"]>li>label input[type="checkbox"]:hover {
   background-color: #EEE;
 }
 
-ul[data-type="taskList"] li>label input[type="checkbox"]:active {
+ul[data-type="taskList"]>li>label input[type="checkbox"]:active {
   background-color: #EEE;
 }
 
-ul[data-type="taskList"] li>label input[type="checkbox"]::before {
+ul[data-type="taskList"]>li>label input[type="checkbox"]::before {
   content: "";
   width: 0.65em;
   height: 0.65em;
@@ -201,22 +201,22 @@ ul[data-type="taskList"] li>label input[type="checkbox"]::before {
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
-ul[data-type="taskList"] li>label input[type="checkbox"]:checked::before {
+ul[data-type="taskList"]>li>label input[type="checkbox"]:checked::before {
   transform: scale(1);
 }
 
-ul[data-type="taskList"] li[data-checked="true"]>div>p {
+ul[data-type="taskList"]>li[data-checked="true"]>div>p {
   color: #777777;
   text-decoration: line-through;
   text-decoration-thickness: 2px;
 }
 
-ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"] {
+ul[data-type="taskList"]>li[data-checked="true"]>label input[type="checkbox"] {
   background-color: var(--highlight-color);
   color: var(--highlight-text-color);
 }
 
-ul[data-type="taskList"] li[data-checked="true"]>label input[type="checkbox"]:hover {
+ul[data-type="taskList"]>li[data-checked="true"]>label input[type="checkbox"]:hover {
   opacity: 0.8;
 }
 

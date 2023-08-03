@@ -70,7 +70,7 @@ const Tiptap = (props: { content?: string; path?: string; workspace?: string }):
     <>
       <BubbleMenu editor={editor} />
       <div className="editor-view">
-        <EditorContent editor={editor} style={{ maxWidth: '65ch' }}/>
+        <EditorContent editor={editor} style={{ maxWidth: '70ch' }}/>
       </div>
     </>
   )
