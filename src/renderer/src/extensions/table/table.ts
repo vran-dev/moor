@@ -3,9 +3,8 @@ import { InputRule } from '@tiptap/core'
 import { TextSelection } from '@tiptap/pm/state'
 import { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { NodeType, Schema } from '@tiptap/pm/model'
-import { CellSelection } from '@tiptap/pm/tables'
+import { CellSelection, TableMap } from '@tiptap/pm/tables'
 import { findParentNodeClosestToPos, KeyboardShortcutCommand } from '@tiptap/core'
-import { is } from '@electron-toolkit/utils'
 import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
 
 function getTableNodeTypes(schema: Schema): { [key: string]: NodeType } {
@@ -101,10 +100,14 @@ export const CustomTable = Table.extend({
         if (tablePos != null) {
           const node = this.editor.state.doc.nodeAt(tablePos)
           if (node != null) {
-            console.log(node)
-            console.log(node.resolve(1))
-            const cellSelection = CellSelection.create(node, 1)
+            const tableCache = TableMap.get(node)
+            const cellSelection = CellSelection.create(
+              this.editor.state.doc,
+              tablePos + tableCache.map[0] + 1,
+              tablePos + tableCache.map[tableCache.map.length - 1] + 1
+            )
             this.editor.view.dispatch(this.editor.state.tr.setSelection(cellSelection))
+            return true
           }
         }
 
