@@ -83,8 +83,9 @@ export class CodeblockView implements NodeView {
         this.languageCompartment.of([]),
         githubLightInit({
           settings: {
-            background: '#FAFAFA',
-            gutterBackground: '#FAFAFA'
+            background: 'transpanret',
+            gutterBackground: 'transparent',
+            selection: 'default'
           }
         }),
         CodeMirror.updateListener.of((update: ViewUpdate) => this.forwardUpdate(update))

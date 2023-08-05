@@ -23,12 +23,13 @@ import { CustomTableCell } from './table/tableCell'
 import { CustomTableHeader } from './table/tableHeader'
 import { TaskItem } from './task/taskItem'
 import { customPlaceholderExtension } from './placeholder/placeholder'
+import { trallingNodeExtension } from './tralling-node/trallingNode'
 
 export const extensions = [
   Markdown.configure({
     transformPastedText: true
   }),
-
+  trallingNodeExtension,
   frontMatter,
   HexColorHighlighter,
   Dropcursor.configure({
