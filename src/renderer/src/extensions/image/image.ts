@@ -1,15 +1,15 @@
 import Image from '@tiptap/extension-image'
 import { InputRule } from '@tiptap/core'
 import { Plugin } from '@tiptap/pm/state'
-import { ImageView } from './imageView'
 import { v4 as uuidv4 } from 'uuid'
+import { ResizableImageView } from './resizableImageView'
 
 export const CustomImage = Image.extend({
   name: 'image',
 
   addNodeView() {
     return (props) => {
-      return new ImageView(props.node, props.editor, props.getPos)
+      return new ResizableImageView(props.node, this.editor, props.getPos)
     }
   },
 

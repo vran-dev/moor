@@ -1,7 +1,8 @@
 import { Excalidraw, MainMenu } from '@excalidraw/excalidraw'
+import { ResizableRatioType, ResizableView } from '@renderer/components/resize/resizableViewContent'
 import { Attrs } from '@tiptap/pm/model'
 import { Editor, Node, NodeViewWrapper } from '@tiptap/react'
-import { ReactNode, useState, useEffect, useRef } from 'react'
+import { ReactNode, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 const ExcalidrawWrapper = (props: {
@@ -18,8 +19,8 @@ const ExcalidrawWrapper = (props: {
 
   const node = props.node
   const attrs = node.attrs
-  const width = attrs.width ? attrs.width : '800px'
-  const height = attrs.height ? attrs.height : '600px'
+  const width = attrs.width ? attrs.width : 800
+  const height = attrs.height ? attrs.height : 600
   const initialData = attrs.data ? JSON.parse(attrs.data) : null
   const dataUpdate = (elements, state, files): void => {
     // notice: state.collaborators should be a array ,but export to object
@@ -67,12 +68,9 @@ const ExcalidrawWrapper = (props: {
   }
 
   const styleObj = {
-    width: '100%',
-    height: '100%',
     position: 'relative',
-    boxShadow: props.selected
-      ? 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'
-      : 'none'
+    height: '100%',
+    width: '100%'
   }
 
   const dragHandlerStyle = {
@@ -89,11 +87,31 @@ const ExcalidrawWrapper = (props: {
           data-drag-handle
           style={dragHandlerStyle}
         />
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <ResizableView
+          aspectRatio={ResizableRatioType.Flexible}
+          initialSize={{ width: width, height: height }}
+          onResizing={(e, newWidth, newHeight): void => {
+            if (!containerRef.current) {
+              return
+            }
+            if (newHeight) {
+              containerRef.current.parentElement.style.height = newHeight + 'px'
+            }
+            if (newWidth) {
+              containerRef.current.parentElement.style.width = newWidth + 'px'
+            }
+            if (newWidth || newHeight) {
+              containerRef.current.parentElement.style.aspectRatio = `${newHeight} / ${newHeight}`
+            }
+          }}
+          onResized={(e, newWidth, newHeight): void => {
+            props.updateAttributes({ width: newWidth, height: newHeight })
+          }}
+        >
           <Excalidraw
             initialData={initialData}
             onChange={dataUpdate}
-            zenModeEnabled={false}
+            zenModeEnabled={true}
             ref={(api): void => setExcalidrawAPI(api)}
           >
             <MainMenu>
@@ -118,7 +136,7 @@ const ExcalidrawWrapper = (props: {
               </MainMenu.Group>
             </MainMenu>
           </Excalidraw>
-        </div>
+        </ResizableView>
       </NodeViewWrapper>
     </>
   )

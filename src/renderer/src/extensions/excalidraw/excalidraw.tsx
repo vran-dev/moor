@@ -141,7 +141,7 @@ const ExcalidrawNode = Node.create<ExcalidrawOptions>({
         return true
       },
       attrs: {
-        style: 'width:  800px; height: 600px;'
+        style: 'width:  800; height: 600;'
       }
     })
   },
