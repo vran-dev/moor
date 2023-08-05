@@ -2,6 +2,7 @@ import { ResizableNodeView } from 'prosemirror-resizable-view'
 import { NodeView, EditorView } from 'prosemirror-view'
 import { Node as ProsemirrorNode } from 'prosemirror-model'
 import { Editor } from '@tiptap/core'
+import Zoomable from '@renderer/common/zoomable'
 
 const createInnerImage = ({
   editor,
@@ -64,6 +65,8 @@ export class ResizableImageView extends ResizableNodeView implements NodeView {
     getPos: () => number
     options?: object | undefined
   }): HTMLElement {
-    return createInnerImage({ editor: props.options.editor as Editor, node: props.node })
+    return Zoomable.wrap(
+      createInnerImage({ editor: props.options.editor as Editor, node: props.node })
+    )
   }
 }

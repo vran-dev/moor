@@ -21,6 +21,9 @@ const ExcalidrawWrapper = (props: {
   const attrs = node.attrs
   const width = attrs.width ? attrs.width : 800
   const height = attrs.height ? attrs.height : 600
+  const readOnly = attrs.readOnly ? attrs.readOnly : false
+  const zenMode = attrs.zenMode ? attrs.zenMode : false
+  const gridMode = attrs.gridMode ? attrs.gridMode : false
   const initialData = attrs.data ? JSON.parse(attrs.data) : null
   const dataUpdate = (elements, state, files): void => {
     // notice: state.collaborators should be a array ,but export to object
@@ -38,7 +41,9 @@ const ExcalidrawWrapper = (props: {
 
   const toggleZenMode = (): void => {
     if (excalidrawAPI) {
-      excalidrawAPI.getAppState().zenModeEnabled = !excalidrawAPI.getAppState().zenModeEnabled
+      const newStatus = !excalidrawAPI.getAppState().zenModeEnabled
+      excalidrawAPI.getAppState().zenModeEnabled = newStatus
+      props.updateAttributes({ zenMode: newStatus })
     }
   }
 
@@ -54,15 +59,32 @@ const ExcalidrawWrapper = (props: {
       if (gridModeEnabled) {
         excalidrawAPI.getAppState().gridModeEnabled = false
         excalidrawAPI.getAppState().gridSize = null
+        props.updateAttributes({ gridMode: false })
       } else {
         excalidrawAPI.getAppState().gridModeEnabled = true
         excalidrawAPI.getAppState().gridSize = 20
+        props.updateAttributes({ gridMode: true })
       }
     }
   }
   const getGridMode = (): boolean => {
     if (excalidrawAPI) {
       return excalidrawAPI.getAppState().gridModeEnabled
+    }
+    return false
+  }
+
+  const toggleReadView = (): void => {
+    if (excalidrawAPI) {
+      const newStatus = !excalidrawAPI.getAppState().viewModeEnabled
+      excalidrawAPI.getAppState().viewModeEnabled = newStatus
+      props.updateAttributes({ readOnly: newStatus })
+    }
+  }
+
+  const getReadView = (): boolean => {
+    if (excalidrawAPI) {
+      return excalidrawAPI.getAppState().viewModeEnabled
     }
     return false
   }
@@ -79,6 +101,11 @@ const ExcalidrawWrapper = (props: {
   return (
     <>
       <NodeViewWrapper style={styleObj} ref={containerRef}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+          <button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </button>
+          <button onClick={toggleGridMode}> Grid{getGridMode() ? '(On)' : '(Off)'} </button>
+          <button onClick={toggleReadView}> Read-Only{getReadView() ? '(On)' : '(Off)'} </button>
+        </div>
         <div
           ref={dataDragHandleRef}
           className="drag-handle"
@@ -111,7 +138,9 @@ const ExcalidrawWrapper = (props: {
           <Excalidraw
             initialData={initialData}
             onChange={dataUpdate}
-            zenModeEnabled={true}
+            zenModeEnabled={zenMode}
+            gridModeEnabled={gridMode}
+            viewModeEnabled={readOnly}
             ref={(api): void => setExcalidrawAPI(api)}
           >
             <MainMenu>
@@ -121,14 +150,6 @@ const ExcalidrawWrapper = (props: {
                 <MainMenu.DefaultItems.SaveAsImage />
                 <MainMenu.DefaultItems.Help />
                 <MainMenu.DefaultItems.ClearCanvas />
-              </MainMenu.Group>
-              <MainMenu.Group title={'Panel'}>
-                <MainMenu.Item onSelect={toggleZenMode}>
-                  Zen Mode {getZenMode() ? '(On)' : '(Off)'}
-                </MainMenu.Item>
-                <MainMenu.Item onSelect={toggleGridMode}>
-                  Grid Mode {getGridMode() ? '(On)' : '(Off)'}
-                </MainMenu.Item>
               </MainMenu.Group>
               <MainMenu.Group title={'Theme'}>
                 <MainMenu.DefaultItems.ToggleTheme />

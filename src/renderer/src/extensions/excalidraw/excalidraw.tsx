@@ -49,6 +49,21 @@ const ExcalidrawNode = Node.create<ExcalidrawOptions>({
           return nodeData.value
         },
         rendered: false
+      },
+      width: {
+        default: 600
+      },
+      height: {
+        default: 480
+      },
+      zenMode: {
+        default: false
+      },
+      gridMode: {
+        default: false
+      },
+      readOnly: {
+        default: false
       }
     }
   },
