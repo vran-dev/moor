@@ -1,11 +1,13 @@
 import { CodeBlock, backtickInputRegex, tildeInputRegex } from '@tiptap/extension-code-block'
-import { InputRule, InputRuleFinder, callOrReturn } from '@tiptap/react'
+import { InputRule, InputRuleFinder, ReactNodeViewRenderer, callOrReturn } from '@tiptap/react'
 import { NodeType } from 'prosemirror-model'
 import { ExtendedRegExpMatchArray } from '@tiptap/react'
 import { suggestLanguages } from './suggestLanguages'
 import { Plugin, PluginKey, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { CodeblockView } from './codeblockView'
+import { CodeBlockNodeView } from './codeblockNodeView'
+import { CustomReactNodeViewRenderer } from '@renderer/editor/tiptap/CustomReactNodeViewRenderer'
 
 export function textblockTypeInputRule(config: {
   find: InputRuleFinder
@@ -50,9 +52,17 @@ export const CustomCodeBlock = CodeBlock.extend({
   addNodeView() {
     const editor = this.editor
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    return (props) => {
-      return new CodeblockView(props.node, props.editor.view, props.getPos, editor)
-    }
+    // return (props) => {
+    //   return new CodeblockView(props.node, props.editor.view, props.getPos, editor)
+    // }
+    return CustomReactNodeViewRenderer(CodeBlockNodeView, {
+      stopEvent(e): boolean {
+        if (e instanceof DragEvent) {
+          return false
+        }
+        return true
+      }
+    })
   },
   addInputRules() {
     return [
