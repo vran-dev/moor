@@ -2,30 +2,40 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Tiptap from './components/TiptapEditor'
 import { Aside, FileInfo } from './components/aside'
-import { Tabs } from './components/tabs'
+// import { Tabs } from './components/tabs'
 import { DefaultTab } from './components/defaultTab'
 import { v4 as uuidv4 } from 'uuid'
+import { Tabs } from 'antd'
 
 const ipcRenderer = window.electron.ipcRenderer
 
+const defaultTabStyle = { height: '100%' }
+
 const App: React.FC = () => {
-  const tabsRef = useRef(null)
   const [items, setItems] = useState([])
+  const [activeKey, setActiveKey] = useState('')
   const openFile = (fileInfo: FileInfo) => {
     if (fileInfo.isDirectory) {
       return
     }
+    const targetIndex = items.findIndex((pane) => pane.path === fileInfo.path)
+    if (targetIndex >= 0) {
+      setActiveKey(items[targetIndex].key)
+      return
+    }
+
     ipcRenderer.invoke('file-read', fileInfo.path).then((result) => {
       const newTab = {
-        key: fileInfo.path,
-        title: fileInfo.name,
-        content: () => {
-          return <Tiptap content={result} path={fileInfo.path} workspace={fileInfo.workspace}></Tiptap>
-        },
-        active: true
+        key: uuidv4(),
+        path: fileInfo.path,
+        label: fileInfo.name,
+        children: (
+          <Tiptap content={result} path={fileInfo.path} workspace={fileInfo.workspace}></Tiptap>
+        ),
+        style: { height: '100%'}
       }
-      tabsRef?.current?.addTabItem(newTab)
       setItems([...items, newTab])
+      setActiveKey(newTab.key)
       // setFilePath(filePath)
       // setData(result)
     })
@@ -34,30 +44,51 @@ const App: React.FC = () => {
   const createEmptyPage = () => {
     const newPage = {
       key: uuidv4(),
-      title: 'New Tab',
-      content: () => {
-        return <Tiptap></Tiptap>
-      },
-      active: true
+      label: 'New Tab',
+      children: <Tiptap></Tiptap>,
+      style: defaultTabStyle
     }
-    tabsRef?.current?.addTabItem(newPage)
     setItems([...items, newPage])
+    setActiveKey(newPage.key)
   }
 
   useEffect(() => {
     if (!items.length) {
       const emptyItem = {
-        key: 'New Tab',
-        title: 'New Tab',
-        content: () => {
-          return <DefaultTab createPage={createEmptyPage} />
-        },
-        active: true
+        key: uuidv4(),
+        label: 'New Tab',
+        children: <DefaultTab createPage={createEmptyPage} />,
+        style: defaultTabStyle
       }
-      tabsRef?.current?.addTabItem(emptyItem)
-      setItems([emptyItem])
+      setItems([...items, emptyItem])
+      setActiveKey(emptyItem.key)
     }
   }, [])
+
+  const onChange = (key: string) => {
+    setActiveKey(key)
+  }
+
+  const remove = (targetKey: TargetKey) => {
+    const targetIndex = items.findIndex((pane) => pane.key === targetKey)
+    const newPanes = items.filter((pane) => pane.key !== targetKey)
+    if (newPanes.length && targetKey === activeKey) {
+      const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex]
+      setActiveKey(key)
+    }
+    setItems(newPanes)
+  }
+
+  const onEdit = (
+    targetKey: React.MouseEvent | React.KeyboardEvent | string,
+    action: 'add' | 'remove'
+  ) => {
+    if (action === 'add') {
+      createEmptyPage()
+    } else {
+      remove(targetKey)
+    }
+  }
 
   return (
     <>
@@ -66,7 +97,14 @@ const App: React.FC = () => {
         <div className="wrapper">
           <Aside onOpenFile={openFile} />
           <div className="wrapper column">
-            <Tabs items={items} ref={tabsRef}></Tabs>
+            <Tabs
+              type="editable-card"
+              items={items}
+              onChange={onChange}
+              onEdit={onEdit}
+              activeKey={activeKey}
+              style={{ height: '100%' }}
+            />
           </div>
         </div>
       </div>

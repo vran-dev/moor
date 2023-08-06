@@ -210,3 +210,8 @@ body {
 .relative {
     position: relative
 }
+
+.ant-tabs-content.ant-tabs-content-top {
+    height: 100%;
+    flex: 0 1 auto;
+}

@@ -4,6 +4,7 @@ import { Attrs } from '@tiptap/pm/model'
 import { Editor, Node, NodeViewWrapper } from '@tiptap/react'
 import { ReactNode, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { Button } from 'antd'
 
 const ExcalidrawWrapper = (props: {
   editor: Editor
@@ -98,14 +99,27 @@ const ExcalidrawWrapper = (props: {
   const dragHandlerStyle = {
     display: props.selected ? 'inherit' : 'none'
   }
+
+  const excalidrawButtonProps = {
+    type: 'text',
+    size: 'small',
+    color: 'neutral'
+  }
   return (
     <>
       <NodeViewWrapper style={styleObj} ref={containerRef}>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-          <button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </button>
-          <button onClick={toggleGridMode}> Grid{getGridMode() ? '(On)' : '(Off)'} </button>
-          <button onClick={toggleReadView}> Read-Only{getReadView() ? '(On)' : '(Off)'} </button>
-        </div>
+        <Button onClick={toggleZenMode} {...excalidrawButtonProps}>
+          {' '}
+          Zen{getZenMode() ? '(On)' : '(Off)'}{' '}
+        </Button>
+        <Button onClick={toggleGridMode} {...excalidrawButtonProps}>
+          {' '}
+          Grid{getGridMode() ? '(On)' : '(Off)'}{' '}
+        </Button>
+        <Button onClick={toggleReadView} {...excalidrawButtonProps}>
+          {' '}
+          Read-Only{getReadView() ? '(On)' : '(Off)'}{' '}
+        </Button>
         <div
           ref={dataDragHandleRef}
           className="drag-handle"
