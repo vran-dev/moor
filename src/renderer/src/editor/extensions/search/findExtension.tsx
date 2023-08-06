@@ -1,5 +1,5 @@
 import { Extension } from '@tiptap/react'
-import { getSelectionText } from '@renderer/common/prosemirrorSelections'
+import { getSelectionText } from '@renderer/editor/common/prosemirrorSelections'
 import { FindPluginState, findPlugin, findPluginKey } from './findPlugin'
 import { SearchBoxView, createSearchBoxView } from './findView'
 

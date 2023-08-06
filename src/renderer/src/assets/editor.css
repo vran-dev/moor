@@ -12,6 +12,10 @@
   height: 100%;
 }
 
+[data-content-type="bulletListItem"] {
+  background-color: red;
+}
+
 .editor-view p {
   color: #37352f;
 }

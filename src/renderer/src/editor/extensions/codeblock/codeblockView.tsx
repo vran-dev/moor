@@ -22,12 +22,13 @@ import { githubLightInit } from '@uiw/codemirror-theme-github'
 import { ViewUpdate, Decoration as CmDecoration } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { Compartment } from '@codemirror/state'
-import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
-import { replaceClassEffects } from './codeMirrors'
+import ProsemirrorNodes from '@renderer/editor/common/prosemirrorNodes'
+import { replaceClassEffects } from '@renderer/editor/codeMirror/common/replaceClassEffects'
 import { LanguageBlock, languageBlocks } from './suggestLanguages'
 import { v4 as uuid } from 'uuid'
 import { selectAll } from 'prosemirror-commands'
 import { Editor } from '@tiptap/react'
+import { mermaidHighlightStyle } from '@renderer/editor/codeMirror/language/mermaid'
 
 export interface CmCommand {
   key: string
@@ -79,7 +80,8 @@ export class CodeblockView implements NodeView {
         history(),
         closeBrackets(),
         bracketMatching(),
-        syntaxHighlighting(defaultHighlightStyle),
+        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+        syntaxHighlighting(mermaidHighlightStyle, { fallback: false }),
         this.languageCompartment.of([]),
         githubLightInit({
           settings: {

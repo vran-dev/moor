@@ -1,9 +1,9 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 
 import { useEffect, useState } from 'react'
-import { extensions } from '@renderer/extensions/extensions'
+import { extensions } from '@renderer/editor/extensions/extensions'
 import { defualtContent } from './defaultContent'
-import { BubbleMenu } from '@renderer/extensions/bubble/bubbleMenu'
+import { BubbleMenu } from '@renderer/editor/extensions/bubble/bubbleMenu'
 import '@renderer/assets/editor.css'
 
 const autoParse = (data?: string): object | string | null => {
@@ -18,7 +18,11 @@ const autoParse = (data?: string): object | string | null => {
   }
 }
 
-const Tiptap = (props: { content?: string; path?: string; workspace?: string }): JSX.Element => {
+export const Editor = (props: {
+  content?: string
+  path?: string
+  workspace?: string
+}): JSX.Element => {
   const [data, setData] = useState(autoParse(props.content))
   const [filePath, setFilePath] = useState('')
   const editorAttr = {
@@ -70,9 +74,8 @@ const Tiptap = (props: { content?: string; path?: string; workspace?: string }):
     <>
       <BubbleMenu editor={editor} />
       <div className="editor-view">
-        <EditorContent editor={editor} style={{ width: '70ch' }}/>
+        <EditorContent editor={editor} style={{ width: '70ch' }} />
       </div>
     </>
   )
 }
-export default Tiptap

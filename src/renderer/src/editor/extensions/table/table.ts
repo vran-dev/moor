@@ -5,7 +5,7 @@ import { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { NodeType, Schema } from '@tiptap/pm/model'
 import { CellSelection, TableMap } from '@tiptap/pm/tables'
 import { findParentNodeClosestToPos, KeyboardShortcutCommand } from '@tiptap/core'
-import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
+import ProsemirrorNodes from '@renderer/editor/common/prosemirrorNodes'
 
 function getTableNodeTypes(schema: Schema): { [key: string]: NodeType } {
   if (schema.cached.tableNodeTypes) {

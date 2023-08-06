@@ -1,19 +1,19 @@
 import StarterKit from '@tiptap/starter-kit'
-import { CustomLink } from '@renderer/extensions/link/link'
-import CustomImage from '@renderer/extensions/image/image'
-import CustomTable from '@renderer/extensions/table/table'
-import { CustomCodeBlock } from '@renderer/extensions/codeblock/codeBlock'
-import ExcalidrawNode from '@renderer/extensions/excalidraw/excalidraw'
+import { CustomLink } from './link/link'
+import CustomImage from './image/image'
+import CustomTable from './table/table'
+import { CustomCodeBlock } from './codeblock'
+import ExcalidrawNode from './excalidraw/excalidraw'
 import Underline from '@tiptap/extension-underline'
 import TaskList from '@tiptap/extension-task-list'
 import Dropcursor from '@tiptap/extension-dropcursor'
-import { HexColorHighlighter } from '@renderer/extensions/color/hexColorHighlighter'
+import { HexColorHighlighter } from './color/hexColorHighlighter'
 import {
   LanguageSuggestion,
   SlashCommandSuggestion,
   LinkSuggestion,
   EmojiSuggestion
-} from '@renderer/extensions/suggestion/suggestExtension'
+} from './suggestion/suggestExtension'
 import { Markdown } from 'tiptap-markdown'
 import { frontMatter } from './matter/frontMatter'
 import Highlight from '@tiptap/extension-highlight'

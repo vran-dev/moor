@@ -2,7 +2,7 @@
 import { CommandProps } from '../suggestion/suggestComponent'
 import { Editor } from '@tiptap/react'
 
-import { ExcalidrawIcon } from '@renderer/components/Icons'
+import { ExcalidrawIcon } from '@renderer/editor/Icons'
 
 import {
   AiOutlineTable,
@@ -23,7 +23,7 @@ import {
 } from 'react-icons/ai'
 import { LuHeading1, LuHeading2, LuHeading3, LuHeading4 } from 'react-icons/lu'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
-import ProsemirrorNodes from '@renderer/common/prosemirrorNodes'
+import ProsemirrorNodes from '@renderer/editor/common/prosemirrorNodes'
 import { DEFAULT_DATETIME_PATTERN } from '@renderer/common/days'
 import dayjs from 'dayjs'
 
@@ -119,6 +119,23 @@ const selectTable = ({ editor, range, className }) => {
 }
 
 const defaultItems = [
+  {
+    name: 'Custom list',
+    icon: <LuHeading1 {...ICON_PROPS} />,
+    description: 'first level heading',
+    command: ({ editor, range }: CommandProps) => {
+      // const tr = editor.view.state.schema.nodes.bulletListItem.create()
+      const text = editor.view.state.schema.text('test')
+      const p = editor.view.state.schema.nodes.paragraph.create(null, text)
+      const tr = editor.view.state.tr.insert(
+        range.from,
+        editor.view.state.schema.nodes.bulletListItem.create(null,  p)
+      )
+      editor.view.dispatch(tr)
+      console.log('create a list')
+      return true
+    }
+  },
   {
     name: 'Heading 1',
     icon: <LuHeading1 {...ICON_PROPS} />,

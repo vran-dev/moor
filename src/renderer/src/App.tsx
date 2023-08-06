@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, { useEffect, useRef, useState } from 'react'
-import Tiptap from './components/TiptapEditor'
+import { Editor } from './editor'
 import { Aside, FileInfo } from './components/aside'
 // import { Tabs } from './components/tabs'
 import { DefaultTab } from './components/defaultTab'
@@ -30,7 +30,7 @@ const App: React.FC = () => {
         path: fileInfo.path,
         label: fileInfo.name,
         children: (
-          <Tiptap content={result} path={fileInfo.path} workspace={fileInfo.workspace}></Tiptap>
+          <Editor content={result} path={fileInfo.path} workspace={fileInfo.workspace}></Editor>
         ),
         style: { height: '100%'}
       }
@@ -45,7 +45,7 @@ const App: React.FC = () => {
     const newPage = {
       key: uuidv4(),
       label: 'New Tab',
-      children: <Tiptap></Tiptap>,
+      children: <Editor></Editor>,
       style: defaultTabStyle
     }
     setItems([...items, newPage])

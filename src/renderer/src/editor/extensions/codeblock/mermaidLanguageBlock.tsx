@@ -4,6 +4,7 @@ import Zoomable from '@renderer/common/zoomable'
 import { CommandProps } from '../suggestion/suggestComponent'
 import { waitForElm } from '../suggestion/suggestion'
 import { debounce } from '@renderer/common/debounce'
+import { mermaidLanguageDescription } from 'codemirror-lang-mermaid'
 
 export class LivePreview {
   id: string
@@ -51,8 +52,8 @@ export class LivePreview {
 export class MermaidLanguageBlock implements LanguageBlock {
   name = 'Mermaid'
   description = null
-  lang = null
   alias = ['mermaidjs']
+  lang = mermaidLanguageDescription
   command = ({ editor, range }: CommandProps): void => {
     editor.chain().focus().deleteRange(range).setCodeBlock({ language: 'Mermaid' }).run()
   }

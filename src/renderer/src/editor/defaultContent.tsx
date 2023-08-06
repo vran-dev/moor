@@ -394,6 +394,33 @@ export const defualtContent = {
       ]
     },
     {
+      type: 'codeBlock',
+      attrs: { language: 'Mermaid' },
+      content: [
+        {
+          type: 'text',
+          text: `flowchart LR
+          A[Hard edge] -->|Link text| B(Round edge)
+          B --> C{Decision}
+          C -->|One| D[Result one]
+          C -->|Two| E[Result two]`
+        }
+      ]
+    },
+    {
+      type: 'codeBlock',
+      attrs: { language: 'Mermaid' },
+      content: [
+        {
+          type: 'text',
+          text: `pie title Pets adopted by volunteers
+          "Dogs" : 386
+          "Cats" : 85
+          "Rats" : 15`
+        }
+      ]
+    },
+    {
       type: 'bulletList',
       attrs: { tight: true },
       content: [
