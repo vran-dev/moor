@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, { useEffect, useRef, useState } from 'react'
-import Tiptap from './components/TiptapEditor'
 import { Aside, FileInfo } from './components/aside'
-// import { Tabs } from './components/tabs'
 import { DefaultTab } from './components/defaultTab'
 import { v4 as uuidv4 } from 'uuid'
 import { Tabs } from 'antd'
+import { Editor } from './editor'
 
 const ipcRenderer = window.electron.ipcRenderer
 
@@ -29,10 +28,8 @@ const App: React.FC = () => {
         key: uuidv4(),
         path: fileInfo.path,
         label: fileInfo.name,
-        children: (
-          <Tiptap content={result} path={fileInfo.path} workspace={fileInfo.workspace}></Tiptap>
-        ),
-        style: { height: '100%'}
+        children: 'hello',
+        style: { height: '100%' }
       }
       setItems([...items, newTab])
       setActiveKey(newTab.key)
@@ -45,7 +42,7 @@ const App: React.FC = () => {
     const newPage = {
       key: uuidv4(),
       label: 'New Tab',
-      children: <Tiptap></Tiptap>,
+      children: <Editor />,
       style: defaultTabStyle
     }
     setItems([...items, newPage])

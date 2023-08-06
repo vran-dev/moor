@@ -83,6 +83,10 @@ body {
     width: 100%;
 }
 
+.editor:focus {
+    outline: none;
+}
+
 .wrapper {
     display: flex;
     overflow: hidden;
