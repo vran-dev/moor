@@ -4,6 +4,16 @@ export const defualtContent = {
     { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Markdown syntax' }] },
     { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'basic' }] },
     {
+      type: 'codeBlock',
+      attrs: { language: 'JavaScript' },
+      content: [{ type: 'text', text: "1" }]
+    },
+    {
+      type: 'codeBlock',
+      attrs: { language: 'JavaScript' },
+      content: [{ type: 'text', text: "2" }]
+    },
+    {
       type: 'bulletList',
       attrs: { tight: true },
       content: [

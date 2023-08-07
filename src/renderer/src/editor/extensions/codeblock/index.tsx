@@ -3,7 +3,7 @@ import { InputRule, InputRuleFinder, ReactNodeViewRenderer, callOrReturn } from 
 import { NodeType } from 'prosemirror-model'
 import { ExtendedRegExpMatchArray } from '@tiptap/react'
 import { suggestLanguages } from './suggestLanguages'
-import { Plugin, PluginKey, TextSelection } from 'prosemirror-state'
+import { Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { CodeblockView } from './codeblockView'
 import { CodeBlockNodeView } from './codeblockNodeView'
@@ -81,6 +81,37 @@ export const CustomCodeBlock = CodeBlock.extend({
         })
       })
     ]
+  },
+
+  addKeyboardShortcuts() {
+    const editor = this.editor
+    const arrowHandler = (dir) => {
+      return (): boolean => {
+        const state = editor.state
+        const view = editor.view
+        const dispatch = view.dispatch
+        if (state.selection.empty && view.endOfTextblock(dir)) {
+          const side = dir == 'left' || dir == 'up' ? -1 : 1
+          const $head = state.selection.$head
+          const nextPos = Selection.near(
+            state.doc.resolve(side > 0 ? $head.after() : $head.before()),
+            side
+          )
+          if (nextPos.$head && nextPos.$head.parent.type.name == 'codeBlock') {
+            dispatch(state.tr.setSelection(nextPos))
+            console.log('match codeblock')
+            return true
+          }
+        }
+        return false
+      }
+    }
+    return {
+      ArrowLeft: arrowHandler('left'),
+      ArrowRight: arrowHandler('right'),
+      ArrowUp: arrowHandler('up'),
+      ArrowDown: arrowHandler('down')
+    }
   },
   addProseMirrorPlugins() {
     return [

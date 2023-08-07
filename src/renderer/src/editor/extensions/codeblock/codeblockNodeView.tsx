@@ -1,7 +1,7 @@
 import { NodeViewRendererProps, NodeViewWrapper, ReactNodeViewRendererOptions } from '@tiptap/react'
 import { Node } from '@tiptap/pm/model'
 import { EditorView, NodeView, Decoration, DecorationSource, DecorationSet } from '@tiptap/pm/view'
-import { TextSelection, Selection, EditorState } from '@tiptap/pm/state'
+import { TextSelection, Selection, EditorState, NodeSelection } from '@tiptap/pm/state'
 import { exitCode } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
 import {
@@ -182,6 +182,18 @@ const maybeEscape = (cm: CodeMirror, props: NodeViewRendererProps, unit, dir): b
   }
   const selection = Selection.near(view.state.doc.resolve(targetPos), dir)
   console.log(targetPos, selection)
+
+  if (selection instanceof NodeSelection) {
+    const nodeSelection = selection as NodeSelection
+    if (nodeSelection.node.type.name === 'codeBlock' && dir === -1) {
+      // const sel = TextSelection.create(view.state.doc, targetPos + node?.nodeSize)
+      // console.log(sel)
+      // const tr = view.state.tr.setSelection(sel).scrollIntoView()
+      // view.dispatch(tr)
+      // view.focus()
+      // return true
+    }
+  }
   const tr = view.state.tr.setSelection(selection).scrollIntoView()
   view.dispatch(tr)
   view.focus()
@@ -200,7 +212,7 @@ export const CodeBlockNodeView = forwardRef((props: NodeViewRendererProps, ref):
 
   const forwardUpdate = (props: NodeViewRendererProps, update: ViewUpdate): void => {
     const cm = update.view
-    if (isUpdating.current || !cm.hasFocus) {
+    if (!cm.hasFocus) {
       return
     }
     const { getPos, editor } = props
@@ -317,23 +329,37 @@ export const CodeBlockNodeView = forwardRef((props: NodeViewRendererProps, ref):
     )
   }, [codeMirror])
 
-  useEffect(() => {
-    if (!codeMirror) {
-      return
-    }
-    if (props.selected) {
-      codeMirror.focus()
-    }
-  }, [props.selected, codeMirror])
+  // useEffect(() => {
+  //   if (!codeMirror) {
+  //     return
+  //   }
+  //   if (props.selected) {
+  //     console.log('selected...')
+  //     codeMirror.focus()
+  //   }
+  // }, [props.selected, codeMirror])
 
-  useEffect(() => {
-    if (props.setSelection) {
-      isUpdating.current = true
-      codeMirror?.focus()
-      codeMirror?.dispatch({ selection: props.setSelection })
-      isUpdating.current = false
-    }
-  }, [props.setSelection, codeMirror])
+  if (props.selected) {
+    console.log('selected...')
+    // codeMirror?.focus()
+  }
+  if (props.setSelection) {
+    isUpdating.current = true
+    console.log('set selection')
+    // codeMirror?.focus()
+    codeMirror?.dispatch({ selection: props.setSelection })
+    isUpdating.current = false
+  }
+
+  // useEffect(() => {
+  //   if (props.setSelection) {
+  //     isUpdating.current = true
+  //     console.log('set selection')
+  //     codeMirror?.focus()
+  //     codeMirror?.dispatch({ selection: props.setSelection })
+  //     isUpdating.current = false
+  //   }
+  // }, [props.setSelection, codeMirror])
 
   useEffect(() => {
     if (!codeMirror) {
@@ -419,7 +445,7 @@ export const CodeBlockNodeView = forwardRef((props: NodeViewRendererProps, ref):
     <>
       <NodeViewWrapper className="relative">
         <div className="drag-handle" contentEditable="false" draggable="true" data-drag-handle />
-        <div className={'codeblock'} ref={codeblockWrapperRef} contentEditable={false}>
+        <div className={'codeblock'} ref={codeblockWrapperRef}>
           <select onChange={onLanguageSelect} value={languageBlock?.name}>
             {langOptions.map((option) => (
               <option key={option.value} value={option.value}>

@@ -72,18 +72,18 @@ class CustomReactNodeView extends NodeView<
       )
     }
 
-    ReactNodeViewProvider.displayName = 'ReactNodeView'
+    ReactNodeViewProvider.displayName = 'CustomReactNodeView'
 
-    this.contentDOMElement = this.node.isLeaf
-      ? null
-      : document.createElement(this.node.isInline ? 'span' : 'div')
+    // this.contentDOMElement = this.node.isLeaf
+    //   ? null
+    //   : document.createElement(this.node.isInline ? 'span' : 'div')
 
-    if (this.contentDOMElement) {
-      // For some reason the whiteSpace prop is not inherited properly in Chrome and Safari
-      // With this fix it seems to work fine
-      // See: https://github.com/ueberdosis/tiptap/issues/1197
-      this.contentDOMElement.style.whiteSpace = 'inherit'
-    }
+    // if (this.contentDOMElement) {
+    //   // For some reason the whiteSpace prop is not inherited properly in Chrome and Safari
+    //   // With this fix it seems to work fine
+    //   // See: https://github.com/ueberdosis/tiptap/issues/1197
+    //   this.contentDOMElement.style.whiteSpace = 'inherit'
+    // }
 
     let as = this.node.isInline ? 'span' : 'div'
 
@@ -105,9 +105,9 @@ class CustomReactNodeView extends NodeView<
   }
 
   get dom() {
-    if (!this.renderer) {
-      this.mount()
-    }
+    // if (!this.renderer) {
+    //   this.mount()
+    // }
     if (
       this.renderer.element.firstElementChild &&
       !this.renderer.element.firstElementChild?.hasAttribute('data-node-view-wrapper')
