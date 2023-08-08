@@ -364,23 +364,25 @@ export class CodeblockView implements NodeView {
 
   maybeEscape(unit, dir): boolean {
     const { state } = this.cm
-    let { main } = state.selection
-    if (!main.empty) {
+    // Exit if the selection is not empty
+    if (state.selection.ranges.some((range) => !range.empty)) {
       return false
     }
-    if (unit == 'line') {
-      main = state.doc.lineAt(main.head)
-    }
-    if (dir < 0 ? main.from > 0 : main.to < state.doc.length) {
+
+    const anchor = state.selection.main.anchor
+    const line = state.doc.lineAt(anchor)
+    const lineOffset = anchor - line.from
+
+    if (
+      line.number !== (dir < 0 ? 1 : state.doc.lines) ||
+      (unit === 'char' && lineOffset !== (dir < 0 ? 0 : line.length))
+    ) {
       return false
     }
-    const targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize + 1)
-    if (targetPos < 0 || targetPos > this.view.state.doc.content.size) {
-      return false
-    }
+
+    const targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize)
     const selection = Selection.near(this.view.state.doc.resolve(targetPos), dir)
-    const tr = this.view.state.tr.setSelection(selection).scrollIntoView()
-    this.view.dispatch(tr)
+    this.view.dispatch(this.view.state.tr.setSelection(selection).scrollIntoView())
     this.view.focus()
     return true
   }
@@ -438,9 +440,33 @@ export class CodeblockView implements NodeView {
 
   selectNode(): void {
     this.cm.focus()
+    this.forwardSelection()
     if (this.dragHandlerDom) {
       this.dragHandlerDom.style.display = 'inherit'
     }
+  }
+
+  private forwardSelection() {
+    if (!this.cm.hasFocus) {
+      return
+    }
+
+    const state = this.view.state
+    const selection = this.asProseMirrorSelection(state.doc)
+
+    if (!selection.eq(state.selection)) {
+      this.view.dispatch(state.tr.setSelection(selection))
+    }
+  }
+
+  /**
+   * This helper function translates from a CodeMirror selection to a
+   * ProseMirror selection.
+   */
+  private asProseMirrorSelection(doc: Node) {
+    const start = this.getPos() + 1
+    const { anchor, head } = this.cm.state.selection.main
+    return TextSelection.between(doc.resolve(anchor + start), doc.resolve(head + start))
   }
 
   deselectNode(): void {

@@ -8,6 +8,7 @@ import { EditorView } from 'prosemirror-view'
 import { CodeblockView } from './codeblockView'
 import { CodeBlockNodeView } from './codeblockNodeView'
 import { CustomReactNodeViewRenderer } from '@renderer/editor/tiptap/CustomReactNodeViewRenderer'
+import { CodeMirror6NodeView } from './codemirrorView'
 
 export function textblockTypeInputRule(config: {
   find: InputRuleFinder
@@ -52,17 +53,25 @@ export const CustomCodeBlock = CodeBlock.extend({
   addNodeView() {
     const editor = this.editor
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    // return (props) => {
-    //   return new CodeblockView(props.node, props.editor.view, props.getPos, editor)
-    // }
-    return CustomReactNodeViewRenderer(CodeBlockNodeView, {
-      stopEvent(e): boolean {
-        if (e instanceof DragEvent) {
-          return false
-        }
-        return true
-      }
-    })
+    return (props) => {
+      return new CodeblockView(props.node, props.editor.view, props.getPos, editor)
+      // return new CodeMirror6NodeView({
+      //   node: props.node,
+      //   view: props.editor.view,
+      //   getPos: props.getPos,
+      //   extensions: [],
+      //   loadLanguage: () => {},
+      //   toggleName: 'codeblock'
+      // })
+    }
+    // return CustomReactNodeViewRenderer(CodeBlockNodeView, {
+    //   stopEvent(e): boolean {
+    //     if (e instanceof DragEvent) {
+    //       return false
+    //     }
+    //     return true
+    //   }
+    // })
   },
   addInputRules() {
     return [
