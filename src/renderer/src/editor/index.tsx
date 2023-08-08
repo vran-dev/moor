@@ -24,26 +24,8 @@ import { LexicalNodeMenuPlugin } from '@lexical/react/LexicalNodeMenuPlugin'
 import { LexicalTypeaheadMenuPlugin } from '@lexical/react/LexicalTypeaheadMenuPlugin'
 import LexicalNodes from './node'
 import theme from './theme/default'
-import NewMentionsPlugin from './plugins/Suggestion'
+import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
 
-// Lexical React plugins are React components, which makes them
-// highly composable. Furthermore, you can lazy load plugins if
-// desired, so you don't pay the cost for plugins until you
-// actually use them.
-function MyCustomAutoFocusPlugin() {
-  const [editor] = useLexicalComposerContext()
-
-  useEffect(() => {
-    // Focus the editor when the effect fires!
-    editor.focus()
-  }, [editor])
-
-  return null
-}
-
-// Catch any errors that occur during Lexical updates and log them
-// or throw them as needed. If you don't throw them, Lexical will
-// try to recover gracefully without losing user data.
 function onError(error) {
   console.error(error)
 }
@@ -78,9 +60,9 @@ export function Editor() {
       <LinkPlugin />
       <TabIndentationPlugin />
       <HashtagPlugin />
+      <FloatingTextFormatToolbarPlugin />
       {/* <LexicalNodeMenuPlugin /> */}
       {/* <LexicalTypeaheadMenuPlugin props/> */}
-      <NewMentionsPlugin />
       <OnChangePlugin onChange={onChange} />
     </LexicalComposer>
   )
