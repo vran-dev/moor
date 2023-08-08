@@ -2,21 +2,21 @@
 import { Plugin, PluginKey } from 'prosemirror-state'
 import { Decoration, DecorationSet, DecorationSource } from 'prosemirror-view'
 
-export const LinkInputSelectionPluginKey = new PluginKey('link-input-selection-plugin')
+export const FocusSelectionPluginKey = new PluginKey('focus-selection-plugin')
 interface LinkInputSelctionState {
   visible: boolean
   decorations?: Decoration[] | undefined
 }
 
-export const LinkInputSelectionPlugin = (options: LinkInputSelctionState) => {
+export const FocusSelectionPlugin = (options: LinkInputSelctionState) => {
   return new Plugin({
-    key: LinkInputSelectionPluginKey,
+    key: FocusSelectionPluginKey,
     state: {
       init: (): LinkInputSelctionState => {
         return { visible: false, decorations: [] }
       },
       apply: (tr, value, oldState, newState): LinkInputSelctionState => {
-        const meta: LinkInputSelctionState = tr.getMeta(LinkInputSelectionPluginKey)
+        const meta: LinkInputSelctionState = tr.getMeta(FocusSelectionPluginKey)
         if (meta && meta.visible) {
           const { from, to } = newState.selection
           const decoration = Decoration.inline(from, to, {

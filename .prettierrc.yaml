@@ -1,5 +1,12 @@
-singleQuote: true
-semi: false
-printWidth: 100
 trailingComma: none
-endOfLine: auto
+bracketSpacing: true
+endOfLine: 'lf'
+jsxSingleQuote: true
+plugins: [require.resolve('prettier-plugin-packagejson')]
+printWidth: 100
+proseWrap: 'never'
+semi: true
+singleQuote: true
+tabWidth: 2
+trailingComma: 'all'
+useTabs: false

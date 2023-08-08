@@ -36,7 +36,6 @@ import { selectAll } from 'prosemirror-commands'
 import { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { mermaidHighlightStyle } from '@renderer/editor/codeMirror/language/mermaid'
 import { githubLightInit } from '@uiw/codemirror-theme-github'
-import { SourceTextModule } from 'vm'
 
 const codeMirrorKeymap = (props: NodeViewRendererProps): KeyBinding[] => {
   const view = props.editor.view

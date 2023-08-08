@@ -12,6 +12,10 @@
   height: 100%;
 }
 
+.remirror-editor-wrapper {
+  width: 100%;
+}
+
 [data-content-type="bulletListItem"] {
   background-color: red;
 }
@@ -223,7 +227,7 @@ ul[data-type="taskList"]>li[data-checked="true"]>label input[type="checkbox"]:ho
 /* codemirror editor */
 .cm-editor {
   border: none;
-  background-color: transparent;
+  background-color: #EEE;
   margin-top: 1rem;
 }
 

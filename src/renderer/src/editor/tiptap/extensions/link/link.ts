@@ -1,6 +1,6 @@
 import { InputRule } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
-import { LinkInputSelectionPlugin } from './linkInputSelectionPlugin'
+import { FocusSelectionPlugin } from '../../../prosemirror/plugin/linkInputSelectionPlugin'
 const markdownLinkRegex = /(?<!!)\[(.+?)\]\((\S+?)\)/
 
 export const CustomLink = Link.extend({
@@ -28,6 +28,6 @@ export const CustomLink = Link.extend({
   },
 
   addProseMirrorPlugins() {
-    return [LinkInputSelectionPlugin({ visible: false, decorations: [] })]
+    return [FocusSelectionPlugin({ visible: false, decorations: [] })]
   }
 })

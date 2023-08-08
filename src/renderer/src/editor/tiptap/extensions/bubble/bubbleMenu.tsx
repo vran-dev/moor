@@ -12,7 +12,7 @@ interface BubbleMenuItem {
   isActive: () => boolean | undefined
 }
 import { LinkInput } from './linkInput'
-import { LinkInputSelectionPluginKey } from '../link/linkInputSelectionPlugin'
+import { FocusSelectionPluginKey } from '../../../prosemirror/plugin/linkInputSelectionPlugin'
 import { Selection, Transaction } from 'prosemirror-state'
 import {
   AiOutlineBgColors,
@@ -134,7 +134,7 @@ export const BubbleMenu = (props: { editor: Editor | null }): JSX.Element => {
   }, [showColorSelector, showLinkInput, tippy])
 
   const onLinkInputFocus = (): void => {
-    const tr: Transaction = editor?.view.state.tr.setMeta(LinkInputSelectionPluginKey, {
+    const tr: Transaction = editor.view.state.tr.setMeta(FocusSelectionPluginKey, {
       visible: showLinkInput
     })
     editor?.view.dispatch(tr)
