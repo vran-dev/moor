@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useActive, useAttrs, useCommands } from '@remirror/react'
-import { useEffect, useState } from 'react'
-import { TextHighlightExtension } from 'remirror/extensions'
+import { useAttrs, useCommands } from '@remirror/react'
 
 export interface BubbleColorMenuItem {
   name: string
@@ -32,6 +30,18 @@ const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
   {
     name: 'Gray',
     color: '#dadada'
+  },
+  {
+    name: '#50e3c2',
+    color: '#50e3c2'
+  },
+  {
+    name: '#b8e986',
+    color: '#b8e986'
+  },
+  {
+    name: '#f5a623',
+    color: '#f5a623'
   }
 ]
 

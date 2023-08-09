@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { useEffect, useRef, useState } from 'react'
-import { ColorSelector } from './colorSelector'
-import '@renderer/assets/bubble-menu.css'
+import { ColorSelector } from './FloatingColorSelector'
+// import '@renderer/assets/bubble-menu.css'
 import { LinkBubbleMenu } from './linkBubbleMenu'
+import './index.css'
 interface BubbleMenuItem {
   icon?: ({ className, width, height }) => JSX.Element
   name: string
   symbol: string
-  onclick: () => boolean | undefined
+  onClick: () => boolean | undefined
   isActive: () => boolean | undefined
 }
-import { LinkInput } from './linkInput'
+import { FloatingLinkEditor } from './FloatingLinkEditor'
 // import { LinkInputSelectionPluginKey } from '../link/linkInputSelectionPlugin'
 import { Selection, Transaction } from 'prosemirror-state'
 import {
@@ -37,12 +38,15 @@ import {
 } from 'remirror/extensions'
 import { FocusSelectionPluginKey } from '@renderer/editor/prosemirror/plugin/linkInputSelectionPlugin'
 
-export interface BubbleColorMenuItem {
+export interface FloatingMenuItem {
   name: string
   color: string
+  icon: ({ className, width, height }) => JSX.Element
+  onClick: () => void
+  isActive: () => boolean
 }
 
-export const BubbleMenu = (props): JSX.Element => {
+export const FloatingMenu = (props): JSX.Element => {
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [showColorSelector, setShowColorSelector] = useState(false)
   const popperRef = useRef(null)
@@ -63,12 +67,12 @@ export const BubbleMenu = (props): JSX.Element => {
     }
   }, [])
 
-  const tableMenus: BubbleMenuItem[] = [
+  const tableMenus: FloatingMenuItem[] = [
     {
       icon: () => <AiOutlineAlignLeft />,
       name: 'Align Left',
       symbol: 'align left',
-      onclick: (): boolean | undefined =>
+      onClick: (): boolean | undefined =>
         editor?.chain().focus().setCellAttribute('align', 'left').run(),
       isActive: () => editorIsActive('bold')
     },
@@ -76,7 +80,7 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <AiOutlineAlignCenter />,
       name: 'Align Center',
       symbol: 'Align Center',
-      onclick: (): boolean | undefined =>
+      onClick: (): boolean | undefined =>
         editor?.chain().focus().setCellAttribute('align', 'center').run(),
       isActive: () => editorIsActive('bold')
     },
@@ -84,18 +88,18 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <AiOutlineAlignRight />,
       name: 'Align Right',
       symbol: 'align right',
-      onclick: (): boolean | undefined =>
+      onClick: (): boolean | undefined =>
         editor?.chain().focus().setCellAttribute('align', 'right').run(),
       isActive: () => editorIsActive('bold')
     }
   ]
 
-  const commonMenus: BubbleMenuItem[] = [
+  const commonMenus: FloatingMenuItem[] = [
     {
       icon: () => <AiOutlineBold />,
       name: 'B',
       symbol: 'bold',
-      onclick: (): void => {
+      onClick: (): void => {
         toggleBold()
         focus()
       },
@@ -105,7 +109,7 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <AiOutlineItalic />,
       name: 'Italic',
       symbol: 'italic',
-      onclick: (): boolean | undefined => {
+      onClick: (): boolean | undefined => {
         toggleItalic()
         focus()
       },
@@ -115,7 +119,7 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <AiOutlineStrikethrough />,
       name: 'Strikethrough',
       symbol: 'strike',
-      onclick: (): boolean | undefined => {
+      onClick: (): boolean | undefined => {
         toggleStrike()
         focus()
       },
@@ -125,7 +129,7 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <AiOutlineUnderline />,
       name: 'Underline',
       symbol: 'underline',
-      onclick: (): boolean | undefined => {
+      onClick: (): boolean | undefined => {
         toggleUnderline()
         focus()
       },
@@ -135,7 +139,7 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <LiaQuoteLeftSolid />,
       name: 'Blockquote',
       symbol: 'blockquote',
-      onclick: (): boolean | undefined => {
+      onClick: (): boolean | undefined => {
         toggleBlockquote()
         focus()
       },
@@ -145,7 +149,7 @@ export const BubbleMenu = (props): JSX.Element => {
       icon: () => <FiCode />,
       name: 'Code',
       symbol: 'code',
-      onclick: (): boolean | undefined => {
+      onClick: (): boolean | undefined => {
         toggleCode()
         focus()
       },
@@ -155,12 +159,28 @@ export const BubbleMenu = (props): JSX.Element => {
       name: 'A',
       symbol: '',
       icon: () => <AiOutlineBgColors />,
-      onclick: (): boolean | undefined => {
+      onClick: (): boolean | undefined => {
         setShowColorSelector(!showColorSelector)
       },
       isActive: () => {
         const isTextHighlight = useActive<TextHighlightExtension>().textHighlight()
         return showColorSelector || isTextHighlight
+      }
+    },
+    {
+      name: 'Link',
+      symbol: '',
+      icon: () => (
+        <>
+          <div>↗</div>
+          <div>Link</div>
+        </>
+      ),
+      onClick: (): boolean | undefined => {
+        setShowLinkInput(!showLinkInput)
+      },
+      isActive: () => {
+        return showLinkInput
       }
     }
   ]
@@ -175,6 +195,7 @@ export const BubbleMenu = (props): JSX.Element => {
 
   const onLinkInputBlur = (): void => {
     if (popperRef) {
+      setShowLinkInput(false)
       popperRef.current?.state.modifiersData.hide()
     }
   }
@@ -182,24 +203,24 @@ export const BubbleMenu = (props): JSX.Element => {
 
   const menuItems = [...commonMenus]
 
-  const onLinkClick = () => {
-    setShowLinkInput(!showLinkInput)
-  }
-
   const onPoperUpdate = (data) => {
     console.log(data)
   }
   return (
     <>
-      <FloatingToolbar popperOptions={{ onFirstUpdate: onPoperUpdate }} popperRef={popperRef}>
-        <div className="bubble-menu">
-          {showColorSelector && <ColorSelector className="bubble-menu-row" />}
-          <div className="bubble-menu-row bubble-menu-bg">
+      <FloatingToolbar
+        popperOptions={{ onFirstUpdate: onPoperUpdate }}
+        popperRef={popperRef}
+        className="z-top"
+      >
+        <div className="floating-menu-container">
+          {showColorSelector && <ColorSelector className="floating-menu-group" />}
+          <div className="floating-menu-group">
             {menuItems.map((item, index) => (
               <button
                 key={item.name}
-                onClick={item.onclick}
-                className={`bubble-menu-item ${item.isActive() ? 'active' : ''}`}
+                onClick={item.onClick}
+                className={`floating-menu ${item.isActive() ? 'active' : ''}`}
               >
                 {item.icon
                   ? item.icon({
@@ -210,11 +231,9 @@ export const BubbleMenu = (props): JSX.Element => {
                   : item.name}
               </button>
             ))}
-
-            <LinkBubbleMenu onClick={(e) => onLinkClick()} isActive={showLinkInput} />
           </div>
           {showLinkInput && (
-            <LinkInput
+            <FloatingLinkEditor
               onInputFocus={() => onLinkInputFocus()}
               onInputBlur={() => onLinkInputBlur()}
             />

@@ -37,7 +37,7 @@ import { EditorComponent, FloatingToolbar, ThemeProvider, useSuggest } from '@re
 import { AllStyledComponent } from '@remirror/styles/emotion'
 
 import { Remirror, useRemirror } from '@remirror/react'
-import { BubbleMenu } from './remirror/extension/bubbleMenu/bubbleMenu'
+import { FloatingMenu } from './remirror/extension/bubbleMenu/FloatingMenu'
 import { FocusSelectionExtension } from './remirror/extension/focusSelection/FocusSelectionExtension'
 import {
   syntaxHighlighting,
@@ -178,7 +178,7 @@ export const Editor = (props: {
           <div className="editor-view remirror-theme">
             <Remirror manager={manager} initialContent={state} autoFocus>
               <EditorComponent />
-              <BubbleMenu></BubbleMenu>
+              <FloatingMenu></FloatingMenu>
               <SuggestView
                 items={defaultItems}
                 apply={(item): void => console.log(item)}

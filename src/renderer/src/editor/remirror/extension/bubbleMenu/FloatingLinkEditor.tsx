@@ -3,7 +3,7 @@ import { useCommands } from '@remirror/react'
 import { debounce } from '@renderer/common/debounce'
 import { useEffect, useRef, useState } from 'react'
 
-export const LinkInput = (props: {
+export const FloatingLinkEditor = (props: {
   onSave?: (input) => void
   onReset?: () => void
   onInputFocus?: () => void
@@ -16,7 +16,7 @@ export const LinkInput = (props: {
   const { removeLink, updateLink, selectLink } = useCommands()
   // Autofocus on input by default
   useEffect(() => {
-    inputRef.current && inputRef.current?.focus()
+    // inputRef.current && inputRef.current?.focus()
   }, [])
 
   const convertToUrlCard = (e) => {
@@ -109,11 +109,18 @@ export const LinkInput = (props: {
     setMeta({})
     props.onReset?.()
   }
+
+  const onEnter = (e) => {
+    if (e.key === 'Enter') {
+      onSetLink(e)
+    }
+  }
   return (
     <>
-      <div className={'link-wrapper'} ref={setElement}>
-        <div className="link-form">
+      <div className={'floating-menu-container'} ref={setElement}>
+        <div className="floating-menu-group">
           <input
+            className="floating-input"
             ref={inputRef}
             type="text"
             placeholder="Type or paste URL"
@@ -122,20 +129,21 @@ export const LinkInput = (props: {
             }}
             onFocus={() => props.onInputFocus?.()}
             defaultValue={''}
+            onKeyDown={onEnter}
           />
 
-          <button onClick={(e) => onSetLink(e)}>
+          <button onClick={(e) => onSetLink(e)} className="floating-menu">
             {/* <Check className="h-4 w-4" /> */}
             save
           </button>
           {selectLink.enabled() && (
-            <button onClick={() => onRestLink()}>
+            <button onClick={() => onRestLink()} className="floating-menu">
               {/* <Trash className="h-4 w-4" /> */}
               unset
             </button>
           )}
         </div>
-        {meta.title && (
+        {/* {meta.title && (
           <div className="link-card">
             {meta.cover && <img className="cover" src={meta.cover} />}
             <div className="main">
@@ -146,7 +154,7 @@ export const LinkInput = (props: {
               <p className="description">{meta.description}</p>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </>
   )
