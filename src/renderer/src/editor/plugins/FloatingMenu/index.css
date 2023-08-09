@@ -1,6 +1,12 @@
+.tippy-content {
+  width: 380px;
+  height: 40px;
+  border-radius: 8px; ;
+}
+
 .floating-menu-container {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   background: #fff;
   padding: 4px;
   vertical-align: middle;
@@ -8,20 +14,20 @@
   top: 0;
   left: 0;
   z-index: 10;
-  opacity: 0;
   background-color: #fff;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  height: 35px;
+  height: 38px;
   will-change: transform;
 }
 
 .floating-menu-container button.floating-menu {
   border: 0;
   display: flex;
+  gap: 8px;
   background: none;
   border-radius: 6px;
-  padding: 8px;
+  padding: 8px 6px 8px 6px;
   cursor: pointer;
   vertical-align: middle;
 }

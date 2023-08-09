@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { $getRoot, $getSelection } from 'lexical'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin'
@@ -25,6 +23,7 @@ import { LexicalTypeaheadMenuPlugin } from '@lexical/react/LexicalTypeaheadMenuP
 import LexicalNodes from './node'
 import theme from './theme/default'
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
+import { defaultData } from './defaultData'
 
 function onError(error) {
   console.error(error)
@@ -35,13 +34,22 @@ export function Editor() {
   function onChange(editorState) {
     setEditorState(editorState)
   }
+
+  // Get editor initial state (e.g. loaded from backend)
+  const loadContent = async () => {
+    // 'empty' editor
+    const value =
+      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}'
+
+    return value
+  }
   const initialConfig = {
     namespace: 'MyEditor',
     theme,
     onError,
-    nodes: [...LexicalNodes]
+    nodes: [...LexicalNodes],
+    editorState: defaultData
   }
-
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <RichTextPlugin
@@ -67,3 +75,7 @@ export function Editor() {
     </LexicalComposer>
   )
 }
+function useFloating(): { refs: any; floatingStyles: any } {
+  throw new Error('Function not implemented.')
+}
+

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -47,9 +48,9 @@ import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { FiCode } from 'react-icons/fi'
 import { FormatType, hasFormatAtSelection } from '@renderer/editor/utils/hasFormatAtSelection'
 import { $patchStyleText, $setBlocksType } from '@lexical/selection'
-import { $createQuoteNode } from '@lexical/rich-text'
-import { ToggleBlockquote, toggleBlockquote } from '@renderer/editor/utils/toggleBlockquote'
-
+import { toggleBlockquote } from '@renderer/editor/utils/toggleBlockquote'
+import { FloatingLinkEditor } from './floatingLinkEditor'
+import tippy from 'tippy.js'
 export interface FloatMenu {
   icon: React.ReactNode
   name: string
@@ -58,206 +59,194 @@ export interface FloatMenu {
   onClick: (editor: LexicalEditor) => void
 }
 
-const defaultFloatMenus: FloatMenu[] = [
-  {
-    icon: <AiOutlineBold />,
-    name: 'B',
-    description: 'bold',
-    onClick: (editor: LexicalEditor): void => {
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      return hasFormatAtSelection(editor, FormatType.Bold)
-    }
-  },
-  {
-    icon: <AiOutlineItalic />,
-    name: 'Italic',
-    description: 'italic',
-    onClick: (editor: LexicalEditor): void => {
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      return hasFormatAtSelection(editor, FormatType.Italic)
-    }
-  },
-  {
-    icon: <AiOutlineStrikethrough />,
-    name: 'Strikethrough',
-    description: 'strike',
-    onClick: (editor: LexicalEditor): void => {
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      return hasFormatAtSelection(editor, FormatType.Strikethrough)
-    }
-  },
-  {
-    icon: <AiOutlineUnderline />,
-    name: 'Underline',
-    description: 'underline',
-    onClick: (editor: LexicalEditor): void => {
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      return hasFormatAtSelection(editor, FormatType.Underline)
-    }
-  },
-  {
-    icon: <LiaQuoteLeftSolid />,
-    name: 'Blockquote',
-    description: 'blockquote',
-    onClick: (editor: LexicalEditor): void => {
-      toggleBlockquote(editor)
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      return hasFormatAtSelection(editor, FormatType.Quote)
-    }
-  },
-  {
-    icon: <FiCode />,
-    name: 'Code',
-    description: 'code',
-    onClick: (editor: LexicalEditor): void => {
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      return hasFormatAtSelection(editor, FormatType.Code)
-    }
-  },
-  {
-    name: 'A',
-    description: '',
-    icon: <AiOutlineBgColors />,
-    onClick: (editor: LexicalEditor): void => {
-      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
-      editor.update(() => {
-        const selection = $getSelection()
-        const colors = ['red', 'blue']
-        if ($isRangeSelection(selection)) {
-          $patchStyleText(selection, {
-            'background-color': colors[Math.floor(Math.random() * colors.length)]
-          })
-          $patchStyleText(selection, {
-            color: 'white'
-          })
-        }
-      })
-    },
-    isActive: (editor: LexicalEditor): boolean => {
-      // TODO
-      const nodeStyle: string | null = editor.getEditorState().read<string>(() => {
-        if (editor.isComposing()) {
-          return false
-        }
-        const selection = $getSelection()
-        const nativeSelection = window.getSelection()
-        const rootElement = editor.getRootElement()
-        if (nativeSelection !== null) {
-          if (!$isRangeSelection(selection)) {
-            return null
-          }
-          if (rootElement === null) {
-            return null
-          }
-          if (!rootElement.contains(nativeSelection.anchorNode)) {
-            return null
-          }
-        }
-        const rangeSelection = selection as RangeSelection
-        const index = rangeSelection
-          .getNodes()
-          .findIndex((n) => n instanceof TextNode && n instanceof ElementNode)
-        if (index != -1) {
-          return false
-        }
-        const bgColors = rangeSelection
-          .getNodes()
-          .map((n) => {
-            if (n instanceof TextNode) {
-              return n.getStyle() ? n.getStyle() : ''
-            }
-            return ''
-          })
-          .map((style) => {
-            if (style.includes('background-color')) {
-              const bg = style.split(';').find((pair) => pair.includes('background-color'))
-              return bg?.split(':')[1].trim()
-            } else {
-              return ''
-            }
-          })
-        console.log(bgColors)
-        return bgColors.length == 1
-      })
-      return false
-    }
-  }
-]
-
 function TextFormatFloatingToolbar({
   editor,
-  anchorElem,
-  isLink,
-  isBold,
-  isItalic,
-  isUnderline,
-  isCode,
-  isStrikethrough,
-  isSubscript,
-  isSuperscript
+  anchorElem
 }: {
   editor: LexicalEditor
   anchorElem: HTMLElement
-  isBold: boolean
-  isCode: boolean
-  isItalic: boolean
-  isLink: boolean
-  isStrikethrough: boolean
-  isSubscript: boolean
-  isSuperscript: boolean
-  isUnderline: boolean
 }): JSX.Element {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null)
-
-  const insertLink = useCallback(() => {
-    if (!isLink) {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://')
-    } else {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
-    }
-  }, [editor, isLink])
-
-  function mouseMoveListener(e: MouseEvent) {
-    if (popupCharStylesEditorRef?.current && (e.buttons === 1 || e.buttons === 3)) {
-      if (popupCharStylesEditorRef.current.style.pointerEvents !== 'none') {
-        const x = e.clientX
-        const y = e.clientY
-        const elementUnderMouse = document.elementFromPoint(x, y)
-
-        if (!popupCharStylesEditorRef.current.contains(elementUnderMouse)) {
-          // Mouse is not over the target element => not a normal click, but probably a drag
-          popupCharStylesEditorRef.current.style.pointerEvents = 'none'
-        }
+  const defaultFloatMenus: FloatMenu[] = [
+    {
+      icon: <AiOutlineBold />,
+      name: 'B',
+      description: 'bold',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Bold)
+      }
+    },
+    {
+      icon: <AiOutlineItalic />,
+      name: 'Italic',
+      description: 'italic',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Italic)
+      }
+    },
+    {
+      icon: <AiOutlineStrikethrough />,
+      name: 'Strikethrough',
+      description: 'strike',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Strikethrough)
+      }
+    },
+    {
+      icon: <AiOutlineUnderline />,
+      name: 'Underline',
+      description: 'underline',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Underline)
+      }
+    },
+    {
+      icon: <LiaQuoteLeftSolid />,
+      name: 'Blockquote',
+      description: 'blockquote',
+      onClick: (editor: LexicalEditor): void => {
+        toggleBlockquote(editor)
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Quote)
+      }
+    },
+    {
+      icon: <FiCode />,
+      name: 'Code',
+      description: 'code',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Code)
+      }
+    },
+    {
+      name: 'A',
+      description: '',
+      icon: <AiOutlineBgColors />,
+      onClick: (editor: LexicalEditor): void => {
+        // editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
+        editor.update(() => {
+          const selection = $getSelection()
+          const colors = ['red', 'blue']
+          if ($isRangeSelection(selection)) {
+            $patchStyleText(selection, {
+              'background-color': colors[Math.floor(Math.random() * colors.length)]
+            })
+            $patchStyleText(selection, {
+              color: 'white'
+            })
+          }
+        })
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        // TODO
+        const nodeStyle: string | null = editor.getEditorState().read<string>(() => {
+          if (editor.isComposing()) {
+            return false
+          }
+          const selection = $getSelection()
+          const nativeSelection = window.getSelection()
+          const rootElement = editor.getRootElement()
+          if (nativeSelection !== null) {
+            if (!$isRangeSelection(selection)) {
+              return null
+            }
+            if (rootElement === null) {
+              return null
+            }
+            if (!rootElement.contains(nativeSelection.anchorNode)) {
+              return null
+            }
+          }
+          const rangeSelection = selection as RangeSelection
+          const index = rangeSelection
+            .getNodes()
+            .findIndex((n) => n instanceof TextNode && n instanceof ElementNode)
+          if (index != -1) {
+            return false
+          }
+          const bgColors = rangeSelection
+            .getNodes()
+            .map((n) => {
+              if (n instanceof TextNode) {
+                return n.getStyle() ? n.getStyle() : ''
+              }
+              return ''
+            })
+            .map((style) => {
+              if (style.includes('background-color')) {
+                const bg = style.split(';').find((pair) => pair.includes('background-color'))
+                return bg?.split(':')[1].trim()
+              } else {
+                return ''
+              }
+            })
+          console.log(bgColors)
+          return bgColors.length == 1
+        })
+        return false
+      }
+    },
+    {
+      icon: (
+        <>
+          <span>↗</span>
+          <span>Link</span>
+        </>
+      ),
+      name: 'Link',
+      description: 'Link',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasFormatAtSelection(editor, FormatType.Link)
       }
     }
-  }
-  function mouseUpListener(e: MouseEvent) {
-    if (popupCharStylesEditorRef?.current) {
-      if (popupCharStylesEditorRef.current.style.pointerEvents !== 'auto') {
-        popupCharStylesEditorRef.current.style.pointerEvents = 'auto'
-      }
-    }
-  }
+  ]
+
+  // const insertLink = useCallback(() => {
+  //   if (!isLink) {
+  //     editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://')
+  //   } else {
+  //     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
+  //   }
+  // }, [editor, isLink])
+
+  const [tippyInstance, setTippyInstance] = useState(null)
 
   useEffect(() => {
     if (popupCharStylesEditorRef?.current) {
-      document.addEventListener('mousemove', mouseMoveListener)
-      document.addEventListener('mouseup', mouseUpListener)
+      const tippyInstance = tippy('body', {
+        appendTo: () => document.body,
+        trigger: 'manual',
+        placement: 'top',
+        interactive: true,
+        theme: 'light',
+        showOnCreate: false,
+        getReferenceClientRect: null,
+        allowHTML: true,
+        maxWidth: 400
+      })[0]
+      setTippyInstance(tippyInstance)
 
       return () => {
-        document.removeEventListener('mousemove', mouseMoveListener)
-        document.removeEventListener('mouseup', mouseUpListener)
+        tippyInstance.destroy()
       }
     }
   }, [popupCharStylesEditorRef])
@@ -280,33 +269,29 @@ function TextFormatFloatingToolbar({
       rootElement !== null &&
       rootElement.contains(nativeSelection.anchorNode)
     ) {
-      const rangeRect = getDOMRangeRect(nativeSelection, rootElement)
-
-      setFloatingElemPosition(rangeRect, popupCharStylesEditorElem, anchorElem)
+      // do nothing
+      if (tippyInstance) {
+        tippyInstance.setProps({
+          getReferenceClientRect: () => {
+            const ns = window.getSelection()
+            return getDOMRangeRect(ns, rootElement)
+          },
+          appendTo: () => document.body,
+          trigger: 'manual',
+          placement: 'top',
+          interactive: true,
+          content: popupCharStylesEditorRef.current,
+          theme: 'light',
+          showOnCreate: false,
+          allowHTML: true,
+          maxWidth: 400
+        })
+        // tippyInstance.show()
+        console.log('update tippy ', tippy)
+      }
+      // setFloatingElemPosition(rangeRect, popupCharStylesEditorElem, anchorElem)
     }
   }, [editor, anchorElem])
-
-  useEffect(() => {
-    const scrollerElem = anchorElem.parentElement
-
-    const update = () => {
-      editor.getEditorState().read(() => {
-        updateTextFormatFloatingToolbar()
-      })
-    }
-
-    window.addEventListener('resize', update)
-    if (scrollerElem) {
-      scrollerElem.addEventListener('scroll', update)
-    }
-
-    return () => {
-      window.removeEventListener('resize', update)
-      if (scrollerElem) {
-        scrollerElem.removeEventListener('scroll', update)
-      }
-    }
-  }, [editor, updateTextFormatFloatingToolbar, anchorElem])
 
   useEffect(() => {
     editor.getEditorState().read(() => {
@@ -330,7 +315,6 @@ function TextFormatFloatingToolbar({
     )
   }, [editor, updateTextFormatFloatingToolbar])
 
-  defaultFloatMenus.map
   return (
     <div ref={popupCharStylesEditorRef} className="floating-menu-container">
       {editor.isEditable() &&
@@ -343,6 +327,7 @@ function TextFormatFloatingToolbar({
             {item.icon ? item.icon : item.name}
           </button>
         ))}
+      {editor.isEditable() && <FloatingLinkEditor editor={editor} />}
     </div>
   )
 }
@@ -352,15 +337,6 @@ function useFloatingTextFormatToolbar(
   anchorElem: HTMLElement
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false)
-  const [isLink, setIsLink] = useState(false)
-  const [isBold, setIsBold] = useState(false)
-  const [isItalic, setIsItalic] = useState(false)
-  const [isUnderline, setIsUnderline] = useState(false)
-  const [isStrikethrough, setIsStrikethrough] = useState(false)
-  const [isSubscript, setIsSubscript] = useState(false)
-  const [isSuperscript, setIsSuperscript] = useState(false)
-  const [isCode, setIsCode] = useState(false)
-
   const updatePopup = useCallback(() => {
     editor.getEditorState().read(() => {
       // Should not to pop up the floating toolbar when using IME input
@@ -386,24 +362,6 @@ function useFloatingTextFormatToolbar(
       }
 
       const node = getSelectedNode(selection)
-
-      // Update text format
-      setIsBold(selection.hasFormat('bold'))
-      setIsItalic(selection.hasFormat('italic'))
-      setIsUnderline(selection.hasFormat('underline'))
-      setIsStrikethrough(selection.hasFormat('strikethrough'))
-      setIsSubscript(selection.hasFormat('subscript'))
-      setIsSuperscript(selection.hasFormat('superscript'))
-      setIsCode(selection.hasFormat('code'))
-
-      // Update links
-      const parent = node.getParent()
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true)
-      } else {
-        setIsLink(false)
-      }
-
       if (!$isCodeHighlightNode(selection.anchor.getNode()) && selection.getTextContent() !== '') {
         setIsText($isTextNode(node))
       } else {
@@ -413,7 +371,6 @@ function useFloatingTextFormatToolbar(
       const rawTextContent = selection.getTextContent().replace(/\n/g, '')
       if (!selection.isCollapsed() && rawTextContent === '') {
         setIsText(false)
-        return
       }
     })
   }, [editor])
@@ -438,25 +395,10 @@ function useFloatingTextFormatToolbar(
     )
   }, [editor, updatePopup])
 
-  if (!isText || isLink) {
+  if (!isText) {
     return null
   }
-
-  return createPortal(
-    <TextFormatFloatingToolbar
-      editor={editor}
-      anchorElem={anchorElem}
-      isLink={isLink}
-      isBold={isBold}
-      isItalic={isItalic}
-      isStrikethrough={isStrikethrough}
-      isSubscript={isSubscript}
-      isSuperscript={isSuperscript}
-      isUnderline={isUnderline}
-      isCode={isCode}
-    />,
-    anchorElem
-  )
+  return <TextFormatFloatingToolbar editor={editor} anchorElem={anchorElem} />
 }
 
 export default function FloatingTextFormatToolbarPlugin({
