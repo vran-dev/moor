@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useCommands } from '@remirror/react'
+import { useAttrs, useCommands } from '@remirror/react'
 import { debounce } from '@renderer/common/debounce'
 import { useEffect, useRef, useState } from 'react'
+import { LinkExtension } from 'remirror/extensions'
 
 export const FloatingLinkEditor = (props: {
   onSave?: (input) => void
@@ -15,9 +16,8 @@ export const FloatingLinkEditor = (props: {
 
   const { removeLink, updateLink, selectLink } = useCommands()
   // Autofocus on input by default
-  useEffect(() => {
-    // inputRef.current && inputRef.current?.focus()
-  }, [])
+  const attrs = useAttrs<LinkExtension>()
+  const { link } = attrs
 
   const convertToUrlCard = (e) => {
     debounce(async () => {
@@ -95,13 +95,11 @@ export const FloatingLinkEditor = (props: {
 
   const onSetLink = (e) => {
     const value = inputRef.current?.value || ''
-    // editor.chain().focus().setLink({ href: value }).run()
     updateLink({ href: value })
     props.onSave?.(value)
   }
 
   const onRestLink = () => {
-    // editor.chain().focus().unsetLink().run()
     removeLink()
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -128,7 +126,7 @@ export const FloatingLinkEditor = (props: {
               convertToUrlCard(e)
             }}
             onFocus={() => props.onInputFocus?.()}
-            defaultValue={''}
+            defaultValue={link()?.href || ''}
             onKeyDown={onEnter}
           />
 

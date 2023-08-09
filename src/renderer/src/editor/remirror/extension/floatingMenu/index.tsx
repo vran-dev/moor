@@ -32,6 +32,7 @@ import {
   BoldExtension,
   CodeExtension,
   ItalicExtension,
+  LinkExtension,
   StrikeExtension,
   TextHighlightExtension,
   UnderlineExtension
@@ -180,7 +181,8 @@ export const FloatingMenu = (props): JSX.Element => {
         setShowLinkInput(!showLinkInput)
       },
       isActive: () => {
-        return showLinkInput
+        const isLink = useActive<LinkExtension>().link()
+        return showLinkInput || isLink
       }
     }
   ]

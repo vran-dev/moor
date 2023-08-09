@@ -37,7 +37,7 @@ import { EditorComponent, FloatingToolbar, ThemeProvider, useSuggest } from '@re
 import { AllStyledComponent } from '@remirror/styles/emotion'
 
 import { Remirror, useRemirror } from '@remirror/react'
-import { FloatingMenu } from './remirror/extension/bubbleMenu/FloatingMenu'
+import { FloatingMenu } from  './remirror/extension/floatingMenu'
 import { FocusSelectionExtension } from './remirror/extension/focusSelection/FocusSelectionExtension'
 import {
   syntaxHighlighting,
@@ -158,7 +158,7 @@ export const Editor = (props: {
       })
     ],
     // Set the initial content.
-    content: '<p>I love <b>Remirror</b></p><div data-type="excalidraw"></div>',
+    content: '<p>I love <b>Remirror</b></p> <a href="https://google.com" alt="google">hello google</a><div data-type="excalidraw"></div>',
 
     // Place the cursor at the start of the document. This can also be set to
     // `end`, `all` or a numbered position.
