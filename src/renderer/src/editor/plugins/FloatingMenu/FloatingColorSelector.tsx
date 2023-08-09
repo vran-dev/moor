@@ -1,9 +1,13 @@
+import { $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
+import { $patchStyleText } from '@lexical/selection'
+
 export interface BubbleColorMenuItem {
   name: string
   color: string
 }
 
 interface ColorSelectorProps {
+  editor: LexicalEditor
   className?: string
 }
 
@@ -13,62 +17,75 @@ const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
     color: ''
   },
   {
-    name: 'Yellow',
-    color: '#fafaa8'
+    name: 'Red',
+    color: '#FF5575'
   },
   {
-    name: 'Pink',
-    color: '#f8d6d6'
+    name: 'Yellow',
+    color: '#FFD36A'
   },
   {
     name: 'Blue',
-    color: '#e4f3fa'
+    color: '#6299FF'
+  },
+  {
+    name: 'Green',
+    color: '#22D9AE'
+  },
+  {
+    name: 'Pink',
+    color: '#E6A1FF'
+  },
+  {
+    name: 'Purple',
+    color: '#7445E0'
   },
   {
     name: 'Gray',
     color: '#dadada'
   },
-  {
-    name: '#50e3c2',
-    color: '#50e3c2'
-  },
+
   {
     name: '#b8e986',
     color: '#b8e986'
-  },
-  {
-    name: '#f5a623',
-    color: '#f5a623'
   }
 ]
 
-export const ColorSelector = (props: ColorSelectorProps) => {
-  const { setTextHighlight, removeTextHighlight } = useCommands()
-  const attrs = useAttrs()
-  const color = attrs.textHighlight()?.highlight
-  const activeColor = HIGHLIGHT_COLORS.find(({ color: c }) => c === color) || HIGHLIGHT_COLORS[0]
+export const FloatingColorSelector = (props: ColorSelectorProps) => {
+  const { editor } = props
+  const activeColor = HIGHLIGHT_COLORS[0]
   return (
-    <div className={props.className}>
+    <div className={'floating-menu-group'}>
       {HIGHLIGHT_COLORS.map(({ name, color }, index) => (
         <button
           key={index}
-          onClick={() => {
+          onClick={(): void => {
             if (name == 'Default') {
-              removeTextHighlight()
+              editor.update(() => {
+                const selection = $getSelection()
+                if ($isRangeSelection(selection)) {
+                  $patchStyleText(selection, {
+                    'background-color': null
+                  })
+                }
+              })
             } else {
-              setTextHighlight(color)
+              editor.update(() => {
+                const selection = $getSelection()
+                if ($isRangeSelection(selection)) {
+                  $patchStyleText(selection, {
+                    'background-color': color
+                  })
+                }
+              })
             }
           }}
-          className="color-item"
+          className="floating-menu circle"
+          style={{
+            backgroundColor: color
+          }}
         >
-          <div
-            className="inner"
-            style={{
-              backgroundColor: color
-            }}
-          >
-            {activeColor?.name === name ? 'A' : ''}
-          </div>
+          {activeColor?.name === name ? 'A' : ''}
         </button>
       ))}
     </div>

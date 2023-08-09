@@ -10,7 +10,6 @@
 import './index.css'
 
 import { $isCodeHighlightNode } from '@lexical/code'
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
 import {
@@ -18,22 +17,15 @@ import {
   $isRangeSelection,
   $isTextNode,
   COMMAND_PRIORITY_LOW,
-  DEPRECATED_$isGridSelection,
-  ElementNode,
-  FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   LexicalEditor,
-  RangeSelection,
-  SELECTION_CHANGE_COMMAND,
-  TextNode
+  SELECTION_CHANGE_COMMAND
 } from 'lexical'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as React from 'react'
-import { createPortal } from 'react-dom'
 
 import { getDOMRangeClientRect, getDOMRangeRect } from '../../utils/getDOMRangeRect'
 import { getSelectedNode } from '../../utils/getSelectedNode'
-import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition'
 import {
   AiOutlineBgColors,
   AiOutlineBold,
@@ -47,9 +39,8 @@ import {
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { FiCode } from 'react-icons/fi'
 import { FormatType, hasFormatAtSelection } from '@renderer/editor/utils/hasFormatAtSelection'
-import { $patchStyleText, $setBlocksType } from '@lexical/selection'
 import { toggleBlockquote } from '@renderer/editor/utils/toggleBlockquote'
-import { FloatingLinkEditor } from './floatingLinkEditor'
+import { FloatingColorSelector } from './FloatingColorSelector'
 import {
   useFloating,
   autoUpdate,
@@ -59,12 +50,10 @@ import {
   inline,
   useDismiss,
   useRole,
-  useFocus,
   useInteractions,
-  FloatingPortal,
-  FloatingFocusManager,
-  FloatingOverlay
+  FloatingPortal
 } from '@floating-ui/react'
+import { OPEN_LINK_EDITOR } from '../FloatingLinkEditor/openLinkEditorCommand'
 
 export interface FloatMenu {
   icon: React.ReactNode
@@ -151,66 +140,9 @@ const FloatingMenu = React.forwardRef(
         description: '',
         icon: <AiOutlineBgColors />,
         onClick: (editor: LexicalEditor): void => {
-          // editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
-          editor.update(() => {
-            const selection = $getSelection()
-            const colors = ['red', 'blue']
-            if ($isRangeSelection(selection)) {
-              $patchStyleText(selection, {
-                'background-color': colors[Math.floor(Math.random() * colors.length)]
-              })
-              $patchStyleText(selection, {
-                color: 'white'
-              })
-            }
-          })
+          setShowColorSelector(!showColorSelector)
         },
         isActive: (editor: LexicalEditor): boolean => {
-          // TODO
-          const nodeStyle: string | null = editor.getEditorState().read<string>(() => {
-            if (editor.isComposing()) {
-              return false
-            }
-            const selection = $getSelection()
-            const nativeSelection = window.getSelection()
-            const rootElement = editor.getRootElement()
-            if (nativeSelection !== null) {
-              if (!$isRangeSelection(selection)) {
-                return null
-              }
-              if (rootElement === null) {
-                return null
-              }
-              if (!rootElement.contains(nativeSelection.anchorNode)) {
-                return null
-              }
-            }
-            const rangeSelection = selection as RangeSelection
-            const index = rangeSelection
-              .getNodes()
-              .findIndex((n) => n instanceof TextNode && n instanceof ElementNode)
-            if (index != -1) {
-              return false
-            }
-            const bgColors = rangeSelection
-              .getNodes()
-              .map((n) => {
-                if (n instanceof TextNode) {
-                  return n.getStyle() ? n.getStyle() : ''
-                }
-                return ''
-              })
-              .map((style) => {
-                if (style.includes('background-color')) {
-                  const bg = style.split(';').find((pair) => pair.includes('background-color'))
-                  return bg?.split(':')[1].trim()
-                } else {
-                  return ''
-                }
-              })
-            console.log(bgColors)
-            return bgColors.length == 1
-          })
           return false
         }
       },
@@ -224,7 +156,11 @@ const FloatingMenu = React.forwardRef(
         name: 'Link',
         description: 'Link',
         onClick: (editor: LexicalEditor): void => {
-          setShowLinkEditor(!showLinkEditor)
+          if (!hasFormatAtSelection(editor, FormatType.Link)) {
+            editor.dispatchCommand(OPEN_LINK_EDITOR, 'https://')
+          } else {
+            editor.dispatchCommand(OPEN_LINK_EDITOR, null)
+          }
         },
         isActive: (editor: LexicalEditor): boolean => {
           return hasFormatAtSelection(editor, FormatType.Link)
@@ -232,11 +168,12 @@ const FloatingMenu = React.forwardRef(
       }
     ]
 
-    const [showLinkEditor, setShowLinkEditor] = useState(false)
+    const [showColorSelector, setShowColorSelector] = useState(false)
 
     return (
       <div ref={ref} className="floating-menu-container" style={style} {...attrs}>
         <div className="floating-menu-list">
+          {editor.isEditable() && showColorSelector && <FloatingColorSelector editor={editor} />}
           <div className="floating-menu-group">
             {editor.isEditable() &&
               defaultFloatMenus.map((item, index) => (
@@ -248,9 +185,6 @@ const FloatingMenu = React.forwardRef(
                   {item.icon ? item.icon : item.name}
                 </button>
               ))}
-          </div>
-          <div className="floating-menu-grop">
-            {editor.isEditable() && showLinkEditor && <FloatingLinkEditor editor={editor} />}
           </div>
         </div>
       </div>

@@ -24,6 +24,7 @@ import LexicalNodes from './node'
 import theme from './theme/default'
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
 import { defaultData } from './defaultData'
+import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
 
 function onError(error) {
   console.error(error)
@@ -69,12 +70,10 @@ export function Editor() {
       <TabIndentationPlugin />
       <HashtagPlugin />
       <FloatingTextFormatToolbarPlugin />
+      <FloatingLinkEditorPlugin />
       {/* <LexicalNodeMenuPlugin /> */}
       {/* <LexicalTypeaheadMenuPlugin props/> */}
       <OnChangePlugin onChange={onChange} />
     </LexicalComposer>
   )
-}
-function useFloating(): { refs: any; floatingStyles: any } {
-  throw new Error('Function not implemented.')
 }
