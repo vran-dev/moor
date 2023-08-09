@@ -2,6 +2,7 @@
 import { debounce } from '@renderer/common/debounce'
 import { LexicalEditor } from 'lexical'
 import { useEffect, useRef, useState } from 'react'
+import './index.css'
 
 export const FloatingLinkEditor = (props: {
   editor: LexicalEditor
@@ -106,26 +107,26 @@ export const FloatingLinkEditor = (props: {
   }
   return (
     <>
-      {
-        <div className={'link-wrapper'} ref={setElement}>
-          <div className="link-form">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Type or paste URL"
-              onChange={(e) => {
-                convertToUrlCard(e)
-              }}
-              onFocus={() => props.onInputFocus?.()}
-              defaultValue={''}
-            />
+      <div className={'floating-menu-list'} ref={setElement}>
+        <div className="floating-menu-group">
+          <input
+            className={'floating-input'}
+            ref={inputRef}
+            type="text"
+            placeholder="Type or paste URL"
+            onChange={(e) => {
+              convertToUrlCard(e)
+            }}
+            onFocus={() => props.onInputFocus?.()}
+            defaultValue={''}
+          />
 
-            <button onClick={(e) => onSetLink(e)}>
-              {/* <Check className="h-4 w-4" /> */}
-              save
-            </button>
-          </div>
-          {meta.title && (
+          <button className={'floating-menu'} onClick={(e) => onSetLink(e)}>
+            {/* <Check className="h-4 w-4" /> */}
+            save
+          </button>
+        </div>
+        {/* {meta.title && (
             <div className="link-card">
               {meta.cover && <img className="cover" src={meta.cover} />}
               <div className="main">
@@ -136,9 +137,8 @@ export const FloatingLinkEditor = (props: {
                 <p className="description">{meta.description}</p>
               </div>
             </div>
-          )}
-        </div>
-      }
+          )} */}
+      </div>
     </>
   )
 }

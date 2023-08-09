@@ -78,4 +78,3 @@ export function Editor() {
 function useFloating(): { refs: any; floatingStyles: any } {
   throw new Error('Function not implemented.')
 }
-

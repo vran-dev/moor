@@ -22,3 +22,23 @@ export function getDOMRangeRect(nativeSelection: Selection, rootElement: HTMLEle
 
   return rect
 }
+
+export function getDOMRangeClientRect(
+  nativeSelection: Selection,
+  rootElement: HTMLElement
+): DOMRectList {
+  const domRange = nativeSelection.getRangeAt(0)
+
+  let rect
+
+  if (nativeSelection.anchorNode === rootElement) {
+    let inner = rootElement
+    while (inner.firstElementChild != null) {
+      inner = inner.firstElementChild as HTMLElement
+    }
+    rect = inner.getClientRects()
+  } else {
+    rect = domRange.getClientRects()
+  }
+  return rect
+}
