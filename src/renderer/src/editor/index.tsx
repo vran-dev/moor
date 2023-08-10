@@ -25,6 +25,8 @@ import theme from './theme/default'
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
 import { defaultData } from './defaultData'
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
+import SlashMenuPlugin from './plugins/SlashMenu'
+import { TypeHeadPlugin } from './plugins/Typehead/TypeheadPlugin'
 
 function onError(error) {
   console.error(error)
@@ -52,28 +54,31 @@ export function Editor() {
     editorState: defaultData
   }
   return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <RichTextPlugin
-        contentEditable={<ContentEditable className="editor" />}
-        placeholder={<span>Enter some text...</span>}
-        ErrorBoundary={LexicalErrorBoundary}
-      />
-      <AutoFocusPlugin />
-      <CheckListPlugin />
-      <ListPlugin />
-      <LexicalClickableLinkPlugin />
-      <HistoryPlugin />
-      <HorizontalRulePlugin />
-      <TablePlugin />
-      <MarkdownPlugin />
-      <LinkPlugin />
-      <TabIndentationPlugin />
-      <HashtagPlugin />
-      <FloatingTextFormatToolbarPlugin />
-      <FloatingLinkEditorPlugin />
-      {/* <LexicalNodeMenuPlugin /> */}
-      {/* <LexicalTypeaheadMenuPlugin props/> */}
-      <OnChangePlugin onChange={onChange} />
-    </LexicalComposer>
+    <div className="editor-view">
+      <LexicalComposer initialConfig={initialConfig}>
+        <RichTextPlugin
+          contentEditable={<ContentEditable className="editor" spellCheck={false} />}
+          placeholder={null}
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+        <AutoFocusPlugin />
+        <CheckListPlugin />
+        <ListPlugin />
+        <LexicalClickableLinkPlugin />
+        <HistoryPlugin />
+        <HorizontalRulePlugin />
+        <TablePlugin />
+        <MarkdownPlugin />
+        <LinkPlugin />
+        <TabIndentationPlugin />
+        <HashtagPlugin />
+        <FloatingTextFormatToolbarPlugin />
+        <FloatingLinkEditorPlugin />
+        <TypeHeadPlugin />
+        {/* <LexicalNodeMenuPlugin /> */}
+        {/* <LexicalTypeaheadMenuPlugin props/> */}
+        <OnChangePlugin onChange={onChange} />
+      </LexicalComposer>
+    </div>
   )
 }
