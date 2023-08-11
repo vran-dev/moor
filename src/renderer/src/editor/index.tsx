@@ -26,7 +26,8 @@ import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
 import { defaultData } from './defaultData'
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
 import SlashMenuPlugin from './plugins/SlashMenu'
-import { TypeHeadPlugin } from './plugins/Typehead/TypeheadPlugin'
+import { SlashTypeaheadPlugin } from './plugins/SlashTypeaheadPlugin'
+import { EmojiTypeaheadPlugin } from './plugins/EmojiTypeaheadPlugin'
 
 function onError(error) {
   console.error(error)
@@ -74,7 +75,8 @@ export function Editor() {
         <HashtagPlugin />
         <FloatingTextFormatToolbarPlugin />
         <FloatingLinkEditorPlugin />
-        <TypeHeadPlugin />
+        <SlashTypeaheadPlugin />
+        <EmojiTypeaheadPlugin />
         {/* <LexicalNodeMenuPlugin /> */}
         {/* <LexicalTypeaheadMenuPlugin props/> */}
         <OnChangePlugin onChange={onChange} />

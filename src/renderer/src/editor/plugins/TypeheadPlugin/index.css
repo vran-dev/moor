@@ -1,9 +1,8 @@
-.typehead-container {
+.typeahead-container {
   overflow-y: auto;
   overflow-x: hidden;
   border-radius: 0.375rem;
   border-width: 1px;
-  width: 18rem;
   height: auto;
   color: #37352f;
   background-color: #ffffff;
@@ -11,7 +10,7 @@
   max-height: 312px;
 }
 
-.typehead-container .virtual-scroll-container {
+.typeahead-container .virtual-scroll-container {
   max-height: 312px;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -19,9 +18,10 @@
   padding-right: 8px;
   padding-top: 8px;
   padding-bottom: 8px;
+  width: 16rem;
 }
 
-.typehead-menu {
+.typeahead-menu {
   display: flex;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -35,17 +35,17 @@
   text-align: left;
 }
 
-.typehead-menu:hover {
+.typeahead-menu:hover {
   background-color: var(--highlight-color);
   color: var(--highlight-text-color);
 }
 
-.typehead-menu.selected {
+.typeahead-menu.selected {
   background-color: var(--highlight-color);
   color: var(--highlight-text-color);
 }
 
-.typehead-menu .icon {
+.typeahead-menu .icon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -54,7 +54,7 @@
   height: 2.5rem;
 }
 
-.typehead-menu .info {
+.typeahead-menu .info {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -63,13 +63,13 @@
   padding-right: 2px;
 }
 
-.typehead-menu .info .title {
+.typeahead-menu .info .title {
   font-weight: 500;
   display: inline-block;
   user-select: false;
 }
 
-.typehead-menu .info .description {
+.typeahead-menu .info .description {
   font-size: 0.75rem;
   line-height: 1rem;
   word-wrap: break-word;
