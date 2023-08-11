@@ -382,23 +382,12 @@ export const TypeHeadComponent = (
       {isMatch && options && options.length > 0 && (
         <FloatingPortal>
           <div
-            className="context-menu"
+            className="typehead-container"
             ref={refs.setFloating}
             style={{ ...floatingStyles, overflow: 'hidden' }}
             {...getFloatingProps}
           >
-            <div
-              ref={optionsContainerRef}
-              style={{
-                maxHeight: '312px',
-                overflowY: 'scroll',
-                overflowX: 'hidden',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                paddingTop: '8px',
-                paddingBottom: '8px'
-              }}
-            >
+            <div ref={optionsContainerRef} className="virtual-scroll-container">
               <div
                 style={{
                   height: `${rowVirtualizer.getTotalSize()}px`,
@@ -421,7 +410,7 @@ export const TypeHeadComponent = (
                         key={virtualItem.key}
                         data-index={virtualItem.index}
                         ref={rowVirtualizer.measureElement}
-                        className={`context-menu-item ${
+                        className={`typehead-menu ${
                           virtualItem.index === selectedIndex ? 'selected' : ''
                         } `}
                         onClick={(): void => {
@@ -546,7 +535,7 @@ export const TypeHeadPlugin = (): ReactNode => {
         (editor: LexicalEditor) => {
           editor.update(() => {
             const selection = $getSelection()
-  
+
             if ($isRangeSelection(selection)) {
               if (selection.isCollapsed()) {
                 $setBlocksType(selection, () => $createCodeNode())
