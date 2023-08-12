@@ -14,6 +14,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
+import { $createExcalidrawNode } from '@renderer/editor/node/excalidraw'
 import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
 import { ReactNode } from 'react'
 import {
@@ -125,7 +126,13 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         'Excalidraw',
         <LiaQuoteLeftSolid />,
         'drawing with Excalidraw',
-        (editor: LexicalEditor) => {}
+        (editor: LexicalEditor) => {
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            const excalidrawNode = $createExcalidrawNode()
+            selection.insertNodes([excalidrawNode])
+          }
+        }
       ),
       new TypeaheadMenu(
         'Code Block',

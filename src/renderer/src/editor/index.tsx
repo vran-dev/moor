@@ -26,8 +26,8 @@ import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
 import { defaultData } from './defaultData'
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
 import SlashMenuPlugin from './plugins/SlashMenu'
-import { SlashTypeaheadPlugin } from './plugins/SlashTypeaheadPlugin'
-import { EmojiTypeaheadPlugin } from './plugins/EmojiTypeaheadPlugin'
+import { SlashTypeaheadPlugin } from './plugins/TypeaheadSlashPlugin'
+import { EmojiTypeaheadPlugin } from './plugins/TypeaheadEmojiPlugin'
 
 function onError(error) {
   console.error(error)
@@ -37,16 +37,11 @@ export function Editor() {
   const [editorState, setEditorState] = useState()
   function onChange(editorState) {
     setEditorState(editorState)
+    const editorStateJSON = editorState.toJSON()
+    const data = JSON.stringify(editorStateJSON)
+    console.log(data)
   }
 
-  // Get editor initial state (e.g. loaded from backend)
-  const loadContent = async () => {
-    // 'empty' editor
-    const value =
-      '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}'
-
-    return value
-  }
   const initialConfig = {
     namespace: 'MyEditor',
     theme,
