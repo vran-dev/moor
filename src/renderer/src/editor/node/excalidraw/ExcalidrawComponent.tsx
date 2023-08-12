@@ -24,6 +24,7 @@ export const ExcalidrawComponent = (props: {
   const [width, setWidth] = useState(props.options.width)
   const [height, setHeight] = useState(props.options.height)
   const [data, setData] = useState(props.data)
+  console.log('initial size ', width, height)
 
   const { nodeKey } = props
 
@@ -167,7 +168,14 @@ export const ExcalidrawComponent = (props: {
               containerRef.current.parentElement.style.aspectRatio = `${newHeight} / ${newHeight}`
             }
           }}
-          onResized={(e, newWidth, newHeight): void => {}}
+          onResized={(e, newWidth, newHeight): void => {
+            if (newWidth) {
+              setWidth(newWidth)
+            }
+            if (newHeight) {
+              setHeight(newHeight)
+            }
+          }}
         >
           <Excalidraw
             initialData={JSON.parse(data)}
