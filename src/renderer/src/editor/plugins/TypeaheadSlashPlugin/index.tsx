@@ -14,7 +14,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
-import { $createExcalidrawNode } from '@renderer/editor/node/excalidraw'
+import { $createExcalidrawNode } from '@renderer/editor/node/Excalidraw'
 import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
 import { ReactNode } from 'react'
 import {

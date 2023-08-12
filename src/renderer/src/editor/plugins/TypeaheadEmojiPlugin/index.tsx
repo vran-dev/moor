@@ -104,14 +104,12 @@ export function EmojiVirtualTable(props: {
   }, [selectRow, selectCol])
 
   const onClickEmoji = (emoji) => {
-    // TODO emoji 插入位置不正确
     const emojiSkin = emoji.skins[0].native
     const selection = $getSelection()
     if (selection != null) {
       const textNode = $createTextNode(emojiSkin)
       selection?.insertNodes([textNode])
     }
-    console.log(emojiSkin)
   }
 
   const onSelectEmoji = (emoji, row, col) => {

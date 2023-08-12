@@ -17,7 +17,7 @@ import { OverflowNode } from '@lexical/overflow'
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table'
-import { ExcalidrawNode } from './excalidraw'
+import { ExcalidrawNode } from './Excalidraw'
 
 const LexicalNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,

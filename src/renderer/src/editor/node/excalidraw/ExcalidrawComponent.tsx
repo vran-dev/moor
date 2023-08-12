@@ -24,7 +24,6 @@ export const ExcalidrawComponent = (props: {
   const [width, setWidth] = useState(props.options.width)
   const [height, setHeight] = useState(props.options.height)
   const [data, setData] = useState(props.data)
-  console.log('initial size ', width, height)
 
   const { nodeKey } = props
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor } from 'lexical'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { OPEN_LINK_EDITOR } from './openLinkEditorCommand'
 import { getSelectedNode } from '@renderer/editor/utils/getSelectedNode'
 import { $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
@@ -23,6 +23,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { getDOMRangeClientRect, getDOMRangeRect } from '@renderer/editor/utils/getDOMRangeRect'
 import { AiOutlineLink } from 'react-icons/ai'
 import { sanitizeUrl } from '@renderer/editor/utils/url'
+import { usePreudoSelection } from '../UsePseudoSelection'
+import { createDOMRange, createRectsFromDOMRange } from '@lexical/selection'
 
 export const FloatingLinkEditor = (props: {
   editor: LexicalEditor
@@ -53,6 +55,7 @@ export const FloatingLinkEditor = (props: {
   const dismiss = useDismiss(context)
   const role = useRole(context, { role: 'dialog' })
   const { getFloatingProps } = useInteractions([dismiss, role])
+  const [preudoSelectionUpdate, preudoSelectionReset] = usePreudoSelection()
 
   const updateLinkEditor = useCallback(() => {
     const selection = $getSelection()
@@ -113,6 +116,14 @@ export const FloatingLinkEditor = (props: {
       )
     )
   }, [editor, updateLinkEditor])
+
+  useEffect(() => {
+    if (isOpen) {
+      preudoSelectionUpdate(editor)
+    } else {
+      preudoSelectionReset()
+    }
+  }, [isOpen])
 
   const onSetLink = (e) => {
     const value = inputRef.current?.value || ''
