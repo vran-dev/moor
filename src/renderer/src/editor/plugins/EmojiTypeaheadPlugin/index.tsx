@@ -188,24 +188,22 @@ export function EmojiVirtualTable(props: {
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
         (payload) => {
-          editor.update(() => {
-            const selection = $getSelection()
-            if (!$isRangeSelection(selection)) {
-              return false
-            }
-            const anchor = selection.anchor
-            const anchorNode = anchor.getNode()
-            const anchorOffset = anchor?.offset - query.length - trigger.length
-            let newNode
-            if (anchorOffset === 0) {
-              ;[newNode] = anchorNode.splitText(anchor?.offset)
-            } else {
-              ;[, newNode] = anchorNode.splitText(anchorOffset, anchor?.offset)
-            }
-            if (newNode) {
-              newNode.remove()
-            }
-          })
+          const selection = $getSelection()
+          if (!$isRangeSelection(selection)) {
+            return false
+          }
+          const anchor = selection.anchor
+          const anchorNode = anchor.getNode()
+          const anchorOffset = anchor?.offset - query.length - trigger.length
+          let newNode
+          if (anchorOffset === 0) {
+            ;[newNode] = anchorNode.splitText(anchor?.offset)
+          } else {
+            ;[, newNode] = anchorNode.splitText(anchorOffset, anchor?.offset)
+          }
+          if (newNode) {
+            newNode.remove()
+          }
           onClickEmoji(emojiRows[selectRow][selectCol])
           closeTypeahead()
           payload.preventDefault()

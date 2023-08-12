@@ -180,7 +180,6 @@ export function TypeaheadVirtualListMenu(props: {
         KEY_ENTER_COMMAND,
         (payload) => {
           if (options !== null && options.length && selectedIndex !== null) {
-            options[selectedIndex].command(editor)
             const selection = $getSelection()
             if (!$isRangeSelection(selection)) {
               return false
@@ -197,6 +196,7 @@ export function TypeaheadVirtualListMenu(props: {
             if (newNode) {
               newNode.remove()
             }
+            options[selectedIndex].command(editor)
             closeTypeahead()
             payload.preventDefault()
             payload.stopImmediatePropagation()

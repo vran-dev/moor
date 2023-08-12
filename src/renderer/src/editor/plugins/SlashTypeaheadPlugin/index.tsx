@@ -14,7 +14,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
-import { $createParagraphNode, $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
+import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
 import { ReactNode } from 'react'
 import {
   AiOutlineUnorderedList,
@@ -153,7 +153,13 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         'Emoji',
         <AiOutlineSmile {...ICON_PROPS} />,
         'select emoji from picker',
-        (editor: LexicalEditor) => {}
+        (editor: LexicalEditor) => {
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            const textNode = $createTextNode(':')
+            selection.insertNodes([textNode])
+          }
+        }
       ),
       new TypeaheadMenu(
         'Text',
