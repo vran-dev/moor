@@ -37,7 +37,6 @@ export const FloatingLinkEditor = (props: {
   const [activeEditor, setActiveEditor] = useState<LexicalEditor | null>(null)
   const [linkUrl, setLinkUrl] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [isLink, setIsLink] = useState(false)
   const { editor } = props
   useEffect(() => {
     inputRef.current && inputRef.current?.focus()
@@ -143,6 +142,10 @@ export const FloatingLinkEditor = (props: {
     setIsOpen(false)
     props.onReset?.()
   }
+
+  const isLink = useMemo(() => {
+    return linkUrl && linkUrl !== ''
+  }, [linkUrl])
   return (
     <>
       <FloatingPortal>
