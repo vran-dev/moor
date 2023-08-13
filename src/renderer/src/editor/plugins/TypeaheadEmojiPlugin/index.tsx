@@ -2,14 +2,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import '@renderer/assets/emoji-picker.css'
 import { EmojiData, toTwoDimensional } from './getEmojis'
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState
-} from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getEmojis } from './getEmojis'
 import './index.css'
 import {
@@ -25,12 +18,7 @@ import {
   KEY_ARROW_RIGHT_COMMAND,
   $createTextNode
 } from 'lexical'
-import {
-  TypeaheadChildrenProps,
-  TypeaheadMenu,
-  TypeaheadMenuComponent,
-  TypeaheadPlugin
-} from '../TypeheadPlugin'
+import { TypeaheadChildrenProps, TypeaheadPlugin } from '../TypeheadPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
 
@@ -104,12 +92,29 @@ export function EmojiVirtualTable(props: {
   }, [selectRow, selectCol])
 
   const onClickEmoji = (emoji) => {
-    const emojiSkin = emoji.skins[0].native
-    const selection = $getSelection()
-    if (selection != null) {
-      const textNode = $createTextNode(emojiSkin)
-      selection?.insertNodes([textNode])
-    }
+    editor.update(() => {
+      const selection = $getSelection()
+      if (!$isRangeSelection(selection)) {
+        return
+      }
+      const anchor = selection.anchor
+      const anchorNode = anchor.getNode()
+      const anchorOffset = anchor?.offset - query.length - trigger.length
+      let newNode
+      if (anchorOffset === 0) {
+        ;[newNode] = anchorNode.splitText(anchor?.offset)
+      } else {
+        ;[, newNode] = anchorNode.splitText(anchorOffset, anchor?.offset)
+      }
+      if (newNode) {
+        newNode.remove()
+      }
+      const emojiSkin = emoji.skins[0].native
+      if (selection != null) {
+        const textNode = $createTextNode(emojiSkin)
+        selection?.insertNodes([textNode])
+      }
+    })
   }
 
   const onSelectEmoji = (emoji, row, col) => {
@@ -122,6 +127,9 @@ export function EmojiVirtualTable(props: {
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_DOWN_COMMAND,
         (payload) => {
+          if (emojiRows.length === 0) {
+            return false
+          }
           payload.preventDefault()
           payload.stopImmediatePropagation()
           setSelectRow((selectRow + 1) % emojiRows.length)
@@ -132,6 +140,9 @@ export function EmojiVirtualTable(props: {
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
         (payload) => {
+          if (emojiRows.length === 0) {
+            return false
+          }
           payload.preventDefault()
           payload.stopImmediatePropagation()
           setSelectRow((selectRow - 1 + emojiRows.length) % emojiRows.length)
@@ -142,6 +153,9 @@ export function EmojiVirtualTable(props: {
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_LEFT_COMMAND,
         (payload) => {
+          if (emojiRows.length === 0) {
+            return false
+          }
           payload.preventDefault()
           payload.stopImmediatePropagation()
           if (selectCol === 0 && selectRow === 0) {
@@ -176,6 +190,9 @@ export function EmojiVirtualTable(props: {
       editor.registerCommand<KeyboardEvent>(
         KEY_ESCAPE_COMMAND,
         (payload) => {
+          if (emojiRows.length === 0) {
+            return false
+          }
           payload.preventDefault()
           payload.stopImmediatePropagation()
           closeTypeahead(true)
@@ -186,21 +203,8 @@ export function EmojiVirtualTable(props: {
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
         (payload) => {
-          const selection = $getSelection()
-          if (!$isRangeSelection(selection)) {
+          if (emojiRows.length === 0) {
             return false
-          }
-          const anchor = selection.anchor
-          const anchorNode = anchor.getNode()
-          const anchorOffset = anchor?.offset - query.length - trigger.length
-          let newNode
-          if (anchorOffset === 0) {
-            ;[newNode] = anchorNode.splitText(anchor?.offset)
-          } else {
-            ;[, newNode] = anchorNode.splitText(anchorOffset, anchor?.offset)
-          }
-          if (newNode) {
-            newNode.remove()
           }
           onClickEmoji(emojiRows[selectRow][selectCol])
           closeTypeahead()
