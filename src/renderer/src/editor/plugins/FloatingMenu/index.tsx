@@ -278,7 +278,9 @@ function useFloatingTextFormatToolbar(
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         () => {
-          updatePopup()
+          if (isOpen) {
+            updatePopup()
+          }
           return false
         },
         COMMAND_PRIORITY_LOW

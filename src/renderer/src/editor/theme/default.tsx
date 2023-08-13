@@ -9,81 +9,51 @@
 import type { EditorThemeClasses } from 'lexical'
 
 import './default.css'
+import './defaultLight.css'
 
 const theme: EditorThemeClasses = {
   blockCursor: 'PlaygroundEditorTheme__blockCursor',
   characterLimit: 'PlaygroundEditorTheme__characterLimit',
   code: 'PlaygroundEditorTheme__code',
-  codeHighlight: {
-    atrule: 'PlaygroundEditorTheme__tokenAttr',
-    attr: 'PlaygroundEditorTheme__tokenAttr',
-    boolean: 'PlaygroundEditorTheme__tokenProperty',
-    builtin: 'PlaygroundEditorTheme__tokenSelector',
-    cdata: 'PlaygroundEditorTheme__tokenComment',
-    char: 'PlaygroundEditorTheme__tokenSelector',
-    class: 'PlaygroundEditorTheme__tokenFunction',
-    'class-name': 'PlaygroundEditorTheme__tokenFunction',
-    comment: 'PlaygroundEditorTheme__tokenComment',
-    constant: 'PlaygroundEditorTheme__tokenProperty',
-    deleted: 'PlaygroundEditorTheme__tokenProperty',
-    doctype: 'PlaygroundEditorTheme__tokenComment',
-    entity: 'PlaygroundEditorTheme__tokenOperator',
-    function: 'PlaygroundEditorTheme__tokenFunction',
-    important: 'PlaygroundEditorTheme__tokenVariable',
-    inserted: 'PlaygroundEditorTheme__tokenSelector',
-    keyword: 'PlaygroundEditorTheme__tokenAttr',
-    namespace: 'PlaygroundEditorTheme__tokenVariable',
-    number: 'PlaygroundEditorTheme__tokenProperty',
-    operator: 'PlaygroundEditorTheme__tokenOperator',
-    prolog: 'PlaygroundEditorTheme__tokenComment',
-    property: 'PlaygroundEditorTheme__tokenProperty',
-    punctuation: 'PlaygroundEditorTheme__tokenPunctuation',
-    regex: 'PlaygroundEditorTheme__tokenVariable',
-    selector: 'PlaygroundEditorTheme__tokenSelector',
-    string: 'PlaygroundEditorTheme__tokenSelector',
-    symbol: 'PlaygroundEditorTheme__tokenProperty',
-    tag: 'PlaygroundEditorTheme__tokenProperty',
-    url: 'PlaygroundEditorTheme__tokenOperator',
-    variable: 'PlaygroundEditorTheme__tokenVariable'
-  },
   embedBlock: {
     base: 'PlaygroundEditorTheme__embedBlock',
     focus: 'PlaygroundEditorTheme__embedBlockFocus'
   },
-  hashtag: 'PlaygroundEditorTheme__hashtag',
+  hashtag: 'EditorTheme__hashtag',
   heading: {
-    h1: 'PlaygroundEditorTheme__h1',
-    h2: 'PlaygroundEditorTheme__h2',
-    h3: 'PlaygroundEditorTheme__h3',
-    h4: 'PlaygroundEditorTheme__h4',
-    h5: 'PlaygroundEditorTheme__h5',
-    h6: 'PlaygroundEditorTheme__h6'
+    h1: 'EditorTheme__h1',
+    h2: 'EditorTheme__h2',
+    h3: 'EditorTheme__h3',
+    h4: 'EditorTheme__h4',
+    h5: 'EditorTheme__h5',
+    h6: 'EditorTheme__h6'
   },
   image: 'editor-image',
   indent: 'PlaygroundEditorTheme__indent',
   inlineImage: 'inline-editor-image',
-  link: 'PlaygroundEditorTheme__link',
+  link: 'EditorTheme__link',
   list: {
-    listitem: 'PlaygroundEditorTheme__listItem',
+    listitem: 'EditorTheme__listItem',
     listitemChecked: 'PlaygroundEditorTheme__listItemChecked',
     listitemUnchecked: 'PlaygroundEditorTheme__listItemUnchecked',
     nested: {
       listitem: 'PlaygroundEditorTheme__nestedListItem'
     },
     olDepth: [
-      'PlaygroundEditorTheme__ol1',
-      'PlaygroundEditorTheme__ol2',
-      'PlaygroundEditorTheme__ol3',
-      'PlaygroundEditorTheme__ol4',
-      'PlaygroundEditorTheme__ol5'
+      'EditorTheme__ol1',
+      'EditorTheme__ol2',
+      'EditorTheme__ol3',
+      'EditorTheme__ol4',
+      'EditorTheme__ol5'
     ],
-    ul: 'PlaygroundEditorTheme__ul'
+    ul: 'EditorTheme__ul',
+    ol: 'EditorTheme__ol'
   },
   ltr: 'PlaygroundEditorTheme__ltr',
   mark: 'PlaygroundEditorTheme__mark',
   markOverlap: 'PlaygroundEditorTheme__markOverlap',
-  paragraph: 'PlaygroundEditorTheme__paragraph',
-  quote: 'PlaygroundEditorTheme__quote',
+  paragraph: 'EditorTheme__paragraph',
+  quote: 'EditorTheme__quote',
   rtl: 'PlaygroundEditorTheme__rtl',
   table: 'PlaygroundEditorTheme__table',
   tableAddColumns: 'PlaygroundEditorTheme__tableAddColumns',
@@ -101,13 +71,13 @@ const theme: EditorThemeClasses = {
   tableSelected: 'PlaygroundEditorTheme__tableSelected',
   tableSelection: 'PlaygroundEditorTheme__tableSelection',
   text: {
-    bold: 'PlaygroundEditorTheme__textBold',
-    code: 'PlaygroundEditorTheme__textCode',
+    bold: 'EditorTheme__textBold',
+    code: 'EditorTheme__textCode',
     italic: 'PlaygroundEditorTheme__textItalic',
     strikethrough: 'PlaygroundEditorTheme__textStrikethrough',
     subscript: 'PlaygroundEditorTheme__textSubscript',
     superscript: 'PlaygroundEditorTheme__textSuperscript',
-    underline: 'PlaygroundEditorTheme__textUnderline',
+    underline: 'EditorTheme__textUnderline',
     underlineStrikethrough: 'PlaygroundEditorTheme__textUnderlineStrikethrough'
   }
 }

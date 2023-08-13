@@ -73,7 +73,6 @@ export function Editor() {
         <SlashTypeaheadPlugin />
         <EmojiTypeaheadPlugin />
         {/* <LexicalNodeMenuPlugin /> */}
-        {/* <LexicalTypeaheadMenuPlugin props/> */}
         <OnChangePlugin onChange={onChange} />
       </LexicalComposer>
     </div>

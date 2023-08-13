@@ -11,31 +11,6 @@ li p {
     margin: 0;
 }
 
-p {
-    color: #000000E0;
-    font-size: 16px;
-    line-height: 24px;
-    letter-spacing: 1.2px;
-}
-
-h1 {
-    color: #000000E0;
-    font-size: 32px;
-    line-height: 40px;
-}
-
-h2 {
-    color: #000000E0;
-    font-size: 24px;
-    line-height: 32px;
-}
-
-h3,h4,h5,h6 {
-    color: #000000E0;
-    font-size: 20px;
-    line-height: 28px;
-}
-
 button {
     background-color: transparent;
 }

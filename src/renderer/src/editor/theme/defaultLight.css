@@ -1,0 +1,229 @@
+.EditorTheme__paragraph {
+  color: #37352f;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 1.2px;
+}
+
+.EditorTheme__h1 {
+  color: #000000E0;
+  font-size: 32px;
+  line-height: 40px;
+}
+
+.EditorTheme__h2 {
+  color: #000000E0;
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.EditorTheme__h3 {
+  color: #000000E0;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.EditorTheme__h4,.EditorTheme__h5,.EditorTheme__h6  {
+  color: #000000E0;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.EditorTheme__quote {
+  background: #fefefe;
+  border-left: 6px solid #EEE;
+  margin: 1em 0px;
+  padding: 0.5em 10px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.EditorTheme__textBold {
+  color: #37352f;
+  font-weight: 600;
+}
+
+.EditorTheme__textCode  {
+  color: #EB5757;
+  background-color: #87837826;
+  border-radius: 3px;
+  line-height: 85%;
+  padding: 0.2em 0.4em;
+  &::before {
+      content: none !important
+  }
+
+  &::after {
+      content: none !important
+  }
+}
+
+.EditorTheme__textUnderline {
+  text-decoration: none;
+  border-bottom: 0.05em solid #37352f;
+  word-wrap: break-word;
+}
+
+.EditorTheme__link {
+  position: relative;
+  text-decoration: none;
+  color: #37352f;
+  cursor: pointer;
+  opacity: 0.75;
+  border-bottom: 0.8px solid #37352f66;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.EditorTheme__hashtag {
+  background-color: rgba(88, 144, 255, 0.15);
+  border-bottom: 1px solid rgba(88, 144, 255, 0.3);
+}
+
+/* list */
+.EditorTheme__ul {
+  list-style-type: revert;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.EditorTheme__ul > .EditorTheme__listItem {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.EditorTheme__ul .EditorTheme__listItem {
+  padding-left: 0.375em;
+}
+
+.EditorTheme__ol {
+  list-style-type: decimal;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.EditorTheme__ol2 {
+  list-style-type: upper-alpha;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.EditorTheme__ol3 {
+  list-style-type: lower-alpha;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.EditorTheme__ol4 {
+  list-style-type: upper-roman;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.EditorTheme__ol5 {
+  list-style-type: lower-roman;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.EditorTheme__ol .EditorTheme__listItem {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Custom TODO list checkboxes – shoutout to this awesome tutorial: https://moderncss.dev/pure-css-custom-checkbox-style/ */
+/* task list */
+ul[data-type="taskList"]>li>label {
+  margin-right: 0.2rem;
+  user-select: none;
+}
+
+@media screen and (max-width: 768px) {
+  ul[data-type="taskList"]>li>label {
+    margin-right: 0.5rem;
+  }
+}
+
+ul[data-type="taskList"] {
+  padding-left: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+ul[data-type="taskList"]>li {
+  position: relative;
+  display: flex;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  align-items: flex-start;
+}
+
+ul[data-type="taskList"]>li>.indicator {
+  position: absolute;
+  font-size: 10px;
+  color: #777777;
+  top: 0;
+  transform: translateY(-100%);
+  width: 200px;
+}
+
+ul[data-type="taskList"]>li>label input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #FFFFFF;
+  margin: 0;
+  cursor: pointer;
+  width: 1.2em;
+  height: 1.2em;
+  position: relative;
+  top: 5px;
+  border: 2px solid #1c1917;
+  margin-right: 0.3rem;
+  display: grid;
+  place-content: center;
+}
+
+ul[data-type="taskList"]>li>label input[type="checkbox"]:hover {
+  background-color: #EEE;
+}
+
+ul[data-type="taskList"]>li>label input[type="checkbox"]:active {
+  background-color: #EEE;
+}
+
+ul[data-type="taskList"]>li>label input[type="checkbox"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em;
+  transform-origin: center;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+ul[data-type="taskList"]>li>label input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+ul[data-type="taskList"]>li[data-checked="true"]>div>p {
+  color: #777777;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+ul[data-type="taskList"]>li[data-checked="true"]>label input[type="checkbox"] {
+  background-color: var(--highlight-color);
+  color: var(--highlight-text-color);
+}
+
+ul[data-type="taskList"]>li[data-checked="true"]>label input[type="checkbox"]:hover {
+  opacity: 0.8;
+}
