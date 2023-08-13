@@ -75,7 +75,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {
     return {
-      span: (domNode: HTMLSpanElement) => {
+      div: (domNode: HTMLSpanElement) => {
         if (!domNode.hasAttribute('data-lexical-excalidraw-json')) {
           return null
         }

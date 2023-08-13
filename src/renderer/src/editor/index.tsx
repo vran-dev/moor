@@ -39,7 +39,7 @@ export function Editor() {
     setEditorState(editorState)
     const editorStateJSON = editorState.toJSON()
     const data = JSON.stringify(editorStateJSON)
-    console.log(data)
+    // console.log(editorStateJSON)
   }
 
   const initialConfig = {
@@ -47,7 +47,7 @@ export function Editor() {
     theme,
     onError,
     nodes: [...LexicalNodes],
-    editorState: defaultData
+    editorState: JSON.stringify(defaultData)
   }
   return (
     <div className="editor-view">

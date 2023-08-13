@@ -14,8 +14,9 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
+import { $createCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
 import { $createExcalidrawNode } from '@renderer/editor/node/Excalidraw'
-import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
+import { $createNodeSelection, $createParagraphNode, $createRangeSelection, $createTextNode, $getNodeByKey, $getSelection, $isRangeSelection, $setSelection, LexicalEditor } from 'lexical'
 import { ReactNode } from 'react'
 import {
   AiOutlineUnorderedList,
@@ -141,17 +142,21 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         (editor: LexicalEditor) => {
           editor.update(() => {
             const selection = $getSelection()
-
             if ($isRangeSelection(selection)) {
-              if (selection.isCollapsed()) {
-                $setBlocksType(selection, () => $createCodeNode())
-              } else {
-                // Will this ever happen?
-                const textContent = selection.getTextContent()
-                const codeNode = $createCodeNode()
-                selection.insertNodes([codeNode])
-                selection.insertRawText(textContent)
-              }
+              // if (selection.isCollapsed()) {
+              const codeMirrorNode = $createCodeMirrorNode('')
+              selection.insertNodes([codeMirrorNode])
+              const ns = $createNodeSelection()
+              // const rs = $createRangeSelection()
+              ns.add(codeMirrorNode.getKey())
+              $setSelection(ns)
+              // } else {
+              //   // Will this ever happen?
+              //   const textContent = selection.getTextContent()
+              //   const codeNode = $createCodeNode()
+              //   selection.insertNodes([codeNode])
+              //   selection.insertRawText(textContent)
+              // }
             }
           })
         }

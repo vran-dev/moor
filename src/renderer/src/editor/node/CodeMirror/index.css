@@ -1,0 +1,53 @@
+
+/* codemirror style customize */
+.cm-editor {
+  border: none;
+  background-color: transparent;
+  margin-top: 1rem;
+}
+
+.cm-editor.cm-focused {
+  border: none;
+  outline: none;
+}
+
+.ͼ2 .cm-gutters {
+  color: #9f9f9f;
+  border: none;
+}
+
+.ͼ2 .cm-gutters:hover {
+}
+
+.ͼ2 .cm-content {
+  padding-left: 12px;
+}
+
+/* codeblock style */
+.editor-view .codeblock {
+  margin-top: 1.25rem;
+}
+
+.codeblock {
+  background-color: #fbfbfe;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  position: relative;
+  border-radius: 8px;
+}
+
+.codeblock-preview {
+  background-color: #FFFFFF;
+  padding: 5px;
+  margin: 20px auto;
+}
+
+.codeblock-language-select {
+  z-index: 9;
+}
+
+.codeblock-language-menu{
+  z-index: 10 !important;
+}

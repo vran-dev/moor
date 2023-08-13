@@ -3,7 +3,9 @@ import {
   $getNodeByKey,
   $getSelection,
   $isRangeSelection,
+  COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_NORMAL,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
   KEY_ENTER_COMMAND,
@@ -141,7 +143,7 @@ export function TypeaheadVirtualListMenu(props: {
 
   useEffect(() => {
     const updateSelectedIndex = (diff: number, event: KeyboardEvent) => {
-      if (options !== null && options.length && selectedIndex !== null) {
+      if (options !== null && options.length) {
         const newSelectedIndex = (selectedIndex + diff + options.length) % options.length
         setSelectedIndex(newSelectedIndex)
         event.preventDefault()
@@ -157,14 +159,14 @@ export function TypeaheadVirtualListMenu(props: {
         (payload) => {
           return updateSelectedIndex(1, payload)
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
         (payload) => {
           return updateSelectedIndex(-1, payload)
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ESCAPE_COMMAND,
@@ -174,7 +176,7 @@ export function TypeaheadVirtualListMenu(props: {
           closeTypeahead(true)
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
@@ -204,7 +206,7 @@ export function TypeaheadVirtualListMenu(props: {
           }
           return false
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       )
     )
     return () => {

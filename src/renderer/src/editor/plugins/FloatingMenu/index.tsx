@@ -54,6 +54,7 @@ import {
   FloatingPortal
 } from '@floating-ui/react'
 import { OPEN_LINK_EDITOR } from '../FloatingLinkEditor/openLinkEditorCommand'
+import { $isCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
 
 export interface FloatMenu {
   icon: React.ReactNode
@@ -197,12 +198,12 @@ function useFloatingTextFormatToolbar(
   editor: LexicalEditor,
   anchorElem: HTMLElement
 ): JSX.Element | null {
-  const [isText, setIsText] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const { refs, floatingStyles, context } = useFloating({
     placement: 'top',
-    open: isText,
+    open: isOpen,
     onOpenChange: (open, event) => {
-      setIsText(open)
+      setIsOpen(open)
     },
     middleware: [offset(10), flip(), shift(), inline()],
     whileElementsMounted: autoUpdate
@@ -227,7 +228,7 @@ function useFloatingTextFormatToolbar(
           rootElement === null ||
           !rootElement.contains(nativeSelection.anchorNode))
       ) {
-        setIsText(false)
+        setIsOpen(false)
         return
       }
 
@@ -236,15 +237,19 @@ function useFloatingTextFormatToolbar(
       }
 
       const node = getSelectedNode(selection)
-      if (!$isCodeHighlightNode(selection.anchor.getNode()) && selection.getTextContent() !== '') {
-        setIsText($isTextNode(node))
+      if ($isCodeMirrorNode(selection.anchor.getNode())) {
+        setIsOpen(false)
+      } else if ($isCodeHighlightNode(selection.anchor.getNode())) {
+        setIsOpen(false)
+      } else if (selection.getTextContent() !== '') {
+        setIsOpen($isTextNode(node))
       } else {
-        setIsText(false)
+        setIsOpen(false)
       }
 
       const rawTextContent = selection.getTextContent().replace(/\n/g, '')
       if (!selection.isCollapsed() && rawTextContent === '') {
-        setIsText(false)
+        setIsOpen(false)
       }
       refs.setReference({
         getBoundingClientRect: () => getDOMRangeRect(nativeSelection, rootElement),
@@ -267,7 +272,7 @@ function useFloatingTextFormatToolbar(
       }),
       editor.registerRootListener(() => {
         if (editor.getRootElement() === null) {
-          setIsText(false)
+          setIsOpen(false)
         }
       }),
       editor.registerCommand(
@@ -281,14 +286,14 @@ function useFloatingTextFormatToolbar(
     )
   }, [editor, updatePopup])
 
-  if (!isText) {
+  if (!isOpen) {
     return null
   }
 
   return (
     <>
       <FloatingPortal>
-        {isText && (
+        {isOpen && (
           <FloatingMenu
             ref={refs.setFloating}
             editor={editor}
