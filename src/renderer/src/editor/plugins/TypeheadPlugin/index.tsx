@@ -83,6 +83,7 @@ export function TypeaheadMenuComponent(props: {
   index: number
   options: TypeaheadMenu[]
   selectedIndex: number
+  onSelect?: (option: TypeaheadMenu) => void
 }): JSX.Element {
   const { editor, setRef, index, options, selectedIndex } = props
   const option = options[index]
@@ -92,7 +93,9 @@ export function TypeaheadMenuComponent(props: {
       ref={setRef}
       className={`typeahead-menu ${index === selectedIndex ? 'selected' : ''} `}
       onClick={(): void => {
-        option.command(editor)
+        if (props.onSelect) {
+          props.onSelect(option)
+        }
       }}
     >
       {option.icon && <div className="icon">{option.icon}</div>}
@@ -141,6 +144,29 @@ export function TypeaheadVirtualListMenu(props: {
     }
   }, [selectedIndex])
 
+  const handleSelect = (option: TypeaheadMenu) => {
+    editor.update(() => {
+      const selection = $getSelection()
+      if (!$isRangeSelection(selection)) {
+        return
+      }
+      const anchor = selection.anchor
+      const anchorNode = anchor.getNode()
+      const anchorOffset = anchor?.offset - query.length - trigger.length
+      let newNode
+      if (anchorOffset === 0) {
+        ;[newNode] = anchorNode.splitText(anchor?.offset)
+      } else {
+        ;[, newNode] = anchorNode.splitText(anchorOffset, anchor?.offset)
+      }
+      if (newNode) {
+        newNode.remove()
+      }
+      option.command(editor)
+      closeTypeahead()
+    })
+  }
+
   useEffect(() => {
     const updateSelectedIndex = (diff: number, event: KeyboardEvent) => {
       if (options !== null && options.length) {
@@ -182,24 +208,7 @@ export function TypeaheadVirtualListMenu(props: {
         KEY_ENTER_COMMAND,
         (payload) => {
           if (options !== null && options.length && selectedIndex !== null) {
-            const selection = $getSelection()
-            if (!$isRangeSelection(selection)) {
-              return false
-            }
-            const anchor = selection.anchor
-            const anchorNode = anchor.getNode()
-            const anchorOffset = anchor?.offset - query.length - trigger.length
-            let newNode
-            if (anchorOffset === 0) {
-              ;[newNode] = anchorNode.splitText(anchor?.offset)
-            } else {
-              ;[, newNode] = anchorNode.splitText(anchorOffset, anchor?.offset)
-            }
-            if (newNode) {
-              newNode.remove()
-            }
-            options[selectedIndex].command(editor)
-            closeTypeahead()
+            handleSelect(options[selectedIndex])
             payload.preventDefault()
             payload.stopImmediatePropagation()
             return true
@@ -240,6 +249,7 @@ export function TypeaheadVirtualListMenu(props: {
                 index={virtualItem.index}
                 options={options}
                 selectedIndex={selectedIndex}
+                onSelect={(option) => handleSelect(option)}
               />
             )
           })}
@@ -270,7 +280,7 @@ export function TypeaheadPlugin<OptionType>(props: {
   const [options, setOptions] = useState<OptionType[]>([])
 
   // options for menu
-  useEffect(() =>{
+  useEffect(() => {
     getOptions(query).then((options) => setOptions(options))
   }, [editor, query])
 
