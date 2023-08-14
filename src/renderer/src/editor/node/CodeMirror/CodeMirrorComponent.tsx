@@ -3,7 +3,8 @@ import {
   defaultKeymap,
   history,
   indentWithTab,
-  selectAll as cmSelectAll
+  selectAll as cmSelectAll,
+  historyKeymap
 } from '@codemirror/commands'
 import {
   bracketMatching,
@@ -70,7 +71,6 @@ export function CodeMirrorComponent(props: {
   const editorRef = useRef<HTMLDivElement>(null)
   const { data, nodeKey, language } = props
   const [editor] = useLexicalComposerContext()
-  const [isFocus, setFocus] = useState(false)
   const [selectLanguage, setSelectLanguage] = useState<(LanguageInfo & LanguageOption) | null>(null)
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
 
@@ -129,34 +129,10 @@ export function CodeMirrorComponent(props: {
     updateLexicalNodeLanguage(option.value)
   }, [])
 
-  // add focus & unfocus event to codemirror dom
-  // useEffect(() => {
-  //   if (!codeMirror) {
-  //     return
-  //   }
-  //   const codeConentDomFocusHandle = (isFocus: boolean): void => {
-  //     setFocus(isFocus)
-  //     if (isFocus) {
-  //       // editor.update(() => {
-  //       //   const selection = $createNodeSelection()
-  //       //   selection.add(nodeKey)
-  //       //   $setSelection(selection)
-  //       // })
-  //     }
-  //   }
-  //   codeMirror?.contentDOM.addEventListener('focus', () => codeConentDomFocusHandle(true))
-  //   codeMirror?.contentDOM.addEventListener('focusout', () => codeConentDomFocusHandle(false))
-  //   return () => {
-  //     codeMirror?.contentDOM.removeEventListener('focus', () => codeConentDomFocusHandle(true))
-  //     codeMirror?.contentDOM.removeEventListener('focusout', () => codeConentDomFocusHandle(false))
-  //   }
-  // }, [codeMirror])
-
   // update lexical node data
   const updateLexicalNodeData = useCallback(
     (latest: string) =>
       editor.update(() => {
-        $addUpdateTag('history-push')
         const node = $getNodeByKey(nodeKey)
         if ($isCodeMirrorNode(node)) {
           node.setData(latest)
@@ -254,7 +230,8 @@ export function CodeMirrorComponent(props: {
               }
             }
           }
-          if (codeMirror) {
+          if (codeMirror && codeMirror.hasFocus) {
+            console.log('on key down', event, codeMirror.hasFocus)
             return codeMirror.hasFocus
           }
           return false
@@ -373,8 +350,8 @@ export function CodeMirrorComponent(props: {
     const codeMirror = new CodeMirrorEditorView({
       doc: data,
       extensions: [
-        keymap.of([indentWithTab, ...defaultKeymap, ...codeMirrorKeymap()]),
-        // history(),
+        keymap.of([indentWithTab, ...historyKeymap, ...defaultKeymap, ...codeMirrorKeymap()]),
+        history(),
         indentOnInput(),
         autocompletion(),
         CodeMirrorEditorView.lineWrapping,
@@ -418,9 +395,17 @@ export function CodeMirrorComponent(props: {
     if (!codeMirror) {
       return
     }
-    if (selected) {
-      codeMirror?.contentDOM.focus()
-    }
+    editor.getEditorState().read(() => {
+      const sel = $getSelection()
+      if (
+        selected &&
+        $isNodeSelection(sel) &&
+        sel.getNodes().length === 1 &&
+        sel.getNodes()[0].getKey() === nodeKey
+      ) {
+        codeMirror.focus()
+      }
+    })
   }, [codeMirror, selected])
 
   useEffect(() => {
