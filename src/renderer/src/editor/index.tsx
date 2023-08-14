@@ -25,6 +25,7 @@ import { defaultData } from './defaultData'
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
 import { SlashTypeaheadPlugin } from './plugins/TypeaheadSlashPlugin'
 import { EmojiTypeaheadPlugin } from './plugins/TypeaheadEmojiPlugin'
+import { CodeLanguageTypeaheadPlugin } from './plugins/TypeaheadCodeLanguagePlugin'
 
 function onError(error) {
   console.error(error)
@@ -68,6 +69,7 @@ export function Editor() {
         <FloatingTextFormatToolbarPlugin />
         <FloatingLinkEditorPlugin />
         <SlashTypeaheadPlugin />
+        <CodeLanguageTypeaheadPlugin />
         <EmojiTypeaheadPlugin />
         <OnChangePlugin onChange={onChange} />
       </LexicalComposer>

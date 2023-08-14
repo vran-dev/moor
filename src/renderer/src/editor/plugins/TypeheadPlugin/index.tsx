@@ -70,6 +70,7 @@ export class TypeaheadMenu {
     this.onHover = onHover
     this.onLeave = onLeave
   }
+
 }
 
 export interface Point {

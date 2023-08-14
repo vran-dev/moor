@@ -36,6 +36,7 @@
   padding-bottom: 24px;
   position: relative;
   border-radius: 8px;
+  margin-top: 12px;
 }
 
 .codeblock-header {
@@ -47,9 +48,7 @@
 }
 
 .codeblock-main {
-  display: flex;
   position: relative;
-  flex-direction: column;
 }
 
 .codeblock-preview {
