@@ -4,6 +4,7 @@ import {
   DOMExportOutput,
   DecoratorNode,
   EditorConfig,
+  ElementFormatType,
   LexicalEditor,
   LexicalNode,
   NodeKey,
@@ -12,6 +13,10 @@ import {
 } from 'lexical'
 
 import { ExcalidrawComponent } from './ExcalidrawComponent'
+import {
+  DecoratorBlockNode,
+  SerializedDecoratorBlockNode
+} from '@lexical/react/LexicalDecoratorBlockNode'
 
 export interface ExcalidrawOptions {
   zenEnabled: boolean
@@ -26,7 +31,7 @@ export type SerializedExcalidrawNode = Spread<
     data: string
     options: ExcalidrawOptions
   },
-  SerializedLexicalNode
+  SerializedDecoratorBlockNode
 >
 
 export function convertExcalidrawElement(domNode: HTMLElement): DOMConversionOutput | null {
@@ -41,7 +46,7 @@ export function convertExcalidrawElement(domNode: HTMLElement): DOMConversionOut
   return null
 }
 
-export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
+export class ExcalidrawNode extends DecoratorBlockNode {
   __data: string
   __options: ExcalidrawOptions
 
@@ -56,7 +61,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     },
     key?: NodeKey
   ) {
-    super(key)
+    super('start', key)
     this.__data = data
     this.__options = options
   }
@@ -89,20 +94,12 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
 
   exportJSON(): SerializedExcalidrawNode {
     return {
+      ...super.exportJSON(),
       data: this.__data,
       options: this.__options,
       type: 'excalidraw',
       version: 1
     }
-  }
-
-  createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
-    const span = document.createElement('div')
-    return span
-  }
-
-  updateDOM(): boolean {
-    return false
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {

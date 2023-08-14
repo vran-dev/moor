@@ -18,14 +18,11 @@ import LexicalClickableLinkPlugin from '@lexical/react/LexicalClickableLinkPlugi
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin'
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
 import { ListPlugin } from '@lexical/react/LexicalListPlugin'
-import { LexicalNodeMenuPlugin } from '@lexical/react/LexicalNodeMenuPlugin'
-import { LexicalTypeaheadMenuPlugin } from '@lexical/react/LexicalTypeaheadMenuPlugin'
 import LexicalNodes from './node'
 import theme from './theme/default'
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingMenu'
 import { defaultData } from './defaultData'
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
-import SlashMenuPlugin from './plugins/SlashMenu'
 import { SlashTypeaheadPlugin } from './plugins/TypeaheadSlashPlugin'
 import { EmojiTypeaheadPlugin } from './plugins/TypeaheadEmojiPlugin'
 
@@ -72,7 +69,6 @@ export function Editor() {
         <FloatingLinkEditorPlugin />
         <SlashTypeaheadPlugin />
         <EmojiTypeaheadPlugin />
-        {/* <LexicalNodeMenuPlugin /> */}
         <OnChangePlugin onChange={onChange} />
       </LexicalComposer>
     </div>

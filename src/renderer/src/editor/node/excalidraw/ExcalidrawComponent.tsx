@@ -15,7 +15,7 @@ export const ExcalidrawComponent = (props: {
 }): ReactNode => {
   const [editor] = useLexicalComposerContext()
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawAPIRefValue | null>(null)
-  const containerRef = useRef(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const [id, setId] = useState('id_' + uuidv4())
 
   const [zenEnabled, setZenEnabled] = useState(props.options.zenEnabled)
@@ -137,6 +137,9 @@ export const ExcalidrawComponent = (props: {
           paddingBottom: '8px'
         }}
         ref={containerRef}
+        onClick={() => {
+          containerRef.current?.focus()
+        }}
       >
         <button onClick={toggleZenMode} className="excalidraw-toolbar-button">
           {' '}
