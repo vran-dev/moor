@@ -90,7 +90,7 @@ body {
 
 .navbar {
     height: 20px;
-    background-color: #FFFFFF;
+    background-color: transparent;
     -webkit-app-region: drag;
     z-index: 200;
 }

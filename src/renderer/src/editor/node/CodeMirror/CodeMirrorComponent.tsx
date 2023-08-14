@@ -50,8 +50,7 @@ import {
 } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
-import { $selectAll } from '@lexical/selection'
-import { $isCodeMirrorNode } from '.'
+import { $isCodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './CodeMirrorLanguages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
@@ -67,14 +66,17 @@ export interface LanguageOption extends LanguageInfo {
 export function CodeMirrorComponent(props: {
   nodeKey: NodeKey
   data: string
+  layout?: CodeblockLayout
   language?: string | null
 }): JSX.Element {
   const [codeMirror, setCodeMirror] = useState<CodeMirrorEditorView | null>()
   const editorRef = useRef<HTMLDivElement>(null)
-  const previewContainerRef = useRef<HTMLDivElement>(null)
   const { data, nodeKey, language } = props
   const [editor] = useLexicalComposerContext()
   const [selectLanguage, setSelectLanguage] = useState<LanguageOption | null>(null)
+  const [layout, setLayout] = useState<CodeblockLayout>(
+    props.layout ? props.layout : CodeblockLayout.SplitVertical
+  )
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
   const defaultLanguageOption = useMemo(() => {
     if (language) {
@@ -129,7 +131,6 @@ export function CodeMirrorComponent(props: {
   const onLanguageChange = useCallback((option) => {
     setSelectLanguage(option)
     updateLexicalNodeLanguage(option.value)
-    console.log(option)
   }, [])
 
   // update lexical node data
@@ -150,6 +151,17 @@ export function CodeMirrorComponent(props: {
         const node = $getNodeByKey(nodeKey)
         if ($isCodeMirrorNode(node)) {
           node.setLanguage(language)
+        }
+      }),
+    [editor, nodeKey]
+  )
+
+  const updateLexicalNodeLayout = useCallback(
+    (layout: CodeblockLayout) =>
+      editor.update(() => {
+        const node = $getNodeByKey(nodeKey)
+        if ($isCodeMirrorNode(node)) {
+          node.setLayout(layout)
         }
       }),
     [editor, nodeKey]
@@ -389,10 +401,12 @@ export function CodeMirrorComponent(props: {
     }
     return () => {
       if (codeMirror && editorRef) {
-        editorRef.current?.removeChild(codeMirror.dom)
+        if (editorRef.current?.contains(codeMirror.dom)) {
+          editorRef.current?.removeChild(codeMirror.dom)
+        }
       }
     }
-  }, [codeMirror])
+  }, [codeMirror, layout])
 
   useEffect(() => {
     if (!codeMirror) {
@@ -442,64 +456,103 @@ export function CodeMirrorComponent(props: {
     }
   }, [codeMirror, data])
 
-  useEffect(() => {
-    if (!previewContainerRef) {
-      return
-    }
-    if (codeMirror) {
-      if (selectLanguage && selectLanguage.preview) {
-        selectLanguage.preview(data, previewContainerRef.current)
-      }
-    }
-  }, [codeMirror, selectLanguage, data])
+  const onLayoutChange = useCallback(
+    (value) => {
+      console.log('change layout value to', value)
+      setLayout(CodeblockLayout[value])
+      updateLexicalNodeLayout(value)
+    },
+    [layout]
+  )
 
-  // useEffect(() => {
-  //   if (!codeMirror) {
-  //     return
-  //   }
-  //   const newLanguage = language || ''
-  //   const curLanguage = selectLanguage?.name
-  //   if (newLanguage !== curLanguage) {
-  //   }
-  // }, [codeMirror, language, selectLanguage])
-
-  const [modal, showModal] = useModal()
-  const showPreviewModal = useCallback((): void => {
-    console.log('show preview')
+  const shouldShowCodeData = useCallback(() => {
+    if (layout !== CodeblockLayout.Preview) {
+      return true
+    }
     if (selectLanguage === null) {
-      return
+      return true
     }
-    showModal(selectLanguage.name, (onClose) => {
-      return (
-        <CodePreviewComponent languageInfo={selectLanguage} onClose={onClose} codeData={data} />
-      )
-    })
-  }, [selectLanguage, data])
+    return !selectLanguage.preview
+  }, [layout, selectLanguage])
+
+  const shouldShowCodePreview = useCallback(() => {
+    if (layout === CodeblockLayout.Code) {
+      return false
+    }
+    if (selectLanguage === null || !selectLanguage.preview) {
+      return false
+    }
+    return true
+  }, [layout, selectLanguage])
   return (
     <>
-      <div>
-        <div className="codeblock">
-          <div className="codeblock-header">
-            <Select
-              defaultValue={defaultLanguageOption}
-              onChange={onLanguageChange}
-              options={languageOptions}
-              filterOption={(option, inputValue): boolean =>
-                languageMatch(inputValue, false, option.data)
-              }
-              classNames={{
-                menu: (state) => 'codeblock-language-menu'
-              }}
-            />
-          </div>
-          <div className="codemirror-editor" ref={editorRef}></div>
-          <div
-            className="codeblock-preview"
-            ref={previewContainerRef}
-            onClick={(): void => showPreviewModal()}
-          ></div>
+      <div className="codeblock-container">
+        <div className="codeblock-header">
+          <Select
+            defaultValue={defaultLanguageOption}
+            onChange={onLanguageChange}
+            options={languageOptions}
+            filterOption={(option, inputValue): boolean =>
+              languageMatch(inputValue, false, option.data)
+            }
+            classNames={{
+              container: (state) => 'react-select-container',
+              control: (state) => 'react-select-control',
+              valueContainer: (state) => 'react-select-value-container',
+              menu: (state) => 'react-select-menu'
+            }}
+          />
+          <select
+            onChange={(e): void => onLayoutChange(e.target.value)}
+            defaultValue={Object.entries(CodeblockLayout).find((entry) => entry[1] === layout)?.[0]}
+          >
+            {Object.entries(CodeblockLayout).map((entry) => {
+              const [key, value] = entry
+              return (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="codeblock-main">
+          {shouldShowCodeData() && <div className="codeblock-editor" ref={editorRef}></div>}
+          {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
         </div>
       </div>
+    </>
+  )
+}
+
+function CodeblockPreview(props: { language: LanguageInfo; data: string }): JSX.Element {
+  const previewContainerRef = useRef<HTMLDivElement | null>(null)
+  const { language, data } = props
+  const [modal, showModal] = useModal()
+  const showPreviewModal = useCallback((): void => {
+    if (language === null) {
+      return
+    }
+    showModal(language.name, (onClose) => {
+      return <CodePreviewComponent languageInfo={language} onClose={onClose} codeData={data} />
+    })
+  }, [language, data])
+
+  useEffect(() => {
+    if (!previewContainerRef || !previewContainerRef.current) {
+      return
+    }
+    if (language && language.preview) {
+      language.preview(data, previewContainerRef.current)
+    }
+  }, [language, data])
+  return (
+    <>
+      <div
+        className="codeblock-preview"
+        ref={previewContainerRef}
+        onClick={(): void => showPreviewModal()}
+      ></div>
       {modal}
     </>
   )

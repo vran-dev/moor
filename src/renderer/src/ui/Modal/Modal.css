@@ -10,17 +10,15 @@
 .Modal__overlay {
   display: flex;
   justify-content: center;
-  align-items: center;
   position: fixed;
   flex-direction: column;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
   background-color: rgba(40, 40, 40, 0.6);
-  flex-grow: 0px;
-  flex-shrink: 1px;
   z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
 }
 .Modal__modal {
   padding: 20px;
@@ -59,4 +57,5 @@
 }
 .Modal__content {
   padding-top: 20px;
+  overflow: scroll;
 }

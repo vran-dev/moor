@@ -1,10 +1,7 @@
 import {
-  $isElementNode,
-  $isTextNode,
   DOMConversionOutput,
   RangeSelection,
   type DOMConversionMap,
-  type DOMExportOutput,
   type EditorConfig,
   type ElementFormatType,
   type LexicalEditor,
@@ -17,7 +14,6 @@ import {
 } from 'lexical'
 
 import {
-  $isDecoratorBlockNode,
   DecoratorBlockNode,
   SerializedDecoratorBlockNode
 } from '@lexical/react/LexicalDecoratorBlockNode'
@@ -28,9 +24,16 @@ export type SerializedCodeMirrorNode = Spread<
   {
     data: string
     language: string | undefined | null
+    layout: CodeblockLayout
   },
   SerializedDecoratorBlockNode
 >
+
+export enum CodeblockLayout {
+  Code = 'Code',
+  Preview = 'Preview',
+  SplitVertical = 'Split Vertical'
+}
 
 export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOutput | null {
   const data = domNode.getAttribute('data-lexical-codemirror-json')
@@ -46,11 +49,19 @@ export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOut
 export class CodeMirrorkNode extends DecoratorBlockNode {
   __data: string
   __language: string | undefined | null
+  __layout: CodeblockLayout
 
-  constructor(data = '', language?: string | null, format?: ElementFormatType, key?: NodeKey) {
+  constructor(
+    data = '',
+    language?: string | null,
+    layout?: CodeblockLayout,
+    format?: ElementFormatType,
+    key?: NodeKey
+  ) {
     super(format, key)
     this.__data = data
     this.__language = language
+    this.__layout = layout ? layout : CodeblockLayout.SplitVertical
   }
 
   setData(data: string): void {
@@ -69,6 +80,15 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
 
   getLanguage(): string | undefined | null {
     return this.__language
+  }
+
+  setLayout(layout: CodeblockLayout): void {
+    const writable = this.getWritable()
+    writable.__layout = layout
+  }
+
+  getLayout(): CodeblockLayout {
+    return this.__layout
   }
 
   updateDOM(): false {
@@ -143,11 +163,11 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
   }
 
   static clone(node: CodeMirrorkNode): CodeMirrorkNode {
-    return new CodeMirrorkNode(node.getData(), node.getLanguage(), node.__format)
+    return new CodeMirrorkNode(node.getData(), node.getLanguage(), node.getLayout(), node.__format)
   }
 
   static importJSON(json: SerializedCodeMirrorNode): CodeMirrorkNode {
-    return new CodeMirrorkNode(json.data, json.language, json.format)
+    return new CodeMirrorkNode(json.data, json.language, json.layout, json.format)
   }
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {

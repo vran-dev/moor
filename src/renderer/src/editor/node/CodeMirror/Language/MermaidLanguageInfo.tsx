@@ -14,7 +14,6 @@ export class MermaidLanguageInfo implements LanguageInfo {
   }
 
   preview = (codeData: string, parent: HTMLElement): void => {
-    console.log('preview: ', codeData)
     if (parent.attributes.getNamedItem('data-processed')) {
       parent.attributes.removeNamedItem('data-processed')
     }
@@ -24,7 +23,7 @@ export class MermaidLanguageInfo implements LanguageInfo {
         nodes: [parent]
       })
       .then(() => {
-        console.log('render mermaid success')
+        // render success
       })
       .catch((error) => {
         // this.dom.style.display = 'none'
