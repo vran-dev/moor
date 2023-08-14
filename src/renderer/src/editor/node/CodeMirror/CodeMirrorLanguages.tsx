@@ -1,5 +1,6 @@
 import { languages } from '@codemirror/language-data'
 import { LanguageDescription } from '@codemirror/language'
+import { MermaidLanguageInfo } from './Language/MermaidLanguageInfo'
 
 export interface LanguageInfo {
   name: string
@@ -9,6 +10,8 @@ export interface LanguageInfo {
   description: string | null
 
   codeMirrorLanguage?: LanguageDescription | null
+
+  preview?: (codeData: string, parent: HTMLElement) => JSX.Element
 }
 
 export const codeMirrorLanguageInfos: LanguageInfo[] = languages.map(
@@ -31,7 +34,11 @@ export const extendedLanguageInfos: LanguageInfo[] = [
   }
 ]
 
-export const languageInfos = [...codeMirrorLanguageInfos, ...extendedLanguageInfos]
+export const languageInfos = [
+  ...codeMirrorLanguageInfos,
+  ...extendedLanguageInfos,
+  new MermaidLanguageInfo()
+]
 
 export const listLanguages = ({
   query,

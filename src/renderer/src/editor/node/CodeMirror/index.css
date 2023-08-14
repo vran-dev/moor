@@ -42,6 +42,7 @@
   background-color: #FFFFFF;
   padding: 5px;
   margin: 20px auto;
+  border: 2px solid #E0E0E0;
 }
 
 .codeblock-language-select {
@@ -51,3 +52,15 @@
 .codeblock-language-menu{
   z-index: 10 !important;
 }
+
+.codeblock-preview-modal {
+  width: 100%;
+  height: 100%;
+  background-color: #eeeeee;
+}
+
+/* .codeblock-preview-modal-content {
+  width: 900px;
+  height: 900px;
+  background-color: #eeeeee;
+} */

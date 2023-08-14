@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   defaultKeymap,
   history,
@@ -56,8 +56,10 @@ import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './CodeMirrorLanguages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import Select from 'react-select'
+import useModal from '@renderer/ui/Modal/useModal'
+import { CodePreviewComponent } from './CodePreviewComponent'
 
-export interface LanguageOption {
+export interface LanguageOption extends LanguageInfo {
   value: string
   label: string
 }
@@ -69,11 +71,11 @@ export function CodeMirrorComponent(props: {
 }): JSX.Element {
   const [codeMirror, setCodeMirror] = useState<CodeMirrorEditorView | null>()
   const editorRef = useRef<HTMLDivElement>(null)
+  const previewContainerRef = useRef<HTMLDivElement>(null)
   const { data, nodeKey, language } = props
   const [editor] = useLexicalComposerContext()
-  const [selectLanguage, setSelectLanguage] = useState<(LanguageInfo & LanguageOption) | null>(null)
+  const [selectLanguage, setSelectLanguage] = useState<LanguageOption | null>(null)
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
-
   const defaultLanguageOption = useMemo(() => {
     if (language) {
       const matchedLanges = listLanguages({ query: language, nameFullMatch: true })
@@ -127,6 +129,7 @@ export function CodeMirrorComponent(props: {
   const onLanguageChange = useCallback((option) => {
     setSelectLanguage(option)
     updateLexicalNodeLanguage(option.value)
+    console.log(option)
   }, [])
 
   // update lexical node data
@@ -231,7 +234,7 @@ export function CodeMirrorComponent(props: {
             }
           }
           if (codeMirror && codeMirror.hasFocus) {
-            console.log('on key down', event, codeMirror.hasFocus)
+            // console.log('on key down', event, codeMirror.hasFocus)
             return codeMirror.hasFocus
           }
           return false
@@ -439,6 +442,17 @@ export function CodeMirrorComponent(props: {
     }
   }, [codeMirror, data])
 
+  useEffect(() => {
+    if (!previewContainerRef) {
+      return
+    }
+    if (codeMirror) {
+      if (selectLanguage && selectLanguage.preview) {
+        selectLanguage.preview(data, previewContainerRef.current)
+      }
+    }
+  }, [codeMirror, selectLanguage, data])
+
   // useEffect(() => {
   //   if (!codeMirror) {
   //     return
@@ -449,24 +463,44 @@ export function CodeMirrorComponent(props: {
   //   }
   // }, [codeMirror, language, selectLanguage])
 
+  const [modal, showModal] = useModal()
+  const showPreviewModal = useCallback((): void => {
+    console.log('show preview')
+    if (selectLanguage === null) {
+      return
+    }
+    showModal(selectLanguage.name, (onClose) => {
+      return (
+        <CodePreviewComponent languageInfo={selectLanguage} onClose={onClose} codeData={data} />
+      )
+    })
+  }, [selectLanguage, data])
   return (
-    <div>
-      <div className="codeblock">
-        <div className="codeblock-header">
-          <Select
-            defaultValue={defaultLanguageOption}
-            onChange={onLanguageChange}
-            options={languageOptions}
-            filterOption={(option, inputValue): boolean =>
-              languageMatch(inputValue, false, option.data)
-            }
-            classNames={{
-              menu: (state) => 'codeblock-language-menu'
-            }}
-          />
+    <>
+      <div>
+        <div className="codeblock">
+          <div className="codeblock-header">
+            <Select
+              defaultValue={defaultLanguageOption}
+              onChange={onLanguageChange}
+              options={languageOptions}
+              filterOption={(option, inputValue): boolean =>
+                languageMatch(inputValue, false, option.data)
+              }
+              classNames={{
+                menu: (state) => 'codeblock-language-menu'
+              }}
+            />
+          </div>
+          <div className="codemirror-editor" ref={editorRef}></div>
+          <div
+            className="codeblock-preview"
+            ref={previewContainerRef}
+            onClick={(): void => showPreviewModal()}
+          ></div>
         </div>
-        <div className="codemirror-editor" ref={editorRef}></div>
       </div>
-    </div>
+      {modal}
+    </>
   )
 }
