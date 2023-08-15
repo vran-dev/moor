@@ -6,23 +6,19 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { $isExcalidrawNode, ExcalidrawNode, ExcalidrawOptions } from '.'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import './Excalidraw.css'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 
 export default function ExcalidrawComponent(props: {
   data: string
   options: ExcalidrawOptions
   nodeKey: NodeKey
 }): JSX.Element {
-  console.log('new excalidraw ', props.nodeKey, props.options)
   const [editor] = useLexicalComposerContext()
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawAPIRefValue | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const { nodeKey } = props
   const { width, height, zenEnabled, gridEnabled, readOnlyEnabled } = props.options
-  useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
-      console.log(editorState)
-    })
-  }, [editor])
+  const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
 
   const initialData = useMemo(async () => {
     if (props.data && props.data !== '') {
@@ -40,9 +36,10 @@ export default function ExcalidrawComponent(props: {
   const dataUpdate = async (elements, state, files): Promise<void> => {
     // notice: state.collaborators should be a array ,but export to object
     state.collaborators = []
+    // ignore appState, because it is cause cursor conflict with lexical
     const data = {
       elements: elements,
-      appState: state,
+      // appState: state,
       files: files
     }
     const newData = JSON.stringify(data)
@@ -133,6 +130,9 @@ export default function ExcalidrawComponent(props: {
           paddingBottom: '8px'
         }}
         ref={containerRef}
+        onMouseDown={() => {
+          setSelected(true)
+        }}
       >
         <button onClick={toggleZenMode} className="excalidraw-toolbar-button">
           {' '}

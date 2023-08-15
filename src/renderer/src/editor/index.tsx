@@ -34,6 +34,7 @@ function onError(error) {
 export function Editor() {
   const [editorState, setEditorState] = useState()
   function onChange(editorState) {
+    // console.log(editorState)
     setEditorState(editorState)
     const editorStateJSON = editorState.toJSON()
     const data = JSON.stringify(editorStateJSON)

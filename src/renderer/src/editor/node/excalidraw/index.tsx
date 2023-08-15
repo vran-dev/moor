@@ -77,7 +77,6 @@ export class ExcalidrawNode extends DecoratorBlockNode {
   }
 
   static clone(node: ExcalidrawNode): ExcalidrawNode {
-    console.log('clone from', node)
     return new ExcalidrawNode(node.__data, node.__options, node.__key)
   }
 
@@ -146,6 +145,10 @@ export class ExcalidrawNode extends DecoratorBlockNode {
       ...self.__options,
       ...options
     }
+  }
+
+  isKeyboardSelectable(): boolean {
+    return true
   }
 
   updateDOM(): false {
