@@ -299,7 +299,29 @@ export function TypeaheadPlugin<OptionType>(props: {
   const role = useRole(context, { role: 'tooltip' })
   const { getFloatingProps } = useInteractions([dismiss, role])
 
-  // popup position update hook
+  const changeAnchorToCursor = useCallback(() => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection()
+      if (!$isRangeSelection(selection)) {
+        return
+      }
+      const { anchor, focus } = selection as RangeSelection
+      const anchorPoint: Point = {
+        key: anchor.key,
+        offset: anchor.offset
+      }
+      setAnchorPosition(anchorPoint)
+    })
+  }, [editor])
+
+  /**
+   * if trigger is '/', and cursor is '|'
+   * - case1 input: 'a/|' -> match and query is empty
+   * - case2 input: 'a /|' -> match and query is empty
+   * - case3 input: 'a / |' -> not match
+   * - case4 input: 'a /b|' -> match and query is 'b'
+   * - case5 input: 'a |/b' -> not match
+   */
   const updatePopup = useCallback(() => {
     editor.getEditorState().read(() => {
       // Should not to pop up the floating toolbar when using IME input
@@ -337,12 +359,18 @@ export function TypeaheadPlugin<OptionType>(props: {
 
       const regexp = triggerRegexp(trigger)
       const match = Array.from(inputText.matchAll(regexp)).pop()
-      // console.log('trigger ', trigger, 'inputText ', inputText, 'match ', match)
+      console.log('trigger ', trigger, 'inputText ', inputText, 'match ', match)
       if (!match) {
         setIsMatch(false)
         return
       }
       const matchText = match[0]
+      if (inputText.endsWith(' ')) {
+        setIsMatch(false)
+        changeAnchorToCursor()
+        setQuery('')
+        return
+      }
       setQuery(matchText.slice(trigger.length))
       setIsMatch(true)
 
