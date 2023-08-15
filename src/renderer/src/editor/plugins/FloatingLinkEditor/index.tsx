@@ -3,9 +3,9 @@ import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_CRITICAL, LexicalEdi
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { OPEN_LINK_EDITOR } from './openLinkEditorCommand'
 import { getSelectedNode } from '@renderer/editor/utils/getSelectedNode'
-import { $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import '../FloatingMenu/index.css'
-import { $findMatchingParent, mergeRegister } from '@lexical/utils'
+import { mergeRegister } from '@lexical/utils'
 import {
   useFloating,
   offset,
@@ -25,6 +25,7 @@ import { AiOutlineLink } from 'react-icons/ai'
 import { sanitizeUrl } from '@renderer/editor/utils/url'
 import { usePreudoSelection } from '../UsePseudoSelection'
 import { createDOMRange, createRectsFromDOMRange } from '@lexical/selection'
+import { $isMarkNode } from '@lexical/mark'
 
 export const FloatingLinkEditor = (props: {
   editor: LexicalEditor
@@ -54,7 +55,7 @@ export const FloatingLinkEditor = (props: {
   const dismiss = useDismiss(context)
   const role = useRole(context, { role: 'dialog' })
   const { getFloatingProps } = useInteractions([dismiss, role])
-  const [preudoSelectionUpdate, preudoSelectionReset] = usePreudoSelection()
+  const [preudoSelectionUpdate, preudoSelectionReset] = usePreudoSelection(editor)
 
   const updateLinkEditor = useCallback(() => {
     const selection = $getSelection()
@@ -118,7 +119,7 @@ export const FloatingLinkEditor = (props: {
 
   useEffect(() => {
     if (isOpen) {
-      preudoSelectionUpdate(editor)
+      preudoSelectionUpdate()
     } else {
       preudoSelectionReset()
     }
@@ -138,9 +139,37 @@ export const FloatingLinkEditor = (props: {
     if (inputRef.current) {
       inputRef.current.value = ''
     }
-    editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
-    setIsOpen(false)
-    props.onReset?.()
+    editor.update(() => {
+      const selection = $getSelection()
+      if (!$isRangeSelection(selection)) {
+        console.log('is not range')
+        return
+      }
+      const nodes = selection?.extract()
+      nodes.forEach((node) => {
+        let curr = node
+        if (!$isLinkNode(node)) {
+          // nothing
+          curr = node.getParent()
+        }
+        if (!$isLinkNode(curr)) {
+          // nothing
+          curr = node.getParent()
+        }
+        if ($isLinkNode(curr)) {
+          const children = curr.getChildren()
+          for (let i = 0; i < children.length; i++) {
+            curr.insertBefore(children[i])
+          }
+          curr.remove()
+        } else {
+          console.log(curr)
+        }
+      })
+      // editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
+      setIsOpen(false)
+      props.onReset?.()
+    })
   }
 
   const isLink = useMemo(() => {
@@ -155,7 +184,7 @@ export const FloatingLinkEditor = (props: {
               ref={refs.setFloating}
               className="floating-menu-container"
               style={{ ...floatingStyles }}
-              {...getFloatingProps}
+              {...getFloatingProps()}
             >
               <div className={'floating-menu-list'}>
                 <div className="floating-menu-group">

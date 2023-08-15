@@ -1,90 +1,80 @@
-import { createDOMRange, createRectsFromDOMRange } from '@lexical/selection'
-import { $getSelection, $isRangeSelection, LexicalEditor } from 'lexical'
-import { useCallback, useLayoutEffect, useMemo } from 'react'
+import {
+  $createMarkNode,
+  $isMarkNode,
+  $unwrapMarkNode,
+  $wrapSelectionInMarkNode,
+  MarkNode
+} from '@lexical/mark'
+import {
+  $addUpdateTag,
+  $getNodeByKey,
+  $getSelection,
+  $isRangeSelection,
+  LexicalEditor,
+  LexicalNode,
+  NodeKey
+} from 'lexical'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { v4 as uuid } from 'uuid'
 
-export function usePreudoSelection(): [
-  (editor: LexicalEditor, className?: string) => void,
-  () => void
-] {
-  const selectionState = useMemo(
-    () => ({
-      container: document.createElement('div'),
-      elements: []
-    }),
-    []
-  )
+export function usePreudoSelection(
+  editor: LexicalEditor
+): [(className?: string) => void, () => void] {
+  const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {
+    return new Map()
+  }, [])
 
-  const updateSelectionState = useCallback((editor: LexicalEditor, className?: string) => {
+  const updateSelectionState = useCallback((className?: string) => {
+    if (!editor) {
+      return
+    }
     editor.getEditorState().read(() => {
       const selection = $getSelection()
       if ($isRangeSelection(selection)) {
-        const { anchor, focus } = selection
-        const range = createDOMRange(
-          editor,
-          anchor.getNode(),
-          anchor.offset,
-          focus.getNode(),
-          focus.offset
-        )
-        if (range !== null) {
-          const { left, bottom, width } = range.getBoundingClientRect()
-          const selectionRects = createRectsFromDOMRange(editor, range)
-          let correctedLeft = selectionRects.length === 1 ? left + width / 2 - 125 : left - 125
-          if (correctedLeft < 10) {
-            correctedLeft = 10
+        editor.update(() => {
+          if ($isRangeSelection(selection)) {
+            const isBackward = selection.isBackward()
+            const id = uuid()
+            const set = new Set<NodeKey>()
+            markNodeMap.set(id, set)
+            $addUpdateTag('historic')
+            $wrapSelectionInMarkNode(selection, isBackward, id, (ids) => {
+              const markNode = $createMarkNode(ids)
+              set.add(markNode.getKey())
+              return markNode
+            })
           }
-          const selectionRectsLength = selectionRects.length
-          const { container } = selectionState
-          const elements: Array<HTMLSpanElement> = selectionState.elements
-          const elementsLength = elements.length
-
-          for (let i = 0; i < selectionRectsLength; i++) {
-            const selectionRect = selectionRects[i]
-            let elem: HTMLSpanElement = elements[i]
-            if (elem === undefined) {
-              elem = document.createElement('span')
-              elements[i] = elem
-              container.appendChild(elem)
-            }
-            const bgColor = `background-color:rgba(255, 212, 0, 0.3);`
-            const style = `position:absolute;top:${selectionRect.top}px;left:${selectionRect.left}px;height:${selectionRect.height}px;width:${selectionRect.width}px;pointer-events:none;z-index:5;`
-            elem.style.cssText = style + (className ? '' : bgColor)
-            if (className) {
-              elem.classList.add(className)
-            }
-          }
-
-          for (let i = elementsLength - 1; i >= selectionRectsLength; i--) {
-            const elem = elements[i]
-            container.removeChild(elem)
-            elements.pop()
-          }
-        }
+        })
       }
     })
   }, [])
 
   const resetSelectionState = useCallback(() => {
-    const { container } = selectionState
-    const elements: Array<HTMLSpanElement> = selectionState.elements
-    const elementsLength = elements.length
-    for (let i = elementsLength - 1; i >= 0; i--) {
-      const elem = elements[i]
-      container.removeChild(elem)
-      elements.pop()
+    if (!editor) {
+      return
+    }
+    editor.update(() => {
+      for (const [id, keys] of markNodeMap) {
+        for (const key of keys) {
+          $addUpdateTag('historic')
+          const node: null | MarkNode = $getNodeByKey(key)
+          if ($isMarkNode(node)) {
+            node.deleteID(id)
+            if (node.getIDs().length === 0) {
+              $unwrapMarkNode(node)
+            }
+          }
+        }
+        markNodeMap.delete(id)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      resetSelectionState()
     }
   }, [])
 
-  useLayoutEffect(() => {
-    const container = selectionState.container
-    const body = document.body
-    if (body !== null) {
-      body.appendChild(container)
-      return () => {
-        body.removeChild(container)
-      }
-    }
-    return () => {}
-  }, [selectionState.container])
   return [updateSelectionState, resetSelectionState]
 }

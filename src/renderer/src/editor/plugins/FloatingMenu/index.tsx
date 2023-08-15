@@ -294,16 +294,14 @@ function useFloatingTextFormatToolbar(
 
   return (
     <>
-      <FloatingPortal>
-        {isOpen && (
-          <FloatingMenu
-            ref={refs.setFloating}
-            editor={editor}
-            style={{ ...floatingStyles }}
-            {...getFloatingProps}
-          />
-        )}
-      </FloatingPortal>
+      {isOpen && (
+        <FloatingMenu
+          ref={refs.setFloating}
+          editor={editor}
+          style={{ ...floatingStyles }}
+          {...getFloatingProps}
+        />
+      )}
     </>
   )
 }

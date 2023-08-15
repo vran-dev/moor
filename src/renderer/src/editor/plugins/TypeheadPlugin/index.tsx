@@ -70,7 +70,6 @@ export class TypeaheadMenu {
     this.onHover = onHover
     this.onLeave = onLeave
   }
-
 }
 
 export interface Point {
@@ -465,27 +464,25 @@ export function TypeaheadPlugin<OptionType>(props: {
   return (
     <>
       {isMatch && options && options.length > 0 && (
-        <FloatingPortal>
-          <div
-            className="typeahead-container"
-            ref={refs.setFloating}
-            style={{ ...floatingStyles, overflow: 'hidden' }}
-            {...getFloatingProps}
-          >
-            <Children
-              editor={editor}
-              options={options}
-              query={query}
-              trigger={trigger}
-              closeTypeahead={(resetPosition) => {
-                setIsMatch(false)
-                if (resetPosition) {
-                  resetAnchorToCurrentSelection()
-                }
-              }}
-            />
-          </div>
-        </FloatingPortal>
+        <div
+          className="typeahead-container"
+          ref={refs.setFloating}
+          style={{ ...floatingStyles, overflow: 'hidden' }}
+          {...getFloatingProps}
+        >
+          <Children
+            editor={editor}
+            options={options}
+            query={query}
+            trigger={trigger}
+            closeTypeahead={(resetPosition) => {
+              setIsMatch(false)
+              if (resetPosition) {
+                resetAnchorToCurrentSelection()
+              }
+            }}
+          />
+        </div>
       )}
     </>
   )
