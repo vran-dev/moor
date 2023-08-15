@@ -11,10 +11,9 @@ import * as React from 'react'
 
 import Modal from './Modal'
 
-export default function useModal(): [
-  JSX.Element | null,
-  (title: string, showModal: (onClose: () => void) => JSX.Element) => void
-] {
+export default function useModal(
+  afterClose?: () => void
+): [JSX.Element | null, (title: string, showModal: (onClose: () => void) => JSX.Element) => void] {
   const [modalContent, setModalContent] = useState<null | {
     closeOnClickOutside: boolean
     content: JSX.Element
@@ -23,6 +22,9 @@ export default function useModal(): [
 
   const onClose = useCallback(() => {
     setModalContent(null)
+    if (afterClose) {
+      afterClose()
+    }
   }, [])
 
   const modal = useMemo(() => {
