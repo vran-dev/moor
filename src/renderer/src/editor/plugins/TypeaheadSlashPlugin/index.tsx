@@ -16,7 +16,15 @@ import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
 import { $createCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
 import { $createExcalidrawNode } from '@renderer/editor/node/Excalidraw'
-import { $createNodeSelection, $createParagraphNode, $createRangeSelection, $createTextNode, $getNodeByKey, $getSelection, $isRangeSelection, $setSelection, LexicalEditor } from 'lexical'
+import {
+  $createNodeSelection,
+  $createParagraphNode,
+  $createTextNode,
+  $getSelection,
+  $isRangeSelection,
+  $setSelection,
+  LexicalEditor
+} from 'lexical'
 import { ReactNode } from 'react'
 import {
   AiOutlineUnorderedList,
@@ -100,7 +108,9 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         'Table',
         <AiOutlineTable {...ICON_PROPS} />,
         'create simple table',
-        (editor: LexicalEditor) => {}
+        (editor: LexicalEditor) => {
+          // TODO add command implementation
+        }
       ),
       new TypeaheadMenu(
         'Task',

@@ -12,11 +12,17 @@ import {
   Spread
 } from 'lexical'
 
-import { ExcalidrawComponent } from './ExcalidrawComponent'
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode
 } from '@lexical/react/LexicalDecoratorBlockNode'
+import { Suspense } from 'react'
+import React from 'react'
+const ExcalidrawComponent = React.lazy(
+  () =>
+    // @ts-ignore nothing
+    import('./ExcalidrawComponent')
+)
 
 export interface ExcalidrawOptions {
   zenEnabled: boolean
@@ -71,7 +77,8 @@ export class ExcalidrawNode extends DecoratorBlockNode {
   }
 
   static clone(node: ExcalidrawNode): ExcalidrawNode {
-    return new ExcalidrawNode(node.__data, node.__options, node.key)
+    console.log('clone from', node)
+    return new ExcalidrawNode(node.__data, node.__options, node.__key)
   }
 
   static importJSON(_serializedNode: SerializedExcalidrawNode): ExcalidrawNode {
@@ -102,18 +109,18 @@ export class ExcalidrawNode extends DecoratorBlockNode {
     }
   }
 
-  exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const element = document.createElement('div')
-    const content = editor.getElementByKey(this.getKey())
-    if (content !== null) {
-      const svg = content.querySelector('svg')
-      if (svg !== null) {
-        element.innerHTML = svg.outerHTML
-      }
-    }
-    element.setAttribute('data-lexical-excalidraw-json', this.__data)
-    return { element }
-  }
+  // exportDOM(editor: LexicalEditor): DOMExportOutput {
+  //   const element = document.createElement('div')
+  //   const content = editor.getElementByKey(this.getKey())
+  //   if (content !== null) {
+  //     const svg = content.querySelector('svg')
+  //     if (svg !== null) {
+  //       element.innerHTML = svg.outerHTML
+  //     }
+  //   }
+  //   element.setAttribute('data-lexical-excalidraw-json', this.__data)
+  //   return { element }
+  // }
 
   setData(data: string): void {
     const self = this.getWritable()
@@ -133,13 +140,23 @@ export class ExcalidrawNode extends DecoratorBlockNode {
     return this.__options
   }
 
-  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  setPartialOptions(options: Partial<ExcalidrawOptions>): void {
+    const self = this.getWritable()
+    self.__options = {
+      ...self.__options,
+      ...options
+    }
+  }
+
+  updateDOM(): false {
+    return false
+  }
+
+  decorate(): JSX.Element {
     return (
-      <ExcalidrawComponent
-        nodeKey={this.getKey()}
-        options={this.getOptions()}
-        data={this.getData()}
-      />
+      <Suspense fallback={null}>
+        <ExcalidrawComponent nodeKey={this.__key} options={this.__options} data={this.__data} />
+      </Suspense>
     )
   }
 }

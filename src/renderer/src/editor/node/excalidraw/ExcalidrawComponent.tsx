@@ -2,66 +2,40 @@ import { Excalidraw, MainMenu } from '@excalidraw/excalidraw'
 import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types'
 import { ResizableRatioType, ResizableView } from '@renderer/components/resize/resizableViewContent'
 import { $getNodeByKey, NodeKey } from 'lexical'
-import { ReactNode, useState, useRef, useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import { $isExcalidrawNode, ExcalidrawOptions } from '.'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { $isExcalidrawNode, ExcalidrawNode, ExcalidrawOptions } from '.'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import './Excalidraw.css'
 
-export const ExcalidrawComponent = (props: {
+export default function ExcalidrawComponent(props: {
   data: string
   options: ExcalidrawOptions
   nodeKey: NodeKey
-}): ReactNode => {
+}): JSX.Element {
+  console.log('new excalidraw ', props.nodeKey, props.options)
   const [editor] = useLexicalComposerContext()
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawAPIRefValue | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [id, setId] = useState('id_' + uuidv4())
-
-  const [zenEnabled, setZenEnabled] = useState(props.options.zenEnabled)
-  const [gridEnabled, setGridEnabled] = useState(props.options.gridEnabled)
-  const [readOnlyEnabled, setReadOnlyEnabled] = useState(props.options.readOnlyEnabled)
-  const [width, setWidth] = useState(props.options.width)
-  const [height, setHeight] = useState(props.options.height)
-  const [data, setData] = useState(props.data)
-
   const { nodeKey } = props
+  const { width, height, zenEnabled, gridEnabled, readOnlyEnabled } = props.options
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      console.log(editorState)
+    })
+  }, [editor])
+
+  const initialData = useMemo(async () => {
+    if (props.data && props.data !== '') {
+      return JSON.parse(props.data)
+    }
+    return null
+  }, [nodeKey, props.data])
 
   useEffect(() => {
-    if (!excalidrawAPI) {
-      return
+    if (excalidrawAPI) {
+      excalidrawAPI
     }
-    if (!editor.isEditable()) {
-      return
-    }
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey)
-      if ($isExcalidrawNode(node)) {
-        node.setOptions({
-          zenEnabled: zenEnabled,
-          gridEnabled: gridEnabled,
-          readOnlyEnabled: readOnlyEnabled,
-          width: width,
-          height: height
-        })
-      }
-    })
-  }, [editor, excalidrawAPI, zenEnabled, gridEnabled, readOnlyEnabled, width, height])
-
-  useEffect(() => {
-    if (!editor.isEditable()) {
-      return
-    }
-    if (!excalidrawAPI) {
-      return
-    }
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey)
-      if ($isExcalidrawNode(node)) {
-        node.setData(data)
-      }
-    })
-  }, [excalidrawAPI, editor, data])
+  }, [excalidrawAPI])
 
   const dataUpdate = async (elements, state, files): Promise<void> => {
     // notice: state.collaborators should be a array ,but export to object
@@ -72,15 +46,22 @@ export const ExcalidrawComponent = (props: {
       files: files
     }
     const newData = JSON.stringify(data)
-    setData(newData)
-    return Promise.resolve()
+    withExcalidrawNode((node) => {
+      if (newData != node.getData()) {
+        node.setData(newData)
+      }
+    })
   }
 
   const toggleZenMode = (): void => {
     if (excalidrawAPI) {
       const newStatus = !excalidrawAPI.getAppState().zenModeEnabled
       excalidrawAPI.getAppState().zenModeEnabled = newStatus
-      setZenEnabled(newStatus)
+      withExcalidrawNode((node) => {
+        node.setPartialOptions({
+          zenEnabled: newStatus
+        })
+      })
     }
   }
 
@@ -93,14 +74,14 @@ export const ExcalidrawComponent = (props: {
   const toggleGridMode = (): void => {
     if (excalidrawAPI) {
       const gridModeEnabled = excalidrawAPI.getAppState().gridModeEnabled
+      const newStatus = !gridModeEnabled
+      withExcalidrawNode((node) => node.setPartialOptions({ gridEnabled: newStatus }))
       if (gridModeEnabled) {
         excalidrawAPI.getAppState().gridModeEnabled = false
         excalidrawAPI.getAppState().gridSize = null
-        setGridEnabled(true)
       } else {
         excalidrawAPI.getAppState().gridModeEnabled = true
         excalidrawAPI.getAppState().gridSize = 20
-        setGridEnabled(false)
       }
     }
   }
@@ -115,7 +96,7 @@ export const ExcalidrawComponent = (props: {
     if (excalidrawAPI) {
       const newStatus = !excalidrawAPI.getAppState().viewModeEnabled
       excalidrawAPI.getAppState().viewModeEnabled = newStatus
-      setReadOnlyEnabled(newStatus)
+      withExcalidrawNode((node) => node.setPartialOptions({ readOnlyEnabled: newStatus }))
     }
   }
 
@@ -124,6 +105,21 @@ export const ExcalidrawComponent = (props: {
       return excalidrawAPI.getAppState().viewModeEnabled
     }
     return false
+  }
+
+  const withExcalidrawNode = (
+    callback: (node: ExcalidrawNode) => void,
+    onUpdate?: () => void
+  ): void => {
+    editor.update(
+      () => {
+        const node = $getNodeByKey(nodeKey)
+        if ($isExcalidrawNode(node)) {
+          callback(node)
+        }
+      },
+      { onUpdate }
+    )
   }
 
   return (
@@ -137,9 +133,6 @@ export const ExcalidrawComponent = (props: {
           paddingBottom: '8px'
         }}
         ref={containerRef}
-        onClick={() => {
-          containerRef.current?.focus()
-        }}
       >
         <button onClick={toggleZenMode} className="excalidraw-toolbar-button">
           {' '}
@@ -172,15 +165,15 @@ export const ExcalidrawComponent = (props: {
           }}
           onResized={(e, newWidth, newHeight): void => {
             if (newWidth) {
-              setWidth(newWidth)
+              withExcalidrawNode((node) => node.setPartialOptions({ width: newWidth }))
             }
             if (newHeight) {
-              setHeight(newHeight)
+              withExcalidrawNode((node) => node.setPartialOptions({ height: newHeight }))
             }
           }}
         >
           <Excalidraw
-            initialData={JSON.parse(data)}
+            initialData={initialData}
             onChange={dataUpdate}
             zenModeEnabled={zenEnabled}
             gridModeEnabled={gridEnabled}

@@ -163,7 +163,13 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
   }
 
   static clone(node: CodeMirrorkNode): CodeMirrorkNode {
-    return new CodeMirrorkNode(node.getData(), node.getLanguage(), node.getLayout(), node.__format)
+    return new CodeMirrorkNode(
+      node.getData(),
+      node.getLanguage(),
+      node.getLayout(),
+      node.__format,
+      node.__key
+    )
   }
 
   static importJSON(json: SerializedCodeMirrorNode): CodeMirrorkNode {
