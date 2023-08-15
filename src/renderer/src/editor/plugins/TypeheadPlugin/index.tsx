@@ -359,7 +359,7 @@ export function TypeaheadPlugin<OptionType>(props: {
 
       const regexp = triggerRegexp(trigger)
       const match = Array.from(inputText.matchAll(regexp)).pop()
-      console.log('trigger ', trigger, 'inputText ', inputText, 'match ', match)
+      // console.log('trigger ', trigger, 'inputText ', inputText, 'match ', match)
       if (!match) {
         setIsMatch(false)
         return
