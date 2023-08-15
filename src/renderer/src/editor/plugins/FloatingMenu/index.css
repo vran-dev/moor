@@ -47,6 +47,14 @@
   color: #1D4ED8;
 }
 
+.floating-menu:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.floating-menu:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
 .floating-menu-container .floating-input {
   flex-grow: 1;
   margin: 6px; 

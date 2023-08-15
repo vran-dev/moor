@@ -53,8 +53,11 @@ import {
   useInteractions,
   FloatingPortal
 } from '@floating-ui/react'
+import { BiUnlink } from 'react-icons/bi'
 import { OPEN_LINK_EDITOR } from '../FloatingLinkEditor/openLinkEditorCommand'
 import { $isCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
+import { hasLinkInSelection } from '@renderer/editor/utils/hasLinkAtSelection'
+import { TOGGLE_LINK_COMMAND } from '@lexical/link'
 
 export interface FloatMenu {
   icon: React.ReactNode
@@ -64,11 +67,24 @@ export interface FloatMenu {
   onClick: (editor: LexicalEditor) => void
 }
 
+
 const FloatingMenu = React.forwardRef(
   (
     { editor, style, attrs }: { editor: LexicalEditor; style: object; attrs: any },
     ref: React.Ref<HTMLDivElement>
   ) => {
+    const unlinkFloatMenu: FloatMenu = {
+      icon: <BiUnlink />,
+      name: 'Unlink',
+      description: 'Unlink',
+      onClick: (editor: LexicalEditor): void => {
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
+      },
+      isActive: (editor: LexicalEditor): boolean => {
+        return hasLinkInSelection(editor)
+      }
+    }
+    
     const defaultFloatMenus: FloatMenu[] = [
       {
         icon: <AiOutlineBold />,
@@ -164,10 +180,17 @@ const FloatingMenu = React.forwardRef(
           }
         },
         isActive: (editor: LexicalEditor): boolean => {
-          return hasFormatAtSelection(editor, FormatType.Link)
+          return hasLinkInSelection(editor)
         }
       }
     ]
+
+    let floatMenus
+    if (hasLinkInSelection(editor)) {
+      floatMenus = [...defaultFloatMenus, unlinkFloatMenu]
+    } else {
+      floatMenus = [...defaultFloatMenus]
+    }
 
     const [showColorSelector, setShowColorSelector] = useState(false)
 
@@ -177,7 +200,7 @@ const FloatingMenu = React.forwardRef(
           {editor.isEditable() && showColorSelector && <FloatingColorSelector editor={editor} />}
           <div className="floating-menu-group">
             {editor.isEditable() &&
-              defaultFloatMenus.map((item, index) => (
+              floatMenus.map((item, index) => (
                 <button
                   key={index}
                   onClick={(): void => item.onClick(editor)}

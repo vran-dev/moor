@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor } from 'lexical'
+import {
+  $getSelection,
+  $isRangeSelection,
+  COMMAND_PRIORITY_CRITICAL,
+  LexicalEditor,
+  SELECTION_CHANGE_COMMAND
+} from 'lexical'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { OPEN_LINK_EDITOR } from './openLinkEditorCommand'
 import { getSelectedNode } from '@renderer/editor/utils/getSelectedNode'
@@ -145,80 +151,52 @@ export const FloatingLinkEditor = (props: {
         console.log('is not range')
         return
       }
-      const nodes = selection?.extract()
-      nodes.forEach((node) => {
-        let curr = node
-        if (!$isLinkNode(node)) {
-          // nothing
-          curr = node.getParent()
-        }
-        if (!$isLinkNode(curr)) {
-          // nothing
-          curr = node.getParent()
-        }
-        if ($isLinkNode(curr)) {
-          const children = curr.getChildren()
-          for (let i = 0; i < children.length; i++) {
-            curr.insertBefore(children[i])
-          }
-          curr.remove()
-        } else {
-          console.log(curr)
-        }
-      })
-      // editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
+      const nodes = selection?.getNodes()
       setIsOpen(false)
       props.onReset?.()
     })
   }
 
-  const isLink = useMemo(() => {
-    return linkUrl && linkUrl !== ''
-  }, [linkUrl])
   return (
     <>
-      <FloatingPortal>
-        {isOpen && (
-          <FloatingFocusManager context={context}>
-            <div
-              ref={refs.setFloating}
-              className="floating-menu-container"
-              style={{ ...floatingStyles }}
-              {...getFloatingProps()}
-            >
-              <div className={'floating-menu-list'}>
-                <div className="floating-menu-group">
-                  <AiOutlineLink style={{ marginLeft: '8px' }} />
-                  <input
-                    className={'floating-input'}
-                    ref={inputRef}
-                    type="text"
-                    placeholder="Type or paste URL"
-                    spellCheck={false}
-                    onFocus={() => props.onInputFocus?.()}
-                    defaultValue={linkUrl}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        onSetLink(e)
-                      }
-                    }}
-                  />
+      {isOpen && (
+        <FloatingFocusManager context={context}>
+          <div
+            ref={refs.setFloating}
+            className="floating-menu-container"
+            style={{ ...floatingStyles }}
+            {...getFloatingProps()}
+          >
+            <div className={'floating-menu-list'}>
+              <div className="floating-menu-group">
+                <AiOutlineLink style={{ marginLeft: '8px' }} />
+                <input
+                  className={'floating-input'}
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Type or paste URL"
+                  spellCheck={false}
+                  onFocus={() => props.onInputFocus?.()}
+                  defaultValue={linkUrl}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      onSetLink(e)
+                    }
+                  }}
+                />
 
-                  <button className={'floating-menu'} onClick={(e) => onSetLink(e)}>
-                    save
-                  </button>
-                  {isLink && (
-                    <button className={'floating-menu'} onClick={(e) => onRestLink()}>
-                      reset
-                    </button>
-                  )}
-                </div>
+                <button className={'floating-menu'} onClick={(e) => onSetLink(e)}>
+                  save
+                </button>
+                {/* <button className={'floating-menu'} onClick={(e) => onRestLink()}>
+                  reset
+                </button> */}
               </div>
             </div>
-          </FloatingFocusManager>
-        )}
-      </FloatingPortal>
+          </div>
+        </FloatingFocusManager>
+      )}
     </>
   )
 }

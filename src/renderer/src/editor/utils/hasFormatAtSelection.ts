@@ -13,7 +13,7 @@ export enum FormatType {
   Superscript = 'superscript',
   Code = 'code',
   Link = 'link',
-  Quote = 'quote',
+  Quote = 'quote'
 }
 
 export function hasFormatAtSelection(editor: LexicalEditor, format: FormatType): boolean {
