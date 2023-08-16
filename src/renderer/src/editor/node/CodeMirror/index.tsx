@@ -32,7 +32,7 @@ export type SerializedCodeMirrorNode = Spread<
 export enum CodeblockLayout {
   Code = 'Code',
   Preview = 'Preview',
-  SplitVertical = 'Split Vertical'
+  SplitVertical = 'SplitVertical'
 }
 
 export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOutput | null {
@@ -101,6 +101,7 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
         nodeKey={this.getKey()}
         data={this.getData()}
         language={this.getLanguage()}
+        layout={this.getLayout()}
       />
     )
   }
@@ -110,6 +111,7 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
       ...super.exportJSON(),
       data: this.getData(),
       language: this.getLanguage(),
+      layout: this.getLayout(),
       type: 'codemirror',
       version: 1
     }

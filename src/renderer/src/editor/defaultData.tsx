@@ -449,14 +449,16 @@ export const defaultData = {
         type: 'codemirror',
         version: 1,
         data: 'gantt\n    dateFormat  YYYY-MM-DD\n    title       Adding GANTT diagram functionality to mermaid\n    excludes    weekends\n    %% (`excludes` accepts specific dates in YYYY-MM-DD format, days of the week ("sunday") or "weekends", but not the word "weekdays".)\n\n    section A section\n    Completed task            :done,    des1, 2014-01-06,2014-01-08\n    Active task               :active,  des2, 2014-01-09, 3d\n    Future task               :         des3, after des2, 5d\n    Future task2              :         des4, after des3, 5d\n\n    section Critical tasks\n    Completed task in the critical line :crit, done, 2014-01-06,24h\n    Implement parser and jison          :crit, done, after des1, 2d\n    Create tests for parser             :crit, active, 3d\n    Future task in critical line        :crit, 5d\n    Create tests for renderer           :2d\n    Add to mermaid                      :1d\n    Functionality added                 :milestone, 2014-01-25, 0d\n\n    section Documentation\n    Describe gantt syntax               :active, a1, after des1, 3d\n    Add gantt diagram to demo page      :after a1  , 20h\n    Add another diagram to demo page    :doc1, after a1  , 48h\n\n    section Last section\n    Describe gantt syntax               :after doc1, 3d\n    Add gantt diagram to demo page      :20h\n    Add another diagram to demo page    :48h',
-        language: 'Mermaid'
+        language: 'Mermaid',
+        layout: 'Code'
       },
       {
         format: '',
         type: 'codemirror',
         version: 1,
         data: "timeline\n        title England's History Timeline\n        section Stone Age\n          7600 BC : Britain's oldest known house was built in Orkney, Scotland\n          6000 BC : Sea levels rise and Britain becomes an island.<br> The people who live here are hunter-gatherers.\n        section Bronze Age\n          2300 BC : People arrive from Europe and settle in Britain. <br>They bring farming and metalworking.\n                  : New styles of pottery and ways of burying the dead appear.\n          2200 BC : The last major building works are completed at Stonehenge.<br> People now bury their dead in stone circles.\n                  : The first metal objects are made in Britain.Some other nice things happen. it is a good time to be alive.",
-        language: 'Mermaid'
+        language: 'Mermaid',
+        layout: 'Preview'
       },
       {
         children: [
@@ -494,7 +496,8 @@ export const defaultData = {
         type: 'codemirror',
         version: 1,
         data: '{\n  "id": 1,\n  "name": "lexical editor",\n  "features": ["markdown shortcut", "codemirror codeblock", "excalidraw integration", "task list"]\n  "version": "1.0.0",\n  "isReleased": false\n}',
-        language: 'JSON'
+        language: 'JSON',
+        layout: 'SplitVertical'
       },
       {
         format: '',

@@ -38,7 +38,7 @@ export function Editor() {
     setEditorState(editorState)
     const editorStateJSON = editorState.toJSON()
     const data = JSON.stringify(editorStateJSON)
-    // console.log(editorStateJSON)
+    console.log(editorStateJSON)
   }
 
   const initialConfig = {

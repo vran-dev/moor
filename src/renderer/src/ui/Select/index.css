@@ -3,4 +3,118 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  background-color: transparent;
+  color: hsl(0, 0%, 20%);
+}
+
+.select-header {
+  display: flex;
+  cursor: default;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 6px;
+  border-radius: 8px;
+  padding-bottom: 6px;
+  user-select: none;
+}
+
+.select-header.active {
+  /* background-color: #FFFFFF; */
+}
+
+.select-header:hover {
+  background-color: var(--highlight-color);
+  color: var(--highligh-text-color);
+}
+
+.select-caret {
+  color: #cdcdcd;
+}
+
+.select-caret:hover {
+  color: #6d6d6d;
+}
+
+.select-main {
+  position: absolute;
+  top: 38px;
+  background-color: #ffffff;
+  display: none;
+  border-radius: 8px;
+  z-index: 99;
+  width: 100%;
+  min-width: 180px;
+  padding: 8px;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 360px;
+  gap: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.select-main.active {
+  display: flex;
+}
+
+.select-input {
+  outline: none;
+  border-radius: 3px;
+  height: 30px;
+  cursor: default;
+  color: hsl(0, 0%, 20%);
+  background-color: transparent;
+  width: 100%;
+  font-size: 12px;
+  outline: solid 1px #DDDDDD;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.select-input:disabled {
+  background-color: transparent;
+  user-select: none;
+}
+
+.select-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+  align-items: flex-start;
+  overflow-y: scroll;
+  height: 100%;
+  position: relative;
+}
+
+.select-option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 6px;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 6px;
+  user-select: none;
+}
+
+.select-option.active {
+  color: var(--highligh-text-color);
+  background-color: var(--highlight-color);
+}
+
+.select-option-icon {
+  height: 14px;
+  width: 14px;
+}
+
+.select-option-name {
+  font-size: 14px;
+  text-align: left
 }

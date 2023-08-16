@@ -54,12 +54,12 @@ import { $isCodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './CodeMirrorLanguages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
-import Select from 'react-select'
 import useModal from '@renderer/ui/Modal/useModal'
 import { CodePreviewComponent } from './CodePreviewComponent'
 import { VscSplitVertical } from 'react-icons/vsc'
 import { BiCodeCurly } from 'react-icons/bi'
 import { PiPresentationChartLight } from 'react-icons/pi'
+import { SelectOption, VirtualSelect } from '@renderer/ui/Select'
 
 export interface LanguageOption extends LanguageInfo {
   value: string
@@ -81,7 +81,7 @@ export function CodeMirrorComponent(props: {
     props.layout ? props.layout : CodeblockLayout.SplitVertical
   )
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
-  const defaultLanguageOption = useMemo(() => {
+  useEffect((): void => {
     if (language) {
       const matchedLanges = listLanguages({ query: language, nameFullMatch: true })
       if (matchedLanges.length > 0) {
@@ -91,10 +91,8 @@ export function CodeMirrorComponent(props: {
           ...matchedLanges[0]
         }
         setSelectLanguage(option)
-        return option
       }
     }
-    return null
   }, [language])
   const languageCompartment = useMemo(() => new Compartment(), [])
   const languageOptions = useMemo(() => {
@@ -461,7 +459,6 @@ export function CodeMirrorComponent(props: {
 
   const onLayoutChange = useCallback(
     (value) => {
-      console.log('change layout value to', value)
       setLayout(CodeblockLayout[value])
       updateLexicalNodeLayout(value)
     },
@@ -491,24 +488,29 @@ export function CodeMirrorComponent(props: {
     <>
       <div className="codeblock-container">
         <div className="codeblock-header">
-          <Select
-            defaultValue={defaultLanguageOption}
-            onChange={onLanguageChange}
+          <VirtualSelect
             options={languageOptions}
-            filterOption={(option, inputValue): boolean =>
-              languageMatch(inputValue, false, option.data)
-            }
-            classNames={{
-              container: (state) => 'react-select-container',
-              control: (state) => 'react-select-control',
-              valueContainer: (state) => 'react-select-value-container',
-              menu: (state) => 'react-select-menu'
-            }}
+            onSelect={(option): void => onLanguageChange(option)}
+            defaultIndex={languageOptions.findIndex((item) => item.value === language)}
+            filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
           />
-          <CodeblockLayoutSelect onChange={onLanguageChange} layout={layout} />
+          {selectLanguage && selectLanguage.preview && (
+            <CodeblockLayoutSelect
+              onChange={(option): void => onLayoutChange(option.value)}
+              layout={layout}
+            />
+          )}
         </div>
         <div className="codeblock-main">
-          {shouldShowCodeData() && <div className="codeblock-editor" ref={editorRef}></div>}
+          {
+            <div
+              className="codeblock-editor"
+              ref={editorRef}
+              style={{
+                display: shouldShowCodeData() ? 'block' : 'none'
+              }}
+            ></div>
+          }
           {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
         </div>
       </div>
@@ -516,40 +518,44 @@ export function CodeMirrorComponent(props: {
   )
 }
 
-function CodeblockLayoutSelect(props: { onChange: (e) => void; layout: string }): JSX.Element {
+function CodeblockLayoutSelect(props: {
+  onChange: (option: SelectOption) => void
+  layout: string
+}): JSX.Element {
   const options = useMemo(() => {
     const iconProps = {
       size: 12
     }
     return [
       {
-        name: 'code',
+        name: 'Code',
         value: 'Code',
         icon: <BiCodeCurly {...iconProps} />
       },
       {
-        name: 'preview',
+        name: 'Preview',
         value: 'Preview',
         icon: <PiPresentationChartLight {...iconProps} />
       },
       {
-        name: 'split vertical',
+        name: 'Split vertical',
         value: 'SplitVertical',
         icon: <VscSplitVertical {...iconProps} />
       }
     ]
   }, [])
 
+  const defaultIndex = useMemo(() => {
+    const index = options.findIndex((item) => item.value === props.layout)
+    return index === -1 ? 2 : index
+  }, [props.layout])
+
   return (
-    <div onChange={(e): void => props.onChange(e.target.value)} defaultValue={props.layout}>
-      {options.map((option) => {
-        return (
-          <button key={option.value} className="select-option">
-            {option.icon} {option.name}
-          </button>
-        )
-      })}
-    </div>
+    <VirtualSelect
+      options={options}
+      defaultIndex={defaultIndex}
+      onSelect={(option): void => props.onChange(option)}
+    />
   )
 }
 
