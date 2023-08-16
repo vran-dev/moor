@@ -57,6 +57,9 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import Select from 'react-select'
 import useModal from '@renderer/ui/Modal/useModal'
 import { CodePreviewComponent } from './CodePreviewComponent'
+import { VscSplitVertical } from 'react-icons/vsc'
+import { BiCodeCurly } from 'react-icons/bi'
+import { PiPresentationChartLight } from 'react-icons/pi'
 
 export interface LanguageOption extends LanguageInfo {
   value: string
@@ -502,19 +505,7 @@ export function CodeMirrorComponent(props: {
               menu: (state) => 'react-select-menu'
             }}
           />
-          <select
-            onChange={(e): void => onLayoutChange(e.target.value)}
-            defaultValue={Object.entries(CodeblockLayout).find((entry) => entry[1] === layout)?.[0]}
-          >
-            {Object.entries(CodeblockLayout).map((entry) => {
-              const [key, value] = entry
-              return (
-                <option key={key} value={key}>
-                  {value}
-                </option>
-              )
-            })}
-          </select>
+          <CodeblockLayoutSelect onChange={onLanguageChange} layout={layout} />
         </div>
         <div className="codeblock-main">
           {shouldShowCodeData() && <div className="codeblock-editor" ref={editorRef}></div>}
@@ -522,6 +513,43 @@ export function CodeMirrorComponent(props: {
         </div>
       </div>
     </>
+  )
+}
+
+function CodeblockLayoutSelect(props: { onChange: (e) => void; layout: string }): JSX.Element {
+  const options = useMemo(() => {
+    const iconProps = {
+      size: 12
+    }
+    return [
+      {
+        name: 'code',
+        value: 'Code',
+        icon: <BiCodeCurly {...iconProps} />
+      },
+      {
+        name: 'preview',
+        value: 'Preview',
+        icon: <PiPresentationChartLight {...iconProps} />
+      },
+      {
+        name: 'split vertical',
+        value: 'SplitVertical',
+        icon: <VscSplitVertical {...iconProps} />
+      }
+    ]
+  }, [])
+
+  return (
+    <div onChange={(e): void => props.onChange(e.target.value)} defaultValue={props.layout}>
+      {options.map((option) => {
+        return (
+          <button key={option.value} className="select-option">
+            {option.icon} {option.name}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
