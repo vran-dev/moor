@@ -16,12 +16,14 @@ function PortalImpl({
   onClose,
   children,
   title,
-  closeOnClickOutside
+  closeOnClickOutside,
+  modalContentSize = 'auto'
 }: {
   children: ReactNode
   closeOnClickOutside: boolean
   onClose: () => void
   title: string
+  modalContentSize: 'auto' | 'max'
 }): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null)
 
@@ -66,9 +68,17 @@ function PortalImpl({
     }
   }, [closeOnClickOutside, onClose])
 
+  let modalContentStyle
+  if (modalContentSize === 'max') {
+    modalContentStyle = {
+      flexGrow: 1
+    }
+  } else {
+    modalContentStyle = {}
+  }
   return (
     <div className="Modal__overlay" role="dialog">
-      <div className="Modal__modal" tabIndex={-1} ref={modalRef}>
+      <div className="Modal__modal" tabIndex={-1} ref={modalRef} style={{ ...modalContentStyle }}>
         <h2 className="Modal__title">{title}</h2>
         <button
           className="Modal__closeButton"
@@ -88,15 +98,22 @@ export default function Modal({
   onClose,
   children,
   title,
-  closeOnClickOutside = false
+  closeOnClickOutside = false,
+  modalContentSize
 }: {
   children: ReactNode
   closeOnClickOutside?: boolean
   onClose: () => void
   title: string
+  modalContentSize?: 'auto' | 'max'
 }): JSX.Element {
   return createPortal(
-    <PortalImpl onClose={onClose} title={title} closeOnClickOutside={closeOnClickOutside}>
+    <PortalImpl
+      onClose={onClose}
+      title={title}
+      closeOnClickOutside={closeOnClickOutside}
+      modalContentSize={modalContentSize ? modalContentSize : 'auto'}
+    >
       {children}
     </PortalImpl>,
     document.body

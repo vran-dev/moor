@@ -5,7 +5,6 @@ import {
   ExcalidrawAPIRefValue,
   ExcalidrawImperativeAPI
 } from '@excalidraw/excalidraw/types/types'
-import { ResizableRatioType, ResizableView } from '@renderer/components/resize/resizableViewContent'
 import { $getNodeByKey, NodeKey } from 'lexical'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { $isExcalidrawNode, ExcalidrawNode, ExcalidrawOptions } from '.'
@@ -14,6 +13,7 @@ import './Excalidraw.css'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import useModal from '@renderer/ui/Modal/useModal'
 import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types'
+import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
 
 export default function ExcalidrawComponent(props: {
   data: string
@@ -113,7 +113,7 @@ export default function ExcalidrawComponent(props: {
       { onUpdate }
     )
   }
-  const [modal, showModal] = useModal(() => setModalActive(false))
+  const [modal, showModal] = useModal(() => setModalActive(false), 'max')
 
   return (
     <>

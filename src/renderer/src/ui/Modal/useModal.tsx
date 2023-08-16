@@ -12,7 +12,8 @@ import * as React from 'react'
 import Modal from './Modal'
 
 export default function useModal(
-  afterClose?: () => void
+  afterClose?: () => void,
+  modalContentSize?: 'auto' | 'max'
 ): [JSX.Element | null, (title: string, showModal: (onClose: () => void) => JSX.Element) => void] {
   const [modalContent, setModalContent] = useState<null | {
     closeOnClickOutside: boolean
@@ -33,7 +34,12 @@ export default function useModal(
     }
     const { title, content, closeOnClickOutside } = modalContent
     return (
-      <Modal onClose={onClose} title={title} closeOnClickOutside={closeOnClickOutside}>
+      <Modal
+        onClose={onClose}
+        title={title}
+        closeOnClickOutside={closeOnClickOutside}
+        modalContentSize={modalContentSize}
+      >
         {content}
       </Modal>
     )
