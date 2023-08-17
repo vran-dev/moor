@@ -12,7 +12,19 @@ import { TableCellNode, TableNode, TableRowNode } from '@lexical/table'
 import { ExcalidrawNode } from './Excalidraw'
 import { CodeMirrorNode } from './CodeMirror'
 
-const LexicalNodes: Array<Klass<LexicalNode>> = [
+const LexicalNodes: ReadonlyArray<
+  | Klass<LexicalNode>
+  | {
+      replace: Klass<LexicalNode>
+      with: <
+        T extends {
+          new (...args: any): any
+        }
+      >(
+        node: InstanceType<T>
+      ) => LexicalNode
+    }
+> = [
   HeadingNode,
   ListNode,
   ListItemNode,
@@ -29,7 +41,13 @@ const LexicalNodes: Array<Klass<LexicalNode>> = [
   HorizontalRuleNode,
   ExcalidrawNode,
   CodeMirrorNode,
-  MarkNode
+  MarkNode,
+  {
+    replace: CodeNode,
+    with: (node: CodeNode): LexicalNode => {
+      return new CodeMirrorNode()
+    }
+  }
 ]
 
 export default LexicalNodes

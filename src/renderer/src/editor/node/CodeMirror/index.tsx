@@ -10,7 +10,8 @@ import {
   type Spread,
   $setSelection,
   $createNodeSelection,
-  $createRangeSelection
+  $createRangeSelection,
+  DOMExportOutput
 } from 'lexical'
 
 import {
@@ -19,6 +20,7 @@ import {
 } from '@lexical/react/LexicalDecoratorBlockNode'
 import * as React from 'react'
 import { CodeMirrorComponent } from './CodeMirrorComponent'
+import { isHTMLElement } from '@renderer/editor/utils/guard'
 
 export type SerializedCodeMirrorNode = Spread<
   {
@@ -36,15 +38,16 @@ export enum CodeblockLayout {
 }
 
 export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOutput | null {
-  const data = domNode.getAttribute('data-lexical-codemirror-json')
-  if (data) {
-    const node = $createCodeMirrorNode(data)
-    return {
-      node
-    }
+  const data = domNode.innerText
+  const language = domNode.getAttribute(LANGUAGE_DATA_ATTRIBUTE)
+  const node = $createCodeMirrorNode(data, language)
+  return {
+    node
   }
-  return null
 }
+
+const LANGUAGE_DATA_ATTRIBUTE = 'data-codeblock-language'
+const LAYOUT_DATA_ATTRIBUTE = 'data-codeblock-layout'
 
 export class CodeMirrorNode extends DecoratorBlockNode {
   __data: string
@@ -117,6 +120,21 @@ export class CodeMirrorNode extends DecoratorBlockNode {
     }
   }
 
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement('pre')
+    element.setAttribute('spellcheck', 'false')
+    const language = this.getLanguage()
+    if (language) {
+      element.setAttribute(LANGUAGE_DATA_ATTRIBUTE, language)
+    }
+    const layout = this.getLayout()
+    if (layout) {
+      element.setAttribute(LAYOUT_DATA_ATTRIBUTE, layout)
+    }
+    element.innerText = this.getData() || ''
+    return { element }
+  }
+
   isInline(): false {
     return false
   }
@@ -180,16 +198,40 @@ export class CodeMirrorNode extends DecoratorBlockNode {
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {
     return {
-      div: (domNode: HTMLSpanElement) => {
-        if (!domNode.hasAttribute('data-lexical-codemirror-json')) {
-          return null
-        }
-        return {
-          conversion: convertCodeMirrorElement,
-          priority: 1
-        }
-      }
+      // Typically <pre> is used for code blocks, and <code> for inline code styles
+      // but if it's a multi line <code> we'll create a block. Pass through to
+      // inline format handled by TextNode otherwise.
+      code: (node: Node): any => {
+        const isMultiLine =
+          node.textContent != null &&
+          (/\r?\n/.test(node.textContent) || hasChildDOMNodeTag(node, 'BR'))
+        return isMultiLine
+          ? {
+              conversion: convertCodeMirrorElement,
+              priority: 1
+            }
+          : null
+      },
+      div: (node: Node) => ({
+        conversion: convertCodeMirrorElement,
+        priority: 1
+      }),
+      pre: (node: Node) => ({
+        conversion: convertCodeMirrorElement,
+        priority: 0
+      })
     }
+    // return {
+    //   div: (domNode: HTMLSpanElement) => {
+    //     if (!domNode.hasAttribute('data-lexical-codemirror-json')) {
+    //       return null
+    //     }
+    //     return {
+    //       conversion: convertCodeMirrorElement,
+    //       priority: 1
+    //     }
+    //   }
+    // }
   }
 }
 
@@ -204,4 +246,14 @@ export function $isCodeMirrorNode(
   node: CodeMirrorNode | LexicalNode | null | undefined
 ): node is CodeMirrorNode {
   return node instanceof CodeMirrorNode
+}
+
+function hasChildDOMNodeTag(node: Node, tagName: string): boolean {
+  for (const child of node.childNodes) {
+    if (isHTMLElement(child) && child.tagName === tagName) {
+      return true
+    }
+    hasChildDOMNodeTag(child, tagName)
+  }
+  return false
 }
