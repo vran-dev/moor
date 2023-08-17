@@ -56,7 +56,8 @@ export function Editor() {
           placeholder={null}
           ErrorBoundary={LexicalErrorBoundary}
         />
-        <AutoFocusPlugin />
+        {/* TODO if open empty editor then enable autofocus */}
+        {/* <AutoFocusPlugin defaultSelection="rootStart" /> */}
         <CheckListPlugin />
         <ListPlugin />
         <LexicalClickableLinkPlugin />

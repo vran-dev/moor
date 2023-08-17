@@ -5,7 +5,6 @@ import {
   TypeaheadPlugin,
   TypeaheadVirtualListMenu
 } from '../TypeheadPlugin'
-import { $createCodeNode } from '@lexical/code'
 import {
   INSERT_UNORDERED_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
