@@ -11,7 +11,8 @@ import {
   $setSelection,
   $createNodeSelection,
   $createRangeSelection,
-  DOMExportOutput
+  DOMExportOutput,
+  DOMConversion
 } from 'lexical'
 
 import {
@@ -38,11 +39,9 @@ export enum CodeblockLayout {
 }
 
 export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOutput | null {
-  const data = domNode.innerText
   const language = domNode.getAttribute(LANGUAGE_DATA_ATTRIBUTE)
-  const node = $createCodeMirrorNode(data, language)
   return {
-    node
+    node: $createCodeMirrorNode(domNode.textContent || '', 'Text')
   }
 }
 
@@ -198,40 +197,37 @@ export class CodeMirrorNode extends DecoratorBlockNode {
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {
     return {
-      // Typically <pre> is used for code blocks, and <code> for inline code styles
-      // but if it's a multi line <code> we'll create a block. Pass through to
-      // inline format handled by TextNode otherwise.
-      code: (node: Node): any => {
-        const isMultiLine =
-          node.textContent != null &&
-          (/\r?\n/.test(node.textContent) || hasChildDOMNodeTag(node, 'BR'))
-        return isMultiLine
-          ? {
-              conversion: convertCodeMirrorElement,
-              priority: 1
-            }
-          : null
-      },
-      div: (node: Node) => ({
-        conversion: convertCodeMirrorElement,
-        priority: 1
-      }),
       pre: (node: Node) => ({
         conversion: convertCodeMirrorElement,
-        priority: 0
-      })
+        priority: 4
+      }),
+      code: (node: Node) => {
+        const code = node as HTMLElement
+        const pre: HTMLPreElement | null = code.closest('pre')
+        if (pre) {
+          return {
+            conversion: () => {
+              return { node: null }
+            },
+            priority: 4
+          }
+        }
+        return null
+      },
+      span: (node: Node): DOMConversion | null => {
+        const span = node as HTMLSpanElement
+        const pre: HTMLPreElement | null = span.closest('pre')
+        if (pre) {
+          return {
+            conversion: () => {
+              return { node: null }
+            },
+            priority: 4
+          }
+        }
+        return null
+      }
     }
-    // return {
-    //   div: (domNode: HTMLSpanElement) => {
-    //     if (!domNode.hasAttribute('data-lexical-codemirror-json')) {
-    //       return null
-    //     }
-    //     return {
-    //       conversion: convertCodeMirrorElement,
-    //       priority: 1
-    //     }
-    //   }
-    // }
   }
 }
 
