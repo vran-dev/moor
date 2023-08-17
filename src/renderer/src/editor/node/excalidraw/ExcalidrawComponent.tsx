@@ -136,29 +136,30 @@ export default function ExcalidrawComponent(props: {
           setSelected(true)
         }}
       >
-        <Button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </Button>
-        <Button onClick={toggleGridMode}> Grid{getGridMode() ? '(On)' : '(Off)'} </Button>
-        <Button onClick={toggleReadView}> Read-Only{getReadView() ? '(On)' : '(Off)'} </Button>
-        <Button
-          onClick={(e): void =>
-            showModal('Excalidraw', () => {
-              setModalActive(true)
-              return (
-                <ExcalidrawWrapper
-                  data={props.data}
-                  onChange={(elements, appState, files): void => {
-                    dataUpdate(elements, appState, files)
-                  }}
-                  options={props.options}
-                />
-              )
-            })
-          }
-          className="excalidraw-toolbar-button"
-        >
-          {' '}
-          Full-Screen
-        </Button>
+        <div>
+          <Button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </Button>
+          <Button onClick={toggleGridMode}> Grid{getGridMode() ? '(On)' : '(Off)'} </Button>
+          <Button onClick={toggleReadView}> Read-Only{getReadView() ? '(On)' : '(Off)'} </Button>
+          <Button
+            onClick={(e): void =>
+              showModal('Excalidraw', () => {
+                setModalActive(true)
+                return (
+                  <ExcalidrawWrapper
+                    data={props.data}
+                    onChange={(elements, appState, files): void => {
+                      dataUpdate(elements, appState, files)
+                    }}
+                    options={props.options}
+                  />
+                )
+              })
+            }
+          >
+            {' '}
+            Full-Screen
+          </Button>
+        </div>
         {!modalActive && (
           <ResizableView
             aspectRatio={ResizableRatioType.Flexible}
