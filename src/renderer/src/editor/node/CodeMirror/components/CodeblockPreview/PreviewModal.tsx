@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
-import { LanguageInfo } from './CodeMirrorLanguages'
+import { LanguageInfo } from '../../CodeMirrorLanguages'
 
-export function CodePreviewComponent(props: {
+export function PreviewModal(props: {
   languageInfo: LanguageInfo
   codeData: string
   onClose: () => void

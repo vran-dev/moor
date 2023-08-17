@@ -46,7 +46,7 @@ export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOut
   return null
 }
 
-export class CodeMirrorkNode extends DecoratorBlockNode {
+export class CodeMirrorNode extends DecoratorBlockNode {
   __data: string
   __language: string | undefined | null
   __layout: CodeblockLayout
@@ -164,8 +164,8 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
     return 'codemirror'
   }
 
-  static clone(node: CodeMirrorkNode): CodeMirrorkNode {
-    return new CodeMirrorkNode(
+  static clone(node: CodeMirrorNode): CodeMirrorNode {
+    return new CodeMirrorNode(
       node.getData(),
       node.getLanguage(),
       node.getLayout(),
@@ -174,8 +174,8 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
     )
   }
 
-  static importJSON(json: SerializedCodeMirrorNode): CodeMirrorkNode {
-    return new CodeMirrorkNode(json.data, json.language, json.layout, json.format)
+  static importJSON(json: SerializedCodeMirrorNode): CodeMirrorNode {
+    return new CodeMirrorNode(json.data, json.language, json.layout, json.format)
   }
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {
@@ -196,12 +196,12 @@ export class CodeMirrorkNode extends DecoratorBlockNode {
 export function $createCodeMirrorNode(
   data?: string | null,
   language?: string | null
-): CodeMirrorkNode {
-  return new CodeMirrorkNode(data || '', language)
+): CodeMirrorNode {
+  return new CodeMirrorNode(data || '', language)
 }
 
 export function $isCodeMirrorNode(
-  node: CodeMirrorkNode | LexicalNode | null | undefined
-): node is CodeMirrorkNode {
-  return node instanceof CodeMirrorkNode
+  node: CodeMirrorNode | LexicalNode | null | undefined
+): node is CodeMirrorNode {
+  return node instanceof CodeMirrorNode
 }

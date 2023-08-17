@@ -1,6 +1,6 @@
 import { languages } from '@codemirror/language-data'
 import { LanguageDescription } from '@codemirror/language'
-import { MermaidLanguageInfo } from './Language/MermaidLanguageInfo'
+import { MermaidLanguageInfo } from './languages/MermaidLanguageInfo'
 
 export interface LanguageInfo {
   name: string

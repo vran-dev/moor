@@ -10,7 +10,7 @@ import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table'
 import { ExcalidrawNode } from './Excalidraw'
-import { CodeMirrorkNode } from './CodeMirror'
+import { CodeMirrorNode } from './CodeMirror'
 
 const LexicalNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -28,7 +28,7 @@ const LexicalNodes: Array<Klass<LexicalNode>> = [
   OverflowNode,
   HorizontalRuleNode,
   ExcalidrawNode,
-  CodeMirrorkNode,
+  CodeMirrorNode,
   MarkNode
 ]
 

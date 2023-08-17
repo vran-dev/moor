@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   defaultKeymap,
   history,
@@ -34,32 +34,26 @@ import {
   $getNodeByKey,
   $getSelection,
   $isRangeSelection,
-  $setSelection,
-  $createNodeSelection,
   COMMAND_PRIORITY_LOW,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
   KEY_DOWN_COMMAND,
   KEY_ENTER_COMMAND,
   NodeKey,
-  $addUpdateTag,
-  REDO_COMMAND,
-  UNDO_COMMAND,
   $isNodeSelection,
-  $isDecoratorNode
+  $isDecoratorNode,
+  $getNearestNodeFromDOMNode
 } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
-import { $isCodeMirrorNode, CodeblockLayout } from '.'
+import { $isCodeMirrorNode, CodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './CodeMirrorLanguages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
-import useModal from '@renderer/ui/Modal/useModal'
-import { CodePreviewComponent } from './CodePreviewComponent'
-import { VscSplitVertical } from 'react-icons/vsc'
-import { BiCodeCurly } from 'react-icons/bi'
-import { PiPresentationChartLight } from 'react-icons/pi'
-import { SelectOption, VirtualSelect } from '@renderer/ui/Select'
+import { VirtualSelect } from '@renderer/ui/Select'
+import { CopyButton } from './components/CopyButton'
+import { CodeblockPreview } from './components/CodeblockPreview'
+import { LayoutSelect } from './components/LayoutSelect'
 
 export interface LanguageOption extends LanguageInfo {
   value: string
@@ -484,6 +478,29 @@ export function CodeMirrorComponent(props: {
     }
     return true
   }, [layout, selectLanguage])
+
+  const onMouseClick = (event: MouseEvent): void => {
+    const { codeDOMNode, isOutside } = getMouseInfo(event)
+    if (isOutside) {
+      return
+    }
+    if (!codeDOMNode) {
+      return
+    }
+    editor.update(() => {
+      const maybeCodeNode = $getNearestNodeFromDOMNode(codeDOMNode)
+      if ($isCodeMirrorNode(maybeCodeNode) && maybeCodeNode.getKey() === props.nodeKey) {
+        setSelected(true)
+      }
+    })
+  }
+  useEffect(() => {
+    document.addEventListener('mousedown', onMouseClick)
+    return () => {
+      document.removeEventListener('mousedown', onMouseClick)
+    }
+  }, [])
+
   return (
     <>
       <div className="codeblock-container">
@@ -495,11 +512,13 @@ export function CodeMirrorComponent(props: {
             filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
           />
           {selectLanguage && selectLanguage.preview && (
-            <CodeblockLayoutSelect
+            <LayoutSelect
               onChange={(option): void => onLayoutChange(option.value)}
               layout={layout}
             />
           )}
+
+          {codeMirror && <CopyButton codeMirror={codeMirror} />}
         </div>
         <div className="codeblock-main">
           {
@@ -518,76 +537,16 @@ export function CodeMirrorComponent(props: {
   )
 }
 
-function CodeblockLayoutSelect(props: {
-  onChange: (option: SelectOption) => void
-  layout: string
-}): JSX.Element {
-  const options = useMemo(() => {
-    const iconProps = {
-      size: 12
-    }
-    return [
-      {
-        name: 'Code',
-        value: 'Code',
-        icon: <BiCodeCurly {...iconProps} />
-      },
-      {
-        name: 'Preview',
-        value: 'Preview',
-        icon: <PiPresentationChartLight {...iconProps} />
-      },
-      {
-        name: 'Split vertical',
-        value: 'SplitVertical',
-        icon: <VscSplitVertical {...iconProps} />
-      }
-    ]
-  }, [])
-
-  const defaultIndex = useMemo(() => {
-    const index = options.findIndex((item) => item.value === props.layout)
-    return index === -1 ? 2 : index
-  }, [props.layout])
-
-  return (
-    <VirtualSelect
-      options={options}
-      defaultIndex={defaultIndex}
-      onSelect={(option): void => props.onChange(option)}
-    />
-  )
-}
-
-function CodeblockPreview(props: { language: LanguageInfo; data: string }): JSX.Element {
-  const previewContainerRef = useRef<HTMLDivElement | null>(null)
-  const { language, data } = props
-  const [modal, showModal] = useModal()
-  const showPreviewModal = useCallback((): void => {
-    if (language === null) {
-      return
-    }
-    showModal(language.name, (onClose) => {
-      return <CodePreviewComponent languageInfo={language} onClose={onClose} codeData={data} />
-    })
-  }, [language, data])
-
-  useEffect(() => {
-    if (!previewContainerRef || !previewContainerRef.current) {
-      return
-    }
-    if (language && language.preview) {
-      language.preview(data, previewContainerRef.current)
-    }
-  }, [language, data])
-  return (
-    <>
-      <div
-        className="codeblock-preview"
-        ref={previewContainerRef}
-        onClick={(): void => showPreviewModal()}
-      ></div>
-      {modal}
-    </>
-  )
+function getMouseInfo(event: MouseEvent): {
+  codeDOMNode: HTMLElement | null
+  isOutside: boolean
+} {
+  const target = event.target
+  if (target && target instanceof HTMLElement) {
+    const codeDOMNode = target.closest<HTMLElement>('div.codeblock-container')
+    const isOutside = !(codeDOMNode || target.closest<HTMLElement>('div.codeblock-header'))
+    return { codeDOMNode, isOutside }
+  } else {
+    return { codeDOMNode: null, isOutside: true }
+  }
 }

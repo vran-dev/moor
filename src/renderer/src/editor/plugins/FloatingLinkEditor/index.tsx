@@ -148,7 +148,6 @@ export const FloatingLinkEditor = (props: {
     editor.update(() => {
       const selection = $getSelection()
       if (!$isRangeSelection(selection)) {
-        console.log('is not range')
         return
       }
       const nodes = selection?.getNodes()

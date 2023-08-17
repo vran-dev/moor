@@ -16,10 +16,10 @@
   justify-content: center;
   gap: 6px;
   padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 6px;
+  padding-right: 6px;
+  padding-top: 5px;
   border-radius: 8px;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   user-select: none;
   font-size: 12px;
 }
@@ -35,10 +35,6 @@
 
 .select-caret {
   color: #cdcdcd;
-}
-
-.select-caret:hover {
-  color: #6d6d6d;
 }
 
 .select-main {
