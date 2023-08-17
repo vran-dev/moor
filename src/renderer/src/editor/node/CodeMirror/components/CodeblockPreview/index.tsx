@@ -2,6 +2,7 @@ import { useRef, useCallback, useEffect } from 'react'
 import { LanguageInfo } from '../../CodeMirrorLanguages'
 import { PreviewModal } from './PreviewModal'
 import useModal from '@renderer/ui/Modal/useModal'
+import { useDebounce } from '@renderer/editor/utils/useDebounce'
 
 export function CodeblockPreview(props: { language: LanguageInfo; data: string }): JSX.Element {
   const previewContainerRef = useRef<HTMLDivElement | null>(null)
@@ -16,13 +17,21 @@ export function CodeblockPreview(props: { language: LanguageInfo; data: string }
     })
   }, [language, data])
 
+  const updatePreview = useDebounce(
+    (language: LanguageInfo): void => {
+      if (!previewContainerRef || !previewContainerRef.current) {
+        return
+      }
+      if (language && language.preview) {
+        language.preview(data, previewContainerRef.current)
+      }
+    },
+    50,
+    1000
+  )
+
   useEffect(() => {
-    if (!previewContainerRef || !previewContainerRef.current) {
-      return
-    }
-    if (language && language.preview) {
-      language.preview(data, previewContainerRef.current)
-    }
+    updatePreview(language)
   }, [language, data])
   return (
     <>

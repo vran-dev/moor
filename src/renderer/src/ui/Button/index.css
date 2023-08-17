@@ -1,10 +1,10 @@
-.excalidraw-toolbar-button {
+.text-button {
   border-radius: 8px;
   padding-top: 6px;
   padding-bottom: 6px;
   color: #5b57d1;
 }
 
-.excalidraw-toolbar-button:hover {
+.text-button:hover {
   background-color: var(--highlight-color);
 }

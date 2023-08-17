@@ -15,6 +15,7 @@ import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
 import { $createCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
 import { $createExcalidrawNode } from '@renderer/editor/node/Excalidraw'
+import { $createIFrameNode } from '@renderer/editor/node/IFrame'
 import {
   $createNodeSelection,
   $createParagraphNode,
@@ -194,6 +195,21 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
             }
           })
         }
+      ),
+      new TypeaheadMenu(
+        'Embed',
+        <AiOutlineFontSize {...ICON_PROPS} />,
+        'embed content from other sites',
+        (editor: LexicalEditor) => {
+          editor.update(() => {
+            const selection = $getSelection()
+            if ($isRangeSelection(selection)) {
+              const node = $createIFrameNode()
+              selection.insertNodes([node])
+            }
+          })
+        },
+        ['iframe', 'embed']
       )
     ]
     return query

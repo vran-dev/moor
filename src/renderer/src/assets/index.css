@@ -131,7 +131,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
-
+    padding-left: 24px;
 }
 
 .editor {

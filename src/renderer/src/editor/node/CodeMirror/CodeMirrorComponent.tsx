@@ -46,7 +46,7 @@ import {
 } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
-import { $isCodeMirrorNode, CodeMirrorNode, CodeblockLayout } from '.'
+import { $isCodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './CodeMirrorLanguages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
@@ -54,6 +54,7 @@ import { VirtualSelect } from '@renderer/ui/Select'
 import { CopyButton } from './components/CopyButton'
 import { CodeblockPreview } from './components/CodeblockPreview'
 import { LayoutSelect } from './components/LayoutSelect'
+import { useDebounce } from '@renderer/editor/utils/useDebounce'
 
 export interface LanguageOption extends LanguageInfo {
   value: string
@@ -129,15 +130,19 @@ export function CodeMirrorComponent(props: {
   }, [])
 
   // update lexical node data
-  const updateLexicalNodeData = useCallback(
-    (latest: string) =>
-      editor.update(() => {
-        const node = $getNodeByKey(nodeKey)
-        if ($isCodeMirrorNode(node)) {
-          node.setData(latest)
-        }
-      }),
-    [editor, nodeKey]
+  const updateLexicalNodeData = useDebounce(
+    useCallback(
+      (latest: string) =>
+        editor.update(() => {
+          const node = $getNodeByKey(nodeKey)
+          if ($isCodeMirrorNode(node)) {
+            node.setData(latest)
+          }
+        }),
+      [editor, nodeKey]
+    ),
+    50,
+    1000
   )
 
   const updateLexicalNodeLanguage = useCallback(
@@ -502,38 +507,33 @@ export function CodeMirrorComponent(props: {
   }, [])
 
   return (
-    <>
-      <div className="codeblock-container">
-        <div className="codeblock-header">
-          <VirtualSelect
-            options={languageOptions}
-            onSelect={(option): void => onLanguageChange(option)}
-            defaultIndex={languageOptions.findIndex((item) => item.value === language)}
-            filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
-          />
-          {selectLanguage && selectLanguage.preview && (
-            <LayoutSelect
-              onChange={(option): void => onLayoutChange(option.value)}
-              layout={layout}
-            />
-          )}
+    <div className="codeblock-container" draggable={true}>
+      <div className="codeblock-header">
+        <VirtualSelect
+          options={languageOptions}
+          onSelect={(option): void => onLanguageChange(option)}
+          defaultIndex={languageOptions.findIndex((item) => item.value === language)}
+          filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
+        />
+        {selectLanguage && selectLanguage.preview && (
+          <LayoutSelect onChange={(option): void => onLayoutChange(option.value)} layout={layout} />
+        )}
 
-          {codeMirror && <CopyButton codeMirror={codeMirror} />}
-        </div>
-        <div className="codeblock-main">
-          {
-            <div
-              className="codeblock-editor"
-              ref={editorRef}
-              style={{
-                display: shouldShowCodeData() ? 'block' : 'none'
-              }}
-            ></div>
-          }
-          {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
-        </div>
+        {codeMirror && <CopyButton codeMirror={codeMirror} />}
       </div>
-    </>
+      <div className="codeblock-main">
+        {
+          <div
+            className="codeblock-editor"
+            ref={editorRef}
+            style={{
+              display: shouldShowCodeData() ? 'block' : 'none'
+            }}
+          ></div>
+        }
+        {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
+      </div>
+    </div>
   )
 }
 

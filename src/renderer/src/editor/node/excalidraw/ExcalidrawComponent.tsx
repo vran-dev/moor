@@ -6,14 +6,15 @@ import {
   ExcalidrawImperativeAPI
 } from '@excalidraw/excalidraw/types/types'
 import { $getNodeByKey, NodeKey } from 'lexical'
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef } from 'react'
 import { $isExcalidrawNode, ExcalidrawNode, ExcalidrawOptions } from '.'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import './Excalidraw.css'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import useModal from '@renderer/ui/Modal/useModal'
 import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types'
 import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
+import { useDebounce } from '@renderer/editor/utils/useDebounce'
+import { Button } from '@renderer/ui/Button'
 
 export default function ExcalidrawComponent(props: {
   data: string
@@ -28,22 +29,26 @@ export default function ExcalidrawComponent(props: {
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
   const [modalActive, setModalActive] = useState(false)
 
-  const dataUpdate = async (elements, state, files): Promise<void> => {
-    // notice: state.collaborators should be a array ,but export to object
-    state.collaborators = []
-    // ignore appState, because it is cause cursor conflict with lexical
-    const saveData = {
-      elements: elements,
-      // appState: state,
-      files: files
-    }
-    const newData = JSON.stringify(saveData)
-    withExcalidrawNode((node) => {
-      if (newData != node.getData()) {
-        node.setData(newData)
+  const dataUpdate = useDebounce(
+    async (elements, state, files): Promise<void> => {
+      // notice: state.collaborators should be a array ,but export to object
+      state.collaborators = []
+      // ignore appState, because it is cause cursor conflict with lexical
+      const saveData = {
+        elements: elements,
+        // appState: state,
+        files: files
       }
-    })
-  }
+      const newData = JSON.stringify(saveData)
+      withExcalidrawNode((node) => {
+        if (newData != node.getData()) {
+          node.setData(newData)
+        }
+      })
+    },
+    50,
+    1000
+  )
 
   const toggleZenMode = (): void => {
     if (excalidrawAPI) {
@@ -98,21 +103,22 @@ export default function ExcalidrawComponent(props: {
     }
     return false
   }
+  const withExcalidrawNode = useDebounce(
+    (callback: (node: ExcalidrawNode) => void, onUpdate?: () => void): void => {
+      editor.update(
+        () => {
+          const node = $getNodeByKey(nodeKey)
+          if ($isExcalidrawNode(node)) {
+            callback(node)
+          }
+        },
+        { onUpdate }
+      )
+    },
+    50,
+    1000
+  )
 
-  const withExcalidrawNode = (
-    callback: (node: ExcalidrawNode) => void,
-    onUpdate?: () => void
-  ): void => {
-    editor.update(
-      () => {
-        const node = $getNodeByKey(nodeKey)
-        if ($isExcalidrawNode(node)) {
-          callback(node)
-        }
-      },
-      { onUpdate }
-    )
-  }
   const [modal, showModal] = useModal(() => setModalActive(false), 'max')
 
   return (
@@ -130,19 +136,10 @@ export default function ExcalidrawComponent(props: {
           setSelected(true)
         }}
       >
-        <button onClick={toggleZenMode} className="excalidraw-toolbar-button">
-          {' '}
-          Zen{getZenMode() ? '(On)' : '(Off)'}{' '}
-        </button>
-        <button onClick={toggleGridMode} className="excalidraw-toolbar-button">
-          {' '}
-          Grid{getGridMode() ? '(On)' : '(Off)'}{' '}
-        </button>
-        <button onClick={toggleReadView} className="excalidraw-toolbar-button">
-          {' '}
-          Read-Only{getReadView() ? '(On)' : '(Off)'}{' '}
-        </button>
-        <button
+        <Button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </Button>
+        <Button onClick={toggleGridMode}> Grid{getGridMode() ? '(On)' : '(Off)'} </Button>
+        <Button onClick={toggleReadView}> Read-Only{getReadView() ? '(On)' : '(Off)'} </Button>
+        <Button
           onClick={(e): void =>
             showModal('Excalidraw', () => {
               setModalActive(true)
@@ -161,25 +158,11 @@ export default function ExcalidrawComponent(props: {
         >
           {' '}
           Full-Screen
-        </button>
+        </Button>
         {!modalActive && (
           <ResizableView
             aspectRatio={ResizableRatioType.Flexible}
             initialSize={{ width: width, height: height }}
-            onResizing={(e, newWidth, newHeight): void => {
-              if (!containerRef.current) {
-                return
-              }
-              if (newHeight) {
-                containerRef.current.parentElement.style.height = newHeight + 'px'
-              }
-              if (newWidth) {
-                containerRef.current.parentElement.style.width = newWidth + 'px'
-              }
-              if (newWidth || newHeight) {
-                containerRef.current.parentElement.style.aspectRatio = `${newHeight} / ${newHeight}`
-              }
-            }}
             onResized={(e, newWidth, newHeight): void => {
               if (newWidth) {
                 withExcalidrawNode((node) => node.setPartialOptions({ width: newWidth }))

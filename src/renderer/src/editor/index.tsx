@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
@@ -26,6 +26,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditor'
 import { SlashTypeaheadPlugin } from './plugins/TypeaheadSlashPlugin'
 import { EmojiTypeaheadPlugin } from './plugins/TypeaheadEmojiPlugin'
 import { CodeLanguageTypeaheadPlugin } from './plugins/TypeaheadCodeLanguagePlugin'
+import DraggableBlockPlugin from './plugins/DraggableBlockPlugin'
 
 function onError(error) {
   console.error(error)
@@ -33,6 +34,12 @@ function onError(error) {
 
 export function Editor() {
   const [editorState, setEditorState] = useState()
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null)
+  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem)
+    }
+  }
   function onChange(editorState) {
     // console.log(editorState)
     setEditorState(editorState)
@@ -49,7 +56,7 @@ export function Editor() {
     editorState: JSON.stringify(defaultData)
   }
   return (
-    <div className="editor-view">
+    <div className="editor-view" ref={onRef}>
       <LexicalComposer initialConfig={initialConfig}>
         <RichTextPlugin
           contentEditable={<ContentEditable className="editor" spellCheck={false} />}
@@ -74,6 +81,7 @@ export function Editor() {
         <CodeLanguageTypeaheadPlugin />
         <EmojiTypeaheadPlugin />
         <OnChangePlugin onChange={onChange} />
+        {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
       </LexicalComposer>
     </div>
   )
