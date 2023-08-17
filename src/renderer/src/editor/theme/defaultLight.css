@@ -94,7 +94,7 @@
 }
 
 .EditorTheme__ul .EditorTheme__listItem {
-  padding-left: 0.375em;
+  /* padding-left: 0.375em; */
 }
 
 .EditorTheme__ol {
@@ -125,4 +125,80 @@
 .EditorTheme__ol .EditorTheme__listItem {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
+}
+
+/* check list */
+.EditorTheme__listItemChecked,
+.EditorTheme__listItemUnchecked {
+  position: relative;
+  margin-right: 8px;
+  padding-left: 24px;
+  padding-right: 24px;
+  list-style-type: none;
+  outline: none;
+}
+
+.EditorTheme__listItemChecked {
+  text-decoration: line-through;
+}
+
+.EditorTheme__listItemUnchecked:before,
+.EditorTheme__listItemChecked:before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  top: 2px;
+  left: 0px;
+  cursor: pointer;
+  display: block;
+  background-size: cover;
+  position: absolute;
+}
+
+.EditorTheme__listItemUnchecked[dir='rtl']:before,
+.EditorTheme__listItemChecked[dir='rtl']:before {
+  left: auto;
+  right: 0;
+}
+
+.EditorTheme__listItemUnchecked:focus:before,
+.EditorTheme__listItemChecked:focus:before {
+  border-radius: 2px;
+}
+
+.EditorTheme__listItemUnchecked:before {
+  border: 1px solid #999;
+  border-radius: 2px;
+}
+
+.EditorTheme__listItemChecked:before {
+  border: 1px solid rgb(61, 135, 245);
+  border-radius: 2px;
+  background-color: #3d87f5;
+  background-repeat: no-repeat;
+}
+
+.EditorTheme__listItemChecked:after {
+  content: '';
+  cursor: pointer;
+  border-color: #fff;
+  border-style: solid;
+  position: absolute;
+  display: block;
+  top: 6px;
+  width: 3px;
+  left: 7px;
+  right: 7px;
+  height: 6px;
+  transform: rotate(45deg);
+  border-width: 0 2px 2px 0;
+}
+
+.EditorTheme__nestedListItem {
+  list-style-type: none;
+}
+
+.EditorTheme__nestedListItem:before,
+.EditorTheme__nestedListItem:after {
+  display: none;
 }

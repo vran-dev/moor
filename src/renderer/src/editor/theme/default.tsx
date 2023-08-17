@@ -34,10 +34,10 @@ const theme: EditorThemeClasses = {
   link: 'EditorTheme__link',
   list: {
     listitem: 'EditorTheme__listItem',
-    listitemChecked: 'PlaygroundEditorTheme__listItemChecked',
-    listitemUnchecked: 'PlaygroundEditorTheme__listItemUnchecked',
+    listitemChecked: 'EditorTheme__listItemChecked',
+    listitemUnchecked: 'EditorTheme__listItemUnchecked',
     nested: {
-      listitem: 'PlaygroundEditorTheme__nestedListItem'
+      listitem: 'EditorTheme__nestedListItem'
     },
     olDepth: [
       'EditorTheme__ol1',
