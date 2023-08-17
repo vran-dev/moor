@@ -675,7 +675,7 @@ export const defaultData = {
           zenEnabled: true,
           gridEnabled: false,
           readOnlyEnabled: false,
-          width: 800,
+          width: 900,
           height: 600
         }
       },

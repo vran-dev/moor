@@ -21,6 +21,7 @@
   border-radius: 8px;
   padding-bottom: 6px;
   user-select: none;
+  font-size: 12px;
 }
 
 .select-header.active {
@@ -115,6 +116,6 @@
 }
 
 .select-option-name {
-  font-size: 14px;
-  text-align: left
+  font-size: 12px;
+  text-align: left;
 }

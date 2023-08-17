@@ -176,7 +176,6 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
       className="resizable-view"
       style={{
         position: 'relative',
-        maxWidth: '100%',
         minWidth: '50px',
         verticalAlign: 'bottom',
         display: 'inline-block',
