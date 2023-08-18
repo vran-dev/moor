@@ -32,7 +32,6 @@ export default function EmbedEditor(props: {
     if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       e.stopPropagation()
-      console.log(e.target)
       e.target && (e.target as HTMLTextAreaElement).select()
       return
     }
