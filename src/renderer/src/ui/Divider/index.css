@@ -1,0 +1,13 @@
+.divider-horizontal {
+  display: block;
+  height: 1px;
+  width: 100%;
+  margin: 24px 0;
+  border-top: 1px #dcdfe6 solid;
+}
+
+.divider-vertical {
+  display: block;
+  width: 1px;
+  border-left: 1px #dcdfe6 solid;
+}

@@ -1,0 +1,24 @@
+.radio-button-group {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.radio-button-group button {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    padding: 6px;
+}
+
+.radio-button-group button:hover {
+    background-color: var(--highlight-color);
+}
+
+.radio-button-group button.active {
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
+}

@@ -2,3 +2,10 @@
   margin-top: 12px;
   margin-bottom: 12px;
 }
+
+.embed-iframe-tool-menu {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  padding: 6px;
+}

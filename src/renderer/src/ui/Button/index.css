@@ -1,8 +1,11 @@
 .text-button {
-  border-radius: 8px;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  color: #5b57d1;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
 }
 
 .text-button:hover {

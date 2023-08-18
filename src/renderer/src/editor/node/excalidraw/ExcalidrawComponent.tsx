@@ -15,6 +15,7 @@ import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types'
 import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
 import { Button } from '@renderer/ui/Button'
+import './index.css'
 
 export default function ExcalidrawComponent(props: {
   data: string
@@ -136,7 +137,7 @@ export default function ExcalidrawComponent(props: {
           setSelected(true)
         }}
       >
-        <div>
+        <div className="excalidraw-tool-menu">
           <Button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </Button>
           <Button onClick={toggleGridMode}> Grid{getGridMode() ? '(On)' : '(Off)'} </Button>
           <Button onClick={toggleReadView}> Read-Only{getReadView() ? '(On)' : '(Off)'} </Button>

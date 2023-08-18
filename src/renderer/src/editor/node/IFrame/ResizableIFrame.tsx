@@ -8,6 +8,16 @@ import IFramePlaceholder from './components/Placeholder'
 import { Button } from '@renderer/ui/Button'
 import './index.css'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
+import {
+  BsCodeSquare,
+  BsLayoutSidebarInset,
+  BsLayoutSidebarInsetReverse,
+  BsSquare,
+  BsTextareaResize,
+  BsTrash3
+} from 'react-icons/bs'
+import { RadioButtonGroup } from '@renderer/ui/RadioButtonGroup'
+import { Divider } from '@renderer/ui/Divider'
 
 export function ResizableIFrame(props: {
   url: string
@@ -57,7 +67,6 @@ export function ResizableIFrame(props: {
         return
       }
       containerRef.current?.focus()
-      console.log('focus')
     }
     document.addEventListener('mousedown', mouseClickHandler)
     return () => {
@@ -65,52 +74,104 @@ export function ResizableIFrame(props: {
     }
   }, [])
 
-  return (
-    <div ref={containerRef} className="embed-iframe-container" draggable={true}>
-      <div>
-        {!editing && url && <Button onClick={(e): void => setEditing(!editing)}>Source</Button>}
-        <Button onClick={(): void => removeNode()}>Remove</Button>
-        {/* TODO support save snapshot time */}
-        {/* <Button onClick={() => {}}>Snapshot</Button> */}
-      </div>
-      {url && !editing && (
-        <BlockWithAlignableContents className={className} format={nodeFormat} nodeKey={nodeKey}>
-          {
-            <ResizableView
-              aspectRatio={ResizableRatioType.Flexible}
-              initialSize={{ width: width, height: height }}
-              onResized={(e, newWidth, newHeight): void => {
-                if (newWidth) {
-                  withIFrameNode((node) => node.setPartialOptions({ width: newWidth }))
-                }
-                if (newHeight) {
-                  withIFrameNode((node) => node.setPartialOptions({ height: newHeight }))
-                }
-              }}
-            >
-              <iframe width="100%" height="100%" src={`${url}`} allowFullScreen={true} />
-            </ResizableView>
-          }
-        </BlockWithAlignableContents>
-      )}
+  const layoutButtonItems = [
+    {
+      icon: <BsLayoutSidebarInset />,
+      label: 'start',
+      onClick: (e) =>
+        withIFrameNode((node) => {
+          node.setFormat('start')
+        })
+    },
+    {
+      icon: <BsSquare />,
+      label: 'center',
+      onClick: (e) =>
+        withIFrameNode((node) => {
+          node.setFormat('center')
+        })
+    },
+    {
+      icon: <BsLayoutSidebarInsetReverse />,
+      label: 'end',
+      onClick: (e) =>
+        withIFrameNode((node) => {
+          node.setFormat('end')
+        })
+    }
+  ]
 
-      {(!url || editing) && (
-        <IFramePlaceholder
-          defaultData={url}
-          onSave={(data): void => {
-            if (!data) {
-              return
-            }
-            editor.update(() => {
-              const node = $getNodeByKey(nodeKey)
-              if ($isIFrameNode(node)) {
-                node.setUrl(data)
-                setEditing(false)
-              }
-            })
+  const getMenuJustifyContentByFormat = (): string => {
+    if (nodeFormat === 'right' || nodeFormat === 'end') {
+      return 'end'
+    }
+    if (nodeFormat === 'center') {
+      return 'center'
+    }
+    return 'start'
+  }
+
+  const defaultLayoutActiveIndex = layoutButtonItems.findIndex((b) => b.label === nodeFormat)
+  return (
+    <BlockWithAlignableContents className={className} format={nodeFormat} nodeKey={nodeKey}>
+      <div ref={containerRef} className="embed-iframe-container" draggable={true}>
+        <div
+          className="embed-iframe-tool-menu"
+          style={{
+            justifyContent: getMenuJustifyContentByFormat()
           }}
-        />
-      )}
-    </div>
+        >
+          {!editing && url && (
+            <Button onClick={(e): void => setEditing(!editing)} icon={<BsCodeSquare />}>
+              source
+            </Button>
+          )}
+          <Button onClick={(): void => removeNode()} icon={<BsTrash3 />}>
+            <span>remove</span>
+          </Button>
+          <Divider direction="vertical"></Divider>
+          <RadioButtonGroup
+            items={layoutButtonItems}
+            defaultActiveIndex={defaultLayoutActiveIndex < 0 ? 0 : defaultLayoutActiveIndex}
+          ></RadioButtonGroup>
+          {/* TODO support save snapshot time */}
+          {/* <Button onClick={() => {}}>Snapshot</Button> */}
+        </div>
+        {url && !editing && (
+          <ResizableView
+            aspectRatio={ResizableRatioType.Flexible}
+            initialSize={{ width: width, height: height }}
+            onResized={(e, newWidth, newHeight): void => {
+              if (newWidth) {
+                withIFrameNode((node) => node.setPartialOptions({ width: newWidth }))
+              }
+              if (newHeight) {
+                withIFrameNode((node) => node.setPartialOptions({ height: newHeight }))
+              }
+            }}
+          >
+            <iframe width="100%" height="100%" src={`${url}`} allowFullScreen={true} />
+          </ResizableView>
+        )}
+
+        {(!url || editing) && (
+          <IFramePlaceholder
+            defaultData={url}
+            onSave={(data): void => {
+              if (!data) {
+                return
+              }
+              editor.update(() => {
+                const node = $getNodeByKey(nodeKey)
+                if ($isIFrameNode(node)) {
+                  node.setUrl(data)
+                  setEditing(false)
+                }
+              })
+            }}
+          />
+        )}
+      </div>
+    </BlockWithAlignableContents>
   )
 }
