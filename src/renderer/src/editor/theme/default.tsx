@@ -16,8 +16,8 @@ const theme: EditorThemeClasses = {
   characterLimit: 'PlaygroundEditorTheme__characterLimit',
   code: 'PlaygroundEditorTheme__code',
   embedBlock: {
-    base: 'PlaygroundEditorTheme__embedBlock',
-    focus: 'PlaygroundEditorTheme__embedBlockFocus'
+    base: 'EditorTheme__embedBlock',
+    focus: 'EditorTheme__embedBlockFocus'
   },
   hashtag: 'EditorTheme__hashtag',
   heading: {

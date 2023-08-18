@@ -17,6 +17,7 @@ import {
 } from 'react-icons/bs'
 import { RadioButtonGroup } from '@renderer/ui/RadioButtonGroup'
 import { Divider } from '@renderer/ui/Divider'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 
 export function ResizableIFrame(props: {
   url: string
@@ -148,6 +149,7 @@ export function ResizableIFrame(props: {
 
         {(!url || editing) && (
           <IFramePlaceholder
+            nodeKey={nodeKey}
             defaultData={url}
             onSave={(data): void => {
               if (!data) {
@@ -158,6 +160,15 @@ export function ResizableIFrame(props: {
                 if ($isIFrameNode(node)) {
                   node.setData(data)
                   setEditing(false)
+                }
+              })
+            }}
+            onDelete={(): void => {
+              editor.update(() => {
+                const node = $getNodeByKey(nodeKey)
+                if ($isIFrameNode(node)) {
+                  node.selectPrevious()
+                  node.remove()
                 }
               })
             }}

@@ -1,11 +1,15 @@
-import { ImEmbed } from 'react-icons/im'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import './index.css'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { NodeKey } from 'lexical'
 
 export default function IFramePlaceholder(props: {
+  nodeKey: NodeKey
   onSave: (data: string) => void
+  onDelete?: () => void
   defaultData?: string
 }): JSX.Element {
+  const [selected, setSelected, clearSelection] = useLexicalNodeSelection(props.nodeKey)
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const [editable, setEditable] = useState(false)
   const { onSave, defaultData } = props
@@ -14,10 +18,6 @@ export default function IFramePlaceholder(props: {
       textAreaRef.current?.focus()
     }
   }, [editable])
-
-  const isEditing = useCallback(() => {
-    return editable || defaultData
-  }, [defaultData, editable])
 
   const saveData = (): void => {
     if (textAreaRef.current) {
@@ -31,35 +31,38 @@ export default function IFramePlaceholder(props: {
       e.preventDefault()
       e.stopPropagation()
       e.target && (e.target as HTMLTextAreaElement).select()
+      return
+    }
+    console.log(e.key)
+    if (e.key === 'Backspace') {
+      if (textAreaRef.current && textAreaRef.current.value === '' && props.onDelete) {
+        e.stopPropagation()
+        e.preventDefault()
+        props.onDelete()
+      }
+      return
     }
   }
-  return (
-    <div
-      className={`iframe-placeholder ${isEditing() ? 'editing' : ''}`}
-      onClick={(): void => setEditable(true)}
-    >
-      {!isEditing() && (
-        <div className="iframe-placeholder-icon">
-          <ImEmbed />
-        </div>
-      )}
 
+  useEffect(() => {
+    if (selected && textAreaRef.current) {
+      textAreaRef.current.focus()
+    }
+  }, [selected])
+  return (
+    <div className={`iframe-placeholder`} onClick={(): void => setEditable(true)}>
       <div className="iframe-placeholder-content">
-        {isEditing() ? (
-          <div>
-            <textarea
-              ref={textAreaRef}
-              defaultValue={defaultData ? defaultData : ''}
-              placeholder="typing or paste url"
-              onKeyDown={(e): void => onTextAreaKeyDown(e)}
-            />
-            <button className="iframe-placeholder-save-button" onClick={(): void => saveData()}>
-              save
-            </button>
-          </div>
-        ) : (
-          <p>Click to embed &lt;IFrame&gt; tag or url</p>
-        )}
+        <div>
+          <textarea
+            ref={textAreaRef}
+            defaultValue={defaultData ? defaultData : ''}
+            placeholder="embed <iframe> tag or url"
+            onKeyDown={(e): void => onTextAreaKeyDown(e)}
+          />
+          <button className="iframe-placeholder-save-button" onClick={(): void => saveData()}>
+            save
+          </button>
+        </div>
       </div>
     </div>
   )

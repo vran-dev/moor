@@ -207,6 +207,9 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
             if ($isRangeSelection(selection)) {
               const node = $createIFrameNode()
               selection.insertNodes([node])
+              const ns = $createNodeSelection()
+              ns.add(node.getKey())
+              $setSelection(ns)
             }
           })
         },

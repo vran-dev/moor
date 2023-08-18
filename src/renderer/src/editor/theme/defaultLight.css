@@ -202,3 +202,10 @@
 .EditorTheme__nestedListItem:after {
   display: none;
 }
+
+.EditorTheme__embedBlock {
+  user-select: none;
+}
+
+.EditorTheme__embedBlockFocus {
+}
