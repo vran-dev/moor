@@ -2,7 +2,7 @@ import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
 import { $isIFrameNode, IFrameNode, IFrameOptions } from '.'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $getNodeByKey, ElementFormatType, NodeKey } from 'lexical'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents'
 import IFramePlaceholder from './components/Placeholder'
 import { Button } from '@renderer/ui/Button'
@@ -13,7 +13,6 @@ import {
   BsLayoutSidebarInset,
   BsLayoutSidebarInsetReverse,
   BsSquare,
-  BsTextareaResize,
   BsTrash3
 } from 'react-icons/bs'
 import { RadioButtonGroup } from '@renderer/ui/RadioButtonGroup'
@@ -32,6 +31,7 @@ export function ResizableIFrame(props: {
   const [editing, setEditing] = useState<boolean>(false)
   const [editor] = useLexicalComposerContext()
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
   const { width, height } = props.options
   const { nodeKey, className, nodeFormat, url } = props
 
@@ -56,23 +56,6 @@ export function ResizableIFrame(props: {
       node.remove()
     })
   }, [nodeKey])
-
-  // get focus when clicked
-  useEffect(() => {
-    if (!containerRef.current) {
-      return
-    }
-    const mouseClickHandler = (e: MouseEvent): void => {
-      if (!e.target || !(e.target as HTMLElement).closest('.embed-iframe-container')) {
-        return
-      }
-      containerRef.current?.focus()
-    }
-    document.addEventListener('mousedown', mouseClickHandler)
-    return () => {
-      document.removeEventListener('mousedown', mouseClickHandler)
-    }
-  }, [])
 
   const layoutButtonItems = [
     {
@@ -142,6 +125,7 @@ export function ResizableIFrame(props: {
             aspectRatio={ResizableRatioType.Flexible}
             initialSize={{ width: width, height: height }}
             onResized={(e, newWidth, newHeight): void => {
+              // containerRef.current?.focus()
               if (newWidth) {
                 withIFrameNode((node) => node.setPartialOptions({ width: newWidth }))
               }
@@ -150,7 +134,15 @@ export function ResizableIFrame(props: {
               }
             }}
           >
-            <iframe width="100%" height="100%" src={`${url}`} allowFullScreen={true} />
+            <iframe
+              width="100%"
+              height="100%"
+              ref={iframeRef}
+              src={`${url}`}
+              allowFullScreen={true}
+              frameBorder="0"
+              sandbox="allow-scripts allow-popups allow-forms allow-same-origin"
+            />
           </ResizableView>
         )}
 
