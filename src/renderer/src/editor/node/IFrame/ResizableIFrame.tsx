@@ -2,7 +2,7 @@ import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
 import { $isIFrameNode, IFrameNode, IFrameOptions } from '.'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $getNodeByKey, ElementFormatType, NodeKey } from 'lexical'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents'
 import IFramePlaceholder from './components/Placeholder'
 import { Button } from '@renderer/ui/Button'
@@ -46,6 +46,23 @@ export function ResizableIFrame(props: {
       node.remove()
     })
   }, [nodeKey])
+
+  // get focus when clicked
+  useEffect(() => {
+    if (!containerRef.current) {
+      return
+    }
+    const mouseClickHandler = (e: MouseEvent): void => {
+      if (!e.target || !(e.target as HTMLElement).closest('.embed-iframe-container')) {
+        return
+      }
+      containerRef.current?.focus()
+    }
+    containerRef.current.addEventListener('mousedown', mouseClickHandler)
+    return () => {
+      containerRef.current?.removeEventListener('mousedown', mouseClickHandler)
+    }
+  }, [])
 
   return (
     <div ref={containerRef} className="embed-iframe-container" draggable={true}>

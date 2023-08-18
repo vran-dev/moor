@@ -37,6 +37,7 @@ import {
 } from 'react-icons/ai'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { LuHeading1, LuHeading2, LuHeading3 } from 'react-icons/lu'
+import { ImEmbed } from 'react-icons/im'
 
 const ICON_SIZE = 20
 
@@ -198,7 +199,7 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
       ),
       new TypeaheadMenu(
         'Embed',
-        <AiOutlineFontSize {...ICON_PROPS} />,
+        <ImEmbed {...ICON_PROPS} />,
         'embed content from other sites',
         (editor: LexicalEditor) => {
           editor.update(() => {
