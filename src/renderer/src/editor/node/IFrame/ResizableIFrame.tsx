@@ -57,10 +57,11 @@ export function ResizableIFrame(props: {
         return
       }
       containerRef.current?.focus()
+      console.log('focus')
     }
-    containerRef.current.addEventListener('mousedown', mouseClickHandler)
+    document.addEventListener('mousedown', mouseClickHandler)
     return () => {
-      containerRef.current?.removeEventListener('mousedown', mouseClickHandler)
+      document.removeEventListener('mousedown', mouseClickHandler)
     }
   }, [])
 
