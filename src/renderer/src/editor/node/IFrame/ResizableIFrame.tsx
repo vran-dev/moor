@@ -29,7 +29,7 @@ export function ResizableIFrame(props: {
     focus: string
   }
 }): JSX.Element {
-  const [editing, setEditing] = useState<booolean>(false)
+  const [editing, setEditing] = useState<boolean>(false)
   const [editor] = useLexicalComposerContext()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const { width, height } = props.options
@@ -164,7 +164,7 @@ export function ResizableIFrame(props: {
               editor.update(() => {
                 const node = $getNodeByKey(nodeKey)
                 if ($isIFrameNode(node)) {
-                  node.setUrl(data)
+                  node.setData(data)
                   setEditing(false)
                 }
               })

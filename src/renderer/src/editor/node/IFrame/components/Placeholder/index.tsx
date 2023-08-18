@@ -27,7 +27,7 @@ export default function IFramePlaceholder(props: {
   }
 
   const onTextAreaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (e.key === 'a' && e.ctrlKey) {
+    if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       e.stopPropagation()
       e.target && (e.target as HTMLTextAreaElement).select()

@@ -22,7 +22,7 @@ export interface IFrameOptions {
 
 export type SerializedIFrameNode = Spread<
   {
-    url: string
+    data: string
     options: IFrameOptions
   },
   SerializedDecoratorBlockNode
@@ -43,11 +43,11 @@ export function converIFrameElement(domNode: HTMLElement): DOMConversionOutput |
 export const IFRAME_NODE_TYPE = 'iframe'
 
 export class IFrameNode extends DecoratorBlockNode {
-  __url: string
+  __data: string
   __options: IFrameOptions
 
   constructor(
-    url = '',
+    data = '',
     options: IFrameOptions = {
       width: 800,
       height: 600
@@ -55,7 +55,7 @@ export class IFrameNode extends DecoratorBlockNode {
     key?: NodeKey
   ) {
     super('start', key)
-    this.__url = url
+    this.__data = data
     this.__options = options
   }
 
@@ -64,11 +64,11 @@ export class IFrameNode extends DecoratorBlockNode {
   }
 
   static clone(node: IFrameNode): IFrameNode {
-    return new IFrameNode(node.getUrl(), node.getOptions(), node.getKey())
+    return new IFrameNode(node.getData(), node.getOptions(), node.getKey())
   }
 
   static importJSON(_serializedNode: SerializedIFrameNode): IFrameNode {
-    return new IFrameNode(_serializedNode.url, _serializedNode.options)
+    return new IFrameNode(_serializedNode.data, _serializedNode.options)
   }
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {
@@ -88,7 +88,7 @@ export class IFrameNode extends DecoratorBlockNode {
   exportJSON(): SerializedIFrameNode {
     return {
       ...super.exportJSON(),
-      url: this.__url,
+      data: this.__data,
       options: this.__options,
       type: IFRAME_NODE_TYPE,
       version: 1
@@ -97,10 +97,10 @@ export class IFrameNode extends DecoratorBlockNode {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const element = document.createElement('iframe')
-    element.setAttribute('data-lexical-iframe-url', this.__url)
+    element.setAttribute('data-lexical-iframe-url', this.__data)
     element.setAttribute('width', `${this.__options.width}px`)
     element.setAttribute('height', `${this.__options.height}px`)
-    element.setAttribute('src', `${this.__url}`)
+    element.setAttribute('src', `${this.__data}`)
     element.setAttribute('frameborder', '0')
     element.setAttribute(
       'allow',
@@ -110,13 +110,13 @@ export class IFrameNode extends DecoratorBlockNode {
     return { element }
   }
 
-  setUrl(url: string): void {
+  setData(data: string): void {
     const self = this.getWritable()
-    self.__url = url
+    self.__data = data
   }
 
-  getUrl(): string {
-    return this.__url
+  getData(): string {
+    return this.__data
   }
 
   setOptions(options: IFrameOptions): void {
@@ -152,13 +152,28 @@ export class IFrameNode extends DecoratorBlockNode {
     }
     return (
       <ResizableIFrame
-        url={this.__url}
+        url={this.extractUrlFromData()}
         options={this.__options}
         className={className}
         nodeFormat={this.__format}
         nodeKey={this.__key}
       ></ResizableIFrame>
     )
+  }
+
+  extractUrlFromData(): string {
+    if ($isIFrameTag(this.__data)) {
+      const regex = /<iframe\b[^>]*\bsrc\s*=\s*(['"]?)(.*?)\1[^>]*>/i
+      const match = regex.exec(this.__data)
+      if (match) {
+        const src = match[2]
+        return src
+      }
+      console.warn('can not extract url from iframe')
+      return ''
+    } else {
+      return this.__data
+    }
   }
 }
 
@@ -168,4 +183,9 @@ export function $createIFrameNode(): IFrameNode {
 
 export function $isIFrameNode(node: LexicalNode | null): node is IFrameNode {
   return node instanceof IFrameNode
+}
+
+export function $isIFrameTag(data: string): boolean {
+  const regex = /^<iframe\b[^>]*>[^<]*<\/iframe>$/
+  return regex.test(data)
 }
