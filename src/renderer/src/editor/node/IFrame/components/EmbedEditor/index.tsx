@@ -3,7 +3,7 @@ import './index.css'
 import { useEffect, useRef, useState } from 'react'
 import { NodeKey } from 'lexical'
 
-export default function IFramePlaceholder(props: {
+export default function EmbedEditor(props: {
   nodeKey: NodeKey
   onSave: (data: string) => void
   onDelete?: () => void
@@ -33,14 +33,12 @@ export default function IFramePlaceholder(props: {
       e.target && (e.target as HTMLTextAreaElement).select()
       return
     }
-    console.log(e.key)
     if (e.key === 'Backspace') {
+      setSelected(false)
       if (textAreaRef.current && textAreaRef.current.value === '' && props.onDelete) {
-        e.stopPropagation()
-        e.preventDefault()
+        console.log(textAreaRef.current.value)
         props.onDelete()
       }
-      return
     }
   }
 

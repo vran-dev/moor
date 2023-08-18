@@ -1,0 +1,32 @@
+.embed-loading-container {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  border-color: #DDDDDD;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 8px;
+  user-select: none;
+}
+
+.embed-loading-container:hover {
+  background-color: var(--highlight-color);
+}
+
+.embed-loading-container .embed-loading-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.embed-loading-container .embed-loading-message {
+  font-size: 14px;
+  line-height: 20px;
+  color: #131313; 
+  vertical-align: middle;
+}

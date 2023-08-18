@@ -25,6 +25,7 @@ export interface ResizableHandleProps {
   onResizing?: (e: MouseEvent, width: number | null, height: number | null) => void
   onResized?: (e: MouseEvent, width: number | null, height: number | null) => void
   children?: React.ReactNode
+  attrs?: { [key: string]: any }
 }
 
 export interface OptionShape {
@@ -187,6 +188,7 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
       onMouseOver={(): void => setHandleVisibe()}
       onMouseOut={(): void => setHandleInvisible()}
       ref={resizableViewRef}
+      {...props.attrs}
     >
       {types.map((type, index) => {
         const handleRef = useRef(null)
