@@ -1,7 +1,8 @@
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import './index.css'
 import { useEffect, useRef, useState } from 'react'
-import { NodeKey } from 'lexical'
+import { $getSelection, $isNodeSelection, NodeKey, NodeSelection } from 'lexical'
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 
 export default function EmbedEditor(props: {
   nodeKey: NodeKey
@@ -9,6 +10,7 @@ export default function EmbedEditor(props: {
   onDelete?: () => void
   defaultData?: string
 }): JSX.Element {
+  const [editor] = useLexicalComposerContext()
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(props.nodeKey)
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const [editable, setEditable] = useState(false)
@@ -30,22 +32,29 @@ export default function EmbedEditor(props: {
     if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       e.stopPropagation()
+      console.log(e.target)
       e.target && (e.target as HTMLTextAreaElement).select()
       return
     }
     if (e.key === 'Backspace') {
       setSelected(false)
       if (textAreaRef.current && textAreaRef.current.value === '' && props.onDelete) {
-        console.log(textAreaRef.current.value)
         props.onDelete()
       }
     }
   }
 
   useEffect(() => {
-    if (selected && textAreaRef.current) {
-      textAreaRef.current.focus()
-    }
+    editor.getEditorState().read(() => {
+      const selection = $getSelection
+      if ($isNodeSelection(selection)) {
+        const nodeSelection = selection as NodeSelection
+        const selectedNodes = nodeSelection.getNodes()
+        if (selectedNodes.length == 1 && selected && textAreaRef.current) {
+          textAreaRef.current.focus()
+        }
+      }
+    })
   }, [selected])
   return (
     <div className={`iframe-placeholder`} onClick={(): void => setEditable(true)}>
