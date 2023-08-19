@@ -6,9 +6,15 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { Button } from '@renderer/ui/Button'
 import { BsWindow } from 'react-icons/bs'
 import useShortcut from '@renderer/editor/utils/useShortcut'
+
+const hasString = (str: string | null | undefined): boolean => {
+  return str !== null && str !== undefined && str !== ''
+}
+
 export default function EmbedEditor(props: {
   nodeKey: NodeKey
   onSave: (data: string) => void
+  onEditCancel?: () => void
   onDelete?: () => void
   defaultData?: string
 }): JSX.Element {
@@ -16,7 +22,7 @@ export default function EmbedEditor(props: {
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(props.nodeKey)
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const iframeEditorContainerRef = useRef<HTMLDivElement>(null)
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(hasString(props.defaultData))
   const { onSave, defaultData } = props
   useEffect(() => {
     if (editing) {
@@ -96,6 +102,7 @@ export default function EmbedEditor(props: {
                 e.preventDefault()
                 e.stopPropagation()
                 setEditing(false)
+                props.onEditCancel?.()
               }}
             >
               cancel

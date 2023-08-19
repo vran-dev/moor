@@ -59,7 +59,8 @@
   border: none;
   background-color: transparent;
   font-size: 14px;
-  user-select: text;
   resize:vertical;
+  user-select: auto;
+  caret-color: #131313;
 }
 

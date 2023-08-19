@@ -179,8 +179,8 @@ export class IFrameNode extends DecoratorBlockNode {
   }
 }
 
-export function $createIFrameNode(): IFrameNode {
-  return new IFrameNode()
+export function $createIFrameNode(data?: string): IFrameNode {
+  return new IFrameNode(data)
 }
 
 export function $isIFrameNode(node: LexicalNode | null): node is IFrameNode {

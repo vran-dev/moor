@@ -84,6 +84,8 @@
   border: none;
   background-color: transparent;
   height: 24px;
+  user-select: auto;
+  caret-color: #131313;
 }
 
 .image-uploader-error {
