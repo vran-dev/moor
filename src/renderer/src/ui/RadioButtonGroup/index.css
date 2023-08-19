@@ -11,14 +11,13 @@
     display: flex;
     flex-direction: row;
     gap: 6px;
-    padding: 6px;
-}
-
-.radio-button-group button:hover {
-    background-color: var(--highlight-color);
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 .radio-button-group button.active {
-    background-color: var(--highlight-color);
-    color: var(--highlight-text-color);
+    background-color: #aaaaaa;
+    color: #131313;
 }

@@ -56,8 +56,8 @@ export default function EmbedEditor(props: {
     })
   }, [selected])
   return (
-    <div className={`iframe-placeholder`} onClick={(): void => setEditable(true)}>
-      <div className="iframe-placeholder-content">
+    <div className={`iframe-editor`} onClick={(): void => setEditable(true)}>
+      <div className="iframe-editor-content">
         <div>
           <textarea
             ref={textAreaRef}
@@ -65,7 +65,7 @@ export default function EmbedEditor(props: {
             placeholder="embed <iframe> tag or url"
             onKeyDown={(e): void => onTextAreaKeyDown(e)}
           />
-          <button className="iframe-placeholder-save-button" onClick={(): void => saveData()}>
+          <button className="iframe-editor-save-button" onClick={(): void => saveData()}>
             save
           </button>
         </div>

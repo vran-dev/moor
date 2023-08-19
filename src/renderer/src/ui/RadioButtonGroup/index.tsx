@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './index.css'
+import { Button } from '../Button'
 export interface ButtonItem {
   label?: string
   icon?: JSX.Element
@@ -19,14 +20,15 @@ export function RadioButtonGroup(props: {
     <div className="radio-button-group">
       {props.items.map((child, index) => {
         return (
-          <button
+          <Button
             key={index}
             onClick={(e): void => onClick(e, child, index)}
+            type="dark"
             className={`${activeIndex == index ? 'active' : ''}`}
+            icon={child.icon}
           >
-            {child.icon && <span>{child.icon}</span>}
             {child.label && <span>{child.label}</span>}
-          </button>
+          </Button>
         )
       })}
     </div>

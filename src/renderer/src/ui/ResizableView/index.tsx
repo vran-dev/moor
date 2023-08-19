@@ -233,7 +233,7 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
     }
     e.preventDefault()
     setIsShow(true)
-    resizableViewRef.current.dataset.dragging = 'false'
+    resizableViewRef.current.dataset.dragging = 'true'
     // initialize start point & size
     resizableViewRef.current.style.pointerEvents = 'none'
     const startX = e.pageX
@@ -281,7 +281,7 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
       e.preventDefault()
       if (resizableViewRef.current) {
         resizableViewRef.current.style.pointerEvents = 'auto'
-        resizableViewRef.current.dataset.dragging = 'true'
+        resizableViewRef.current.dataset.dragging = ''
       }
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
@@ -326,7 +326,6 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
         verticalAlign: 'bottom',
         display: 'inline-block',
         lineHeight: '0',
-        zIndex: 100,
         transition: 'width 0.15s ease-out, height 0.15s ease-out',
         width: `${props.initialSize.width}px`,
         height: `${props.initialSize.height ? props.initialSize.height + 'px' : 'inherit'}`
@@ -334,7 +333,11 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
       onMouseOver={(): void => {
         setIsShow(true)
       }}
-      onMouseOut={(): void => setIsShow(false)}
+      onMouseOut={(): void => {
+        if (resizableViewRef.current?.dataset.dragging !== 'true') {
+          setIsShow(false)
+        }
+      }}
       ref={resizableViewRef}
       {...props.attrs}
     >

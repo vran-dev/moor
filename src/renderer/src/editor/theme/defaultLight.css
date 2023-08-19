@@ -205,6 +205,8 @@
 
 .EditorTheme__embedBlock {
   user-select: none;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 .EditorTheme__embedBlockFocus {

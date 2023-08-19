@@ -17,6 +17,8 @@ import {
 } from 'react-icons/bs'
 import { RadioButtonGroup } from '@renderer/ui/RadioButtonGroup'
 import { Divider } from '@renderer/ui/Divider'
+import { offset, useDismiss, useFloating, useHover, useInteractions } from '@floating-ui/react'
+import { VirtualSelect } from '@renderer/ui/Select'
 
 function isEmptyString(str: string | null | undefined): boolean {
   return str === null || str === undefined || str === ''
@@ -69,30 +71,56 @@ export function ResizableIFrame(props: {
     return status === 'error'
   }, [status])
 
+  const [showToollMenu, setShowTollMenu] = useState(false)
+  const { refs, floatingStyles, context } = useFloating({
+    open: showToollMenu,
+    onOpenChange: setShowTollMenu,
+    placement: 'top-end',
+    middleware: [offset(-35)]
+  })
+  const hover = useHover(context, {
+    move: false
+  })
+  const dismiss = useDismiss(context)
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, dismiss])
+
   return (
     <BlockWithAlignableContents className={className} format={nodeFormat} nodeKey={nodeKey}>
-      <div ref={containerRef} className="embed-iframe-container" draggable={true}>
-        <ToolMenu editor={editor} nodeKey={nodeKey} nodeFormat={nodeFormat}>
-          {!isEditing() && (
-            <Button onClick={(e): void => setStatus('editing')} icon={<BsCodeSquare />}>
-              source
-            </Button>
-          )}
-        </ToolMenu>
-        {(isSuccess() || isLoading()) && (
-          <ResizableView
-            aspectRatio={ResizableRatioType.Flexible}
-            initialSize={{ width: width, height: height }}
-            onResized={(e, newWidth, newHeight): void => {
-              // containerRef.current?.focus()
-              if (newWidth) {
-                withIFrameNode((node: IFrameNode) => node.setPartialOptions({ width: newWidth }))
-              }
-              if (newHeight) {
-                withIFrameNode((node: IFrameNode) => node.setPartialOptions({ height: newHeight }))
-              }
-            }}
-          >
+      {(isSuccess() || isLoading()) && (
+        <ResizableView
+          aspectRatio={ResizableRatioType.Flexible}
+          initialSize={{ width: width, height: height }}
+          onResized={(e, newWidth, newHeight): void => {
+            // containerRef.current?.focus()
+            if (newWidth) {
+              withIFrameNode((node: IFrameNode) => node.setPartialOptions({ width: newWidth }))
+            }
+            if (newHeight) {
+              withIFrameNode((node: IFrameNode) => node.setPartialOptions({ height: newHeight }))
+            }
+          }}
+        >
+          <div ref={refs.setReference} {...getReferenceProps()} className="embed-iframe-container">
+            {showToollMenu && (
+              <div
+                ref={refs.setFloating}
+                style={{
+                  zIndex: 9999,
+                  ...floatingStyles
+                }}
+                {...getFloatingProps()}
+              >
+                <ToolMenu editor={editor} nodeKey={nodeKey} nodeFormat={nodeFormat}>
+                  {!isEditing() && (
+                    <Button
+                      onClick={(e): void => setStatus('editing')}
+                      icon={<BsCodeSquare />}
+                      type="dark"
+                    ></Button>
+                  )}
+                </ToolMenu>
+              </div>
+            )}
             <iframe
               width="100%"
               height="100%"
@@ -107,37 +135,37 @@ export function ResizableIFrame(props: {
               allowFullScreen={true}
               sandbox="allow-scripts allow-popups allow-forms allow-same-origin"
             />
-          </ResizableView>
-        )}
+          </div>
+        </ResizableView>
+      )}
 
-        {isEditing() && (
-          <EmbedEditor
-            nodeKey={nodeKey}
-            defaultData={url}
-            onSave={(data): void => {
-              if (!data) {
-                return
+      {isEditing() && (
+        <EmbedEditor
+          nodeKey={nodeKey}
+          defaultData={url}
+          onSave={(data): void => {
+            if (!data) {
+              return
+            }
+            setStatus('loading')
+            editor.update(() => {
+              const node = $getNodeByKey(nodeKey)
+              if ($isIFrameNode(node)) {
+                node.setData(data)
               }
-              setStatus('loading')
-              editor.update(() => {
-                const node = $getNodeByKey(nodeKey)
-                if ($isIFrameNode(node)) {
-                  node.setData(data)
-                }
-              })
-            }}
-            onDelete={(): void => {
-              editor.update(() => {
-                const node = $getNodeByKey(nodeKey)
-                if ($isIFrameNode(node)) {
-                  node.selectPrevious()
-                  node.remove()
-                }
-              })
-            }}
-          />
-        )}
-      </div>
+            })
+          }}
+          onDelete={(): void => {
+            editor.update(() => {
+              const node = $getNodeByKey(nodeKey)
+              if ($isIFrameNode(node)) {
+                node.selectPrevious()
+                node.remove()
+              }
+            })
+          }}
+        />
+      )}
     </BlockWithAlignableContents>
   )
 }
@@ -167,27 +195,30 @@ function ToolMenu(props: {
     })
   }, [nodeKey])
 
-  const layoutButtonItems = [
+  const layoutSelectItems = [
     {
       icon: <BsLayoutSidebarInset />,
-      label: 'start',
-      onClick: (e) =>
+      name: 'start',
+      value: 'start',
+      onSelect: () =>
         withIFrameNode((node: IFrameNode) => {
           node.setFormat('start')
         })
     },
     {
       icon: <BsSquare />,
-      label: 'center',
-      onClick: (e) =>
+      name: 'center',
+      value: 'center',
+      onSelect: () =>
         withIFrameNode((node: IFrameNode) => {
           node.setFormat('center')
         })
     },
     {
       icon: <BsLayoutSidebarInsetReverse />,
-      label: 'end',
-      onClick: (e) =>
+      name: 'end',
+      value: 'end',
+      onSelect: () =>
         withIFrameNode((node: IFrameNode) => {
           node.setFormat('end')
         })
@@ -203,7 +234,7 @@ function ToolMenu(props: {
     }
     return 'start'
   }
-  const defaultLayoutActiveIndex = layoutButtonItems.findIndex((b) => b.label === nodeFormat)
+  const defaultLayoutActiveIndex = layoutSelectItems.findIndex((b) => b.value === nodeFormat)
 
   return (
     <div
@@ -213,14 +244,15 @@ function ToolMenu(props: {
       }}
     >
       {children}
-      <Button onClick={(): void => removeNode()} icon={<BsTrash3 />}>
-        <span>remove</span>
-      </Button>
+      <Button onClick={(): void => removeNode()} icon={<BsTrash3 />} type="dark"></Button>
       <Divider direction="vertical"></Divider>
-      <RadioButtonGroup
-        items={layoutButtonItems}
-        defaultActiveIndex={defaultLayoutActiveIndex < 0 ? 0 : defaultLayoutActiveIndex}
-      ></RadioButtonGroup>
+      <VirtualSelect
+        options={layoutSelectItems}
+        defaultIndex={defaultLayoutActiveIndex < 0 ? 0 : defaultLayoutActiveIndex}
+        onSelect={(option): void => option.onSelect?.()}
+        className="layout-select"
+        theme="dark"
+      />
       {/* TODO support save snapshot time */}
       {/* <Button onClick={() => {}}>Snapshot</Button> */}
     </div>

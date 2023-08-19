@@ -41,6 +41,7 @@ export function LayoutSelect(props: {
       options={options}
       defaultIndex={defaultIndex}
       onSelect={(option): void => props.onChange(option)}
+      mainMinWidth="150px"
     />
   )
 }

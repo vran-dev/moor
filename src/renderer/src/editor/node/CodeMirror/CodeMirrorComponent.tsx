@@ -514,6 +514,7 @@ export function CodeMirrorComponent(props: {
           onSelect={(option): void => onLanguageChange(option)}
           defaultIndex={languageOptions.findIndex((item) => item.value === language)}
           filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
+          mainMinWidth="200px"
         />
         {selectLanguage && selectLanguage.preview && (
           <LayoutSelect onChange={(option): void => onLayoutChange(option.value)} layout={layout} />

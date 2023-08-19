@@ -6,6 +6,7 @@ export interface SelectOption {
   value: string
   name: string
   icon?: JSX.Element
+  onSelect?: () => void
 }
 
 export interface SelectProps<T extends SelectOption> {
@@ -13,6 +14,9 @@ export interface SelectProps<T extends SelectOption> {
   defaultIndex?: number
   filter?: (query: string, option: T) => boolean
   onSelect?: (option: SelectOption) => void
+  theme?: 'light' | 'dark'
+  className?: string
+  mainMinWidth?: string
 }
 
 export const updateScrollView = (container: HTMLElement, item: HTMLElement): void => {
@@ -135,21 +139,40 @@ export function VirtualSelect<T extends SelectOption>(props: SelectProps<T>): JS
     }
   }, [activeIndex])
 
+  const getThemeClassName = (): string => {
+    if (props.theme === 'dark') {
+      return 'dark'
+    }
+    return 'light'
+  }
+
   return (
-    <div className="select-container" onClick={toggleSelect} ref={selectContainerRef}>
-      <div className={`select-header ${isActive ? 'active' : ''} `}>
+    <div
+      className={`select-container ${
+        props.className ? props.className : ''
+      } ${getThemeClassName()}`}
+      onClick={toggleSelect}
+      ref={selectContainerRef}
+    >
+      <div className={`select-header ${getThemeClassName()} ${isActive ? 'active' : ''} `}>
+        <span className={`select-header-icon`}>{props.options[defaultIndex || 0]?.icon}</span>
         <span>{props.options[defaultIndex || 0]?.name || ''}</span>
         <button className="select-caret" onClick={toggleSelect}>
           <AiOutlineDown />
         </button>
       </div>
-      <div className={`select-main ${isActive ? 'active' : ''}`}>
+      <div
+        className={`select-main ${getThemeClassName()} ${isActive ? 'active' : ''}`}
+        style={{
+          minWidth: props.mainMinWidth ? props.mainMinWidth : '100%'
+        }}
+      >
         {props.filter && (
           <div>
             <input
               type="text"
               placeholder={props.options[defaultIndex || 0]?.name || 'type to search'}
-              className="select-input"
+              className={`select-input ${getThemeClassName()}`}
               ref={inputRef}
               onClick={(e): void => e.stopPropagation()}
               disabled={filter ? false : true}
@@ -158,17 +181,21 @@ export function VirtualSelect<T extends SelectOption>(props: SelectProps<T>): JS
           </div>
         )}
 
-        <div className={`select-options`} ref={selectOptionsRef}>
+        <div className={`select-options ${getThemeClassName()}`} ref={selectOptionsRef}>
           {options.map((option, index) => (
             <button
               key={index}
               value={option.value}
-              className={`select-option ${index == activeIndex ? 'active' : ''}`}
+              className={`select-option ${getThemeClassName()} ${
+                index == activeIndex ? 'active' : ''
+              }`}
               onMouseEnter={(): void => changeActiveIndex(index)}
               onClick={(e): void => changeDefaultIndex(option)}
             >
-              <span className="select-option-icon">{option.icon ? option.icon : ''}</span>
-              <span className="select-option-name">{option.name}</span>
+              <span className={`select-option-icon ${getThemeClassName()}`}>
+                {option.icon ? option.icon : ''}
+              </span>
+              <span className={`select-option-name ${getThemeClassName()}`}>{option.name}</span>
             </button>
           ))}
         </div>

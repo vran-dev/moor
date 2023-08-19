@@ -1,13 +1,32 @@
 .text-button {
   border-radius: 6px;
-  padding: 6px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  gap: 6px;
   display: flex;
   flex-direction: row;
-  gap: 6px;
   align-items: center;
   text-align: center;
 }
 
 .text-button:hover {
   background-color: var(--highlight-color);
+}
+
+.dark-button {
+  border-radius: 6px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  gap: 6px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #ededed;
+  opacity: 1;
+}
+
+.dark-button:hover {
+  background-color: #252529;
 }
