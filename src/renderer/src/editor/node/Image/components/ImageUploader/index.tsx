@@ -1,6 +1,6 @@
 import { BsImage } from 'react-icons/bs'
 import './index.css'
-import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@renderer/ui/Button'
 import { $getNodeByKey, NodeKey } from 'lexical'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
@@ -8,6 +8,7 @@ import { $isImageNode, ImageNode } from '../..'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { AiOutlineWarning } from 'react-icons/ai'
 import useShortcut from '@renderer/editor/utils/useShortcut'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 
 export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
   const [editing, setEditing] = useState<boolean>(false)
@@ -15,6 +16,7 @@ export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null)
   const imageUploaderContainerRef = useRef<HTMLDivElement>(null)
   const [errMessage, setErrMessage] = useState<string | null>(null)
+  const [selected, setSelected, clearSelection] = useLexicalNodeSelection(props.nodeKey)
   const [editor] = useLexicalComposerContext()
   const { nodeKey } = props
   const withImageNode = useDebounce(
@@ -95,12 +97,23 @@ export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
         e.stopPropagation()
         inputRef.current.select()
       }
+    },
+    Backspace: (e: KeyboardEvent) => {
+      setSelected(false)
+      if (inputRef.current && inputRef.current.value === '') {
+        withImageNode((node: ImageNode) => {
+          node.selectPrevious()
+          node.remove()
+        })
+      }
     }
   })
 
   return (
     <div
-      className={`image-uploader-container ${dragging ? 'dragging' : ''}`}
+      className={`image-uploader-container ${dragging ? 'dragging' : ''} ${
+        editing ? 'editing' : ''
+      }`}
       onClick={(e): void => {
         if (!editing) {
           setEditing(true)
@@ -184,13 +197,13 @@ function Placeholder(props: { errMessage?: string | null; isEditing: boolean }):
   return (
     <>
       <span className="image-uploader-text">
-        +Drop image here /{' '}
+        drop image here /{' '}
         <button
           onClick={(e): void => {
             onChooseFile(e)
           }}
         >
-          or Choose a file
+          or Choose a file [TD]
         </button>{' '}
         &nbsp;/ or Click to typing url
       </span>
