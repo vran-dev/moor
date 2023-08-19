@@ -26,10 +26,10 @@ import {
 } from '@lexical/react/LexicalDecoratorBlockNode'
 
 export interface ImagePayload {
-  altText: string
+  altText?: string
   height?: number
   key?: NodeKey
-  src: string
+  src?: string
   width?: number
 }
 
@@ -53,10 +53,10 @@ export type SerializedImageNode = Spread<
 >
 
 export class ImageNode extends DecoratorBlockNode {
-  __src: string
-  __altText: string
-  __width: number
-  __height: number | undefined
+  __src?: string
+  __altText?: string
+  __width?: number
+  __height?: number | undefined
   static getType(): string {
     return 'image'
   }
@@ -78,9 +78,9 @@ export class ImageNode extends DecoratorBlockNode {
 
   exportDOM(): DOMExportOutput {
     const element = document.createElement('img')
-    element.setAttribute('src', this.__src)
-    element.setAttribute('alt', this.__altText)
-    element.setAttribute('width', this.__width.toString())
+    element.setAttribute('src', this.__src || '')
+    element.setAttribute('alt', this.__altText || '')
+    element.setAttribute('width', this.__width?.toString() || '')
     element.setAttribute('height', this.__height ? this.__height.toString() : '')
     return { element }
   }
@@ -94,11 +94,11 @@ export class ImageNode extends DecoratorBlockNode {
     }
   }
 
-  constructor(src: string, altText: string, width?: number, height?: number, key?: NodeKey) {
+  constructor(src?: string, altText?: string, width?: number, height?: number, key?: NodeKey) {
     super('start', key)
     this.__src = src
     this.__altText = altText
-    this.__width = width ? width : 200
+    this.__width = width
     this.__height = height
   }
 
@@ -120,6 +120,11 @@ export class ImageNode extends DecoratorBlockNode {
     writable.__height = height
   }
 
+  setSrc(src: string): void {
+    const writable = this.getWritable()
+    writable.__src = src
+  }
+
   updateDOM(): false {
     return false
   }
@@ -132,20 +137,28 @@ export class ImageNode extends DecoratorBlockNode {
     return this.__altText
   }
 
-  decorate(): JSX.Element {
+  decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
+    const embedBlockTheme = config.theme.embedBlock || {}
+    const className = {
+      base: embedBlockTheme.base || '',
+      focus: embedBlockTheme.focus || ''
+    }
     return (
       <ImageComponent
         src={this.__src}
-        altText={this.__altText}
+        altText={this.__altText || ''}
         width={this.__width}
         height={this.__height}
         nodeKey={this.getKey()}
+        className={className}
+        format={this.__format}
       />
     )
   }
 }
 
-export function $createImageNode({ altText, height, src, width, key }: ImagePayload): ImageNode {
+export function $createImageNode(options?: ImagePayload): ImageNode {
+  const { altText, height, key, src, width } = options || {}
   return $applyNodeReplacement(new ImageNode(src, altText, width, height, key))
 }
 

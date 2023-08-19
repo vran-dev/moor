@@ -20,7 +20,7 @@ const MIN_WIDTH = 50
 
 export interface ResizableHandleProps {
   aspectRatio?: ResizableRatioType
-  initialSize: { width: number; height?: number }
+  initialSize: { width?: number; height?: number }
   options?: OptionShape
   onResizing?: (e: MouseEvent, width: number | null, height: number | null) => void
   onResized?: (e: MouseEvent, width: number | null, height: number | null) => void
@@ -327,7 +327,7 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
         display: 'inline-block',
         lineHeight: '0',
         transition: 'width 0.15s ease-out, height 0.15s ease-out',
-        width: `${props.initialSize.width}px`,
+        width: `${props.initialSize.width ? props.initialSize.width + 'px' : 'inherit'}`,
         height: `${props.initialSize.height ? props.initialSize.height + 'px' : 'inherit'}`
       }}
       onMouseOver={(): void => {

@@ -27,6 +27,7 @@ import { SlashTypeaheadPlugin } from './plugins/TypeaheadSlashPlugin'
 import { EmojiTypeaheadPlugin } from './plugins/TypeaheadEmojiPlugin'
 import { CodeLanguageTypeaheadPlugin } from './plugins/TypeaheadCodeLanguagePlugin'
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin'
+import ImageDragDropPaste from './plugins/ImageDragDropPastePlugin'
 
 function onError(error) {
   console.error(error)
@@ -79,6 +80,7 @@ export function Editor() {
         <FloatingLinkEditorPlugin />
         <SlashTypeaheadPlugin />
         <CodeLanguageTypeaheadPlugin />
+        <ImageDragDropPaste />
         <EmojiTypeaheadPlugin />
         <OnChangePlugin onChange={onChange} />
         {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}

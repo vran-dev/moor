@@ -27,7 +27,8 @@
 }
 
 .codeblock-container {
-  background-color: #fbfbfe;
+  /* background-color: #fbfbfe; */
+  background-color: #fbfbfb;
   padding-left: 12px;
   padding-right: 12px;
   padding-top: 24px;
@@ -53,7 +54,6 @@
   background-color: #FFFFFF;
   padding: 5px;
   margin: 20px auto;
-  border: 2px solid #E0E0E0;
   text-align: center;
 }
 
