@@ -38,6 +38,7 @@ import {
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { LuHeading1, LuHeading2, LuHeading3 } from 'react-icons/lu'
 import { ImEmbed } from 'react-icons/im'
+import { $createImageNode } from '@renderer/editor/node/Image'
 
 const ICON_SIZE = 20
 
@@ -170,6 +171,23 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
               // }
             }
           })
+        }
+      ),
+      new TypeaheadMenu(
+        'Image',
+        <AiOutlineSmile {...ICON_PROPS} />,
+        'select emoji from picker',
+        (editor: LexicalEditor) => {
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            const textNode = $createImageNode({
+              src: 'https://picsum.photos/200/300',
+              altText: 'alt text',
+              width: 200,
+              height: 300
+            })
+            selection.insertNodes([textNode])
+          }
         }
       ),
       new TypeaheadMenu(
