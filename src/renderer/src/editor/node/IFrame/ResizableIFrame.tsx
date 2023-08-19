@@ -86,10 +86,10 @@ export function ResizableIFrame(props: {
             onResized={(e, newWidth, newHeight): void => {
               // containerRef.current?.focus()
               if (newWidth) {
-                withIFrameNode((node) => node.setPartialOptions({ width: newWidth }))
+                withIFrameNode((node: IFrameNode) => node.setPartialOptions({ width: newWidth }))
               }
               if (newHeight) {
-                withIFrameNode((node) => node.setPartialOptions({ height: newHeight }))
+                withIFrameNode((node: IFrameNode) => node.setPartialOptions({ height: newHeight }))
               }
             }}
           >
@@ -149,21 +149,17 @@ function ToolMenu(props: {
   children?: React.ReactNode
 }): JSX.Element {
   const { editor, nodeKey, nodeFormat, children } = props
-  const withIFrameNode = useDebounce(
-    (callback: (node: IFrameNode) => void, onUpdate?: () => void): void => {
-      editor.update(
-        () => {
-          const node = $getNodeByKey(nodeKey)
-          if ($isIFrameNode(node)) {
-            callback(node)
-          }
-        },
-        { onUpdate }
-      )
-    },
-    50,
-    1000
-  )
+  const withIFrameNode = (callback: (node: IFrameNode) => void, onUpdate?: () => void): void => {
+    editor.update(
+      () => {
+        const node = $getNodeByKey(nodeKey)
+        if ($isIFrameNode(node)) {
+          callback(node)
+        }
+      },
+      { onUpdate }
+    )
+  }
 
   const removeNode = useCallback(() => {
     withIFrameNode((node) => {
@@ -176,7 +172,7 @@ function ToolMenu(props: {
       icon: <BsLayoutSidebarInset />,
       label: 'start',
       onClick: (e) =>
-        withIFrameNode((node) => {
+        withIFrameNode((node: IFrameNode) => {
           node.setFormat('start')
         })
     },
@@ -184,7 +180,7 @@ function ToolMenu(props: {
       icon: <BsSquare />,
       label: 'center',
       onClick: (e) =>
-        withIFrameNode((node) => {
+        withIFrameNode((node: IFrameNode) => {
           node.setFormat('center')
         })
     },
@@ -192,7 +188,7 @@ function ToolMenu(props: {
       icon: <BsLayoutSidebarInsetReverse />,
       label: 'end',
       onClick: (e) =>
-        withIFrameNode((node) => {
+        withIFrameNode((node: IFrameNode) => {
           node.setFormat('end')
         })
     }

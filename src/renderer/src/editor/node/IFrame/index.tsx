@@ -3,6 +3,7 @@ import {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
+  ElementFormatType,
   LexicalEditor,
   LexicalNode,
   NodeKey,
@@ -52,9 +53,10 @@ export class IFrameNode extends DecoratorBlockNode {
       width: 800,
       height: 600
     },
-    key?: NodeKey
+    key?: NodeKey,
+    format?: ElementFormatType
   ) {
-    super('start', key)
+    super(format, key)
     this.__data = data
     this.__options = options
   }
@@ -64,7 +66,7 @@ export class IFrameNode extends DecoratorBlockNode {
   }
 
   static clone(node: IFrameNode): IFrameNode {
-    return new IFrameNode(node.getData(), node.getOptions(), node.getKey())
+    return new IFrameNode(node.getData(), node.getOptions(), node.getKey(), node.__format)
   }
 
   static importJSON(_serializedNode: SerializedIFrameNode): IFrameNode {
@@ -97,10 +99,10 @@ export class IFrameNode extends DecoratorBlockNode {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const element = document.createElement('iframe')
-    element.setAttribute('data-lexical-iframe-url', this.__data)
+    element.setAttribute('data-lexical-iframe-url', this.extractUrlFromData())
     element.setAttribute('width', `${this.__options.width}px`)
     element.setAttribute('height', `${this.__options.height}px`)
-    element.setAttribute('src', `${this.__data}`)
+    element.setAttribute('src', `${this.extractUrlFromData()}`)
     element.setAttribute('frameborder', '0')
     element.setAttribute(
       'allow',
