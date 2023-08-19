@@ -31,7 +31,7 @@ td {
 :root {
     /* --highlight-color: #7852ee; */
     /* --highlight-color: #f5f5f5; */
-    --highlight-color: rgba(55,53,47,0.08);
+    --highlight-color: rgba(55, 53, 47, 0.08);
     --highlight-text-color: #131313;
 }
 
@@ -39,8 +39,8 @@ body {
     overflow: hidden;
     height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
+        'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
     color: #000000E0;
     font-size: 16px;
     line-height: 24px;
@@ -57,6 +57,10 @@ body {
     flex-direction: column;
     height: 100%;
     width: 100%;
+}
+
+.editor {
+    height: 100%;
 }
 
 .editor:focus {
@@ -135,5 +139,4 @@ body {
     padding-right: 24px;
 }
 
-.editor {
-}
+.editor {}
