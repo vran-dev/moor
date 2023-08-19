@@ -104,6 +104,9 @@ function getHandleStyle(type: ResizableHandleType): React.CSSProperties[] {
     justifyContent: 'center',
     opacity: '0'
   }
+  const defaultInnerStyle = {
+    zIndex: 100
+  }
   let wrapperStyle, innerStyle
   switch (type) {
     case ResizableHandleType.Right:
@@ -123,7 +126,8 @@ function getHandleStyle(type: ResizableHandleType): React.CSSProperties[] {
         boxSizing: 'content-box',
         background: 'rgba(0, 0, 0, 0.65)',
         border: '1px solid rgba(255, 255, 255, 0.5)',
-        borderRadius: '6px'
+        borderRadius: '6px',
+        ...defaultInnerStyle
       }
 
       break
@@ -144,7 +148,8 @@ function getHandleStyle(type: ResizableHandleType): React.CSSProperties[] {
         boxSizing: 'content-box',
         background: 'rgba(0, 0, 0, 0.65)',
         border: '1px solid rgba(255, 255, 255, 0.5)',
-        borderRadius: '6px'
+        borderRadius: '6px',
+        ...defaultInnerStyle
       }
 
       break
@@ -164,7 +169,8 @@ function getHandleStyle(type: ResizableHandleType): React.CSSProperties[] {
         maxWidth: '50%',
         background: 'rgba(0, 0, 0, 0.65)',
         border: '1px solid rgba(255, 255, 255, 0.5)',
-        borderRadius: '6px'
+        borderRadius: '6px',
+        ...defaultInnerStyle
       }
 
       break
@@ -182,7 +188,8 @@ function getHandleStyle(type: ResizableHandleType): React.CSSProperties[] {
         height: '22px',
         width: '22px',
         backgroundRepeat: 'no-repeat',
-        backgroundImage: `url("data:image/svg+xml,${rightCornerHandle}") `
+        backgroundImage: `url("data:image/svg+xml,${rightCornerHandle}") `,
+        ...defaultInnerStyle
       }
 
       break
@@ -200,7 +207,8 @@ function getHandleStyle(type: ResizableHandleType): React.CSSProperties[] {
         height: '22px',
         width: '22px',
         backgroundRepeat: 'no-repeat',
-        backgroundImage: `url("data:image/svg+xml,${leftCornerHandle}") `
+        backgroundImage: `url("data:image/svg+xml,${leftCornerHandle}") `,
+        ...defaultInnerStyle
       }
   }
 
@@ -323,7 +331,9 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
         width: `${props.initialSize.width}px`,
         height: `${props.initialSize.height ? props.initialSize.height + 'px' : 'inherit'}`
       }}
-      onMouseOver={(): void => setIsShow(true)}
+      onMouseOver={(): void => {
+        setIsShow(true)
+      }}
       onMouseOut={(): void => setIsShow(false)}
       ref={resizableViewRef}
       {...props.attrs}

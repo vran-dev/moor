@@ -133,7 +133,7 @@ export default function ExcalidrawComponent(props: {
           paddingBottom: '8px'
         }}
         ref={containerRef}
-        onMouseDown={() => {
+        onMouseDown={(): void => {
           setSelected(true)
         }}
       >
