@@ -17,6 +17,10 @@ export interface SelectProps<T extends SelectOption> {
   theme?: 'light' | 'dark'
   className?: string
   mainMinWidth?: string
+  headerOptions?: {
+    showIcon?: boolean
+    showName?: boolean
+  }
 }
 
 export const updateScrollView = (container: HTMLElement, item: HTMLElement): void => {
@@ -146,6 +150,9 @@ export function VirtualSelect<T extends SelectOption>(props: SelectProps<T>): JS
     return 'light'
   }
 
+  const showHeaderIcon = props.headerOptions?.showIcon ?? true
+  const showHeaderName = props.headerOptions?.showName ?? true
+
   return (
     <div
       className={`select-container ${
@@ -155,8 +162,10 @@ export function VirtualSelect<T extends SelectOption>(props: SelectProps<T>): JS
       ref={selectContainerRef}
     >
       <div className={`select-header ${getThemeClassName()} ${isActive ? 'active' : ''} `}>
-        <span className={`select-header-icon`}>{props.options[defaultIndex || 0]?.icon}</span>
-        <span>{props.options[defaultIndex || 0]?.name || ''}</span>
+        {showHeaderIcon && (
+          <span className={`select-header-icon`}>{props.options[defaultIndex || 0]?.icon}</span>
+        )}
+        {showHeaderName && <span>{props.options[defaultIndex || 0]?.name || ''}</span>}
         <button className="select-caret" onClick={toggleSelect}>
           <AiOutlineDown />
         </button>

@@ -34,7 +34,10 @@ import {
   AiOutlineUnderline,
   AiOutlineAlignRight,
   AiOutlineAlignLeft,
-  AiOutlineAlignCenter
+  AiOutlineAlignCenter,
+  AiOutlineOrderedList,
+  AiOutlineUnorderedList,
+  AiOutlineCheckSquare
 } from 'react-icons/ai'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { FiCode } from 'react-icons/fi'
@@ -58,6 +61,18 @@ import { OPEN_LINK_EDITOR } from '../FloatingLinkEditor/openLinkEditorCommand'
 import { $isCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
 import { hasLinkInSelection } from '@renderer/editor/utils/hasLinkAtSelection'
 import { TOGGLE_LINK_COMMAND } from '@lexical/link'
+import { BsListCheck } from 'react-icons/bs'
+import { hasNodeTypeInSelection } from '@renderer/editor/utils/hasNodeTypeInSelection'
+import {
+  $isListItemNode,
+  $isListNode,
+  INSERT_CHECK_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND
+} from '@lexical/list'
+import { hasBlockTypeInSelection } from '@renderer/editor/utils/hasBlockTypeInSelection'
+import { VirtualSelect } from '@renderer/ui/Select'
 
 export interface FloatMenu {
   icon: React.ReactNode
@@ -66,7 +81,6 @@ export interface FloatMenu {
   isActive: (editor: LexicalEditor) => boolean
   onClick: (editor: LexicalEditor) => void
 }
-
 
 const FloatingMenu = React.forwardRef(
   (
@@ -84,7 +98,7 @@ const FloatingMenu = React.forwardRef(
         return hasLinkInSelection(editor)
       }
     }
-    
+
     const defaultFloatMenus: FloatMenu[] = [
       {
         icon: <AiOutlineBold />,
@@ -156,11 +170,87 @@ const FloatingMenu = React.forwardRef(
         name: 'A',
         description: '',
         icon: <AiOutlineBgColors />,
-        onClick: (editor: LexicalEditor): void => {
-          setShowColorSelector(!showColorSelector)
-        },
+        onClick: (editor: LexicalEditor): void => {},
         isActive: (editor: LexicalEditor): boolean => {
           return false
+        }
+      },
+      {
+        name: 'Bulleted List',
+        description: '',
+        icon: <AiOutlineUnorderedList />,
+        onClick: (editor: LexicalEditor): void => {
+          const hasOtherBlockType = hasBlockTypeInSelection(editor, (node): boolean => {
+            if (node != null && (!$isListNode(node) || node.getListType() !== 'bullet')) {
+              return true
+            }
+            return false
+          })
+          if (hasOtherBlockType) {
+            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
+          } else {
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
+          }
+        },
+        isActive: (editor: LexicalEditor): boolean => {
+          return hasBlockTypeInSelection(editor, (node): boolean => {
+            if ($isListNode(node) && node.getListType() === 'bullet') {
+              return true
+            }
+            return false
+          })
+        }
+      },
+      {
+        name: 'Order List',
+        description: '',
+        icon: <AiOutlineOrderedList />,
+        onClick: (editor: LexicalEditor): void => {
+          const hasOtherBlockType = hasBlockTypeInSelection(editor, (node): boolean => {
+            if (node != null && (!$isListNode(node) || node.getListType() !== 'number')) {
+              return true
+            }
+            return false
+          })
+          if (hasOtherBlockType) {
+            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
+          } else {
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
+          }
+        },
+        isActive: (editor: LexicalEditor): boolean => {
+          return hasBlockTypeInSelection(editor, (node): boolean => {
+            if ($isListNode(node) && node.getListType() === 'number') {
+              return true
+            }
+            return false
+          })
+        }
+      },
+      {
+        name: 'Check List',
+        description: '',
+        icon: <AiOutlineCheckSquare />,
+        onClick: (editor: LexicalEditor): void => {
+          const hasOtherBlockType = hasBlockTypeInSelection(editor, (node): boolean => {
+            if (node != null && (!$isListNode(node) || node.getListType() !== 'check')) {
+              return true
+            }
+            return false
+          })
+          if (hasOtherBlockType) {
+            editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)
+          } else {
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
+          }
+        },
+        isActive: (editor: LexicalEditor): boolean => {
+          return hasBlockTypeInSelection(editor, (node): boolean => {
+            if ($isListNode(node) && node.getListType() === 'check') {
+              return true
+            }
+            return false
+          })
         }
       },
       {

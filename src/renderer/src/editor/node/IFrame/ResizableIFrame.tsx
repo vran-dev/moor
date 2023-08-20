@@ -15,7 +15,6 @@ import {
   BsSquare,
   BsTrash3
 } from 'react-icons/bs'
-import { RadioButtonGroup } from '@renderer/ui/RadioButtonGroup'
 import { Divider } from '@renderer/ui/Divider'
 import { offset, useDismiss, useFloating, useHover, useInteractions } from '@floating-ui/react'
 import { VirtualSelect } from '@renderer/ui/Select'
@@ -252,6 +251,10 @@ function ToolMenu(props: {
         onSelect={(option): void => option.onSelect?.()}
         className="layout-select"
         theme="dark"
+        mainMinWidth="90px"
+        headerOptions={{
+          showName: false
+        }}
       />
       {/* TODO support save snapshot time */}
       {/* <Button onClick={() => {}}>Snapshot</Button> */}
