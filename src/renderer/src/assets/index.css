@@ -59,13 +59,6 @@ body {
     width: 100%;
 }
 
-.editor {
-    height: 100%;
-}
-
-.editor:focus {
-    outline: none;
-}
 
 .wrapper {
     display: flex;
@@ -137,6 +130,15 @@ body {
     overflow-y: scroll;
     padding-left: 24px;
     padding-right: 24px;
+    position: relative;
 }
 
-.editor {}
+.editor {
+    height: 100%;
+    position: relative;
+    min-height: 24px;
+}
+
+.editor:focus {
+    outline: none;
+}

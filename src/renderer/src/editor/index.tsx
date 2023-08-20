@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useRef, useState } from 'react'
+import { ReactNode, useCallback, useMemo, useRef, useState } from 'react'
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
@@ -29,64 +29,74 @@ import { CodeLanguageTypeaheadPlugin } from './plugins/TypeaheadCodeLanguagePlug
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin'
 import ImageDragDropPaste from './plugins/ImageDragDropPastePlugin'
 import IFrameCodePastePlugin from './plugins/IFrameCodePastePlugin'
+import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext'
+import { EditorState } from 'lexical'
 
 function onError(error) {
   console.error(error)
 }
 
 export function Editor() {
-  const [editorState, setEditorState] = useState()
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null)
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
       setFloatingAnchorElem(_floatingAnchorElem)
     }
   }
-  function onChange(editorState) {
-    // console.log(editorState)
-    setEditorState(editorState)
-    const editorStateJSON = editorState.toJSON()
-    const data = JSON.stringify(editorStateJSON)
-    console.log(editorStateJSON)
-  }
-
   const initialConfig = {
-    namespace: 'MyEditor',
+    namespace: 'MoorEditor',
     theme,
     onError,
     nodes: [...LexicalNodes],
     editorState: JSON.stringify(defaultData)
   }
+
+  // TODO useThrottle
+  const onChange = (editorState: EditorState): void => {
+    console.log(editorState.toJSON())
+  }
+
   return (
     <div className="editor-view" ref={onRef}>
       <LexicalComposer initialConfig={initialConfig}>
-        <RichTextPlugin
-          contentEditable={<ContentEditable className="editor" spellCheck={false} />}
-          placeholder={null}
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-        {/* TODO if open empty editor then enable autofocus */}
-        {/* <AutoFocusPlugin defaultSelection="rootStart" /> */}
-        <CheckListPlugin />
-        <ListPlugin />
-        <LexicalClickableLinkPlugin />
-        <HistoryPlugin />
-        <HorizontalRulePlugin />
-        <TablePlugin />
-        <MarkdownPlugin />
-        <LinkPlugin />
-        <TabIndentationPlugin />
-        <HashtagPlugin />
-        <FloatingTextFormatToolbarPlugin />
-        <FloatingLinkEditorPlugin />
-        <SlashTypeaheadPlugin />
-        <CodeLanguageTypeaheadPlugin />
-        <ImageDragDropPaste />
-        <IFrameCodePastePlugin />
-        <EmojiTypeaheadPlugin />
-        <OnChangePlugin onChange={onChange} />
-        {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
+        <SharedHistoryContext>
+          <RichTextPlugin
+            contentEditable={<ContentEditable className="editor" spellCheck={false} />}
+            placeholder={null}
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+          <EditorPlugins />
+          <OnChangePlugin onChange={(state: EditorState) => onChange(state)} />
+          {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
+        </SharedHistoryContext>
       </LexicalComposer>
     </div>
+  )
+}
+
+export function EditorPlugins(props: { enableHistory?: boolean }) {
+  const { historyState } = useSharedHistoryContext()
+  return (
+    <>
+      {/* TODO if open empty editor then enable autofocus */}
+      {/* <AutoFocusPlugin defaultSelection="rootStart" /> */}
+      <CheckListPlugin />
+      <ListPlugin />
+      <LexicalClickableLinkPlugin />
+      {props.enableHistory !== false && <HistoryPlugin externalHistoryState={historyState} />}
+      <HorizontalRulePlugin />
+      <TablePlugin />
+      <MarkdownPlugin />
+      <LinkPlugin />
+      <TabIndentationPlugin />
+      <HashtagPlugin />
+      <FloatingTextFormatToolbarPlugin />
+      <FloatingLinkEditorPlugin />
+      <SlashTypeaheadPlugin />
+      <CodeLanguageTypeaheadPlugin />
+      <ImageDragDropPaste />
+      <IFrameCodePastePlugin />
+      <EmojiTypeaheadPlugin />
+    </>
   )
 }

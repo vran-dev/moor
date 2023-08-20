@@ -13,6 +13,7 @@ import { ExcalidrawNode } from './Excalidraw'
 import { CodeMirrorNode } from './CodeMirror'
 import { IFrameNode } from './IFrame'
 import { ImageNode } from './Image'
+import { ColumnsNode } from './Columns'
 
 const LexicalNodes: ReadonlyArray<
   | Klass<LexicalNode>
@@ -45,6 +46,7 @@ const LexicalNodes: ReadonlyArray<
   CodeMirrorNode,
   IFrameNode,
   ImageNode,
+  ColumnsNode,
   MarkNode,
   {
     replace: CodeNode,

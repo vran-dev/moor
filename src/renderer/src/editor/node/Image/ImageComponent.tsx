@@ -55,7 +55,7 @@ export function ImageComponent(props: {
             src={src}
             alt={altText}
             ref={imageRef}
-            draggable="false"
+            draggable="true"
             style={{ width: '100%', height: '100%' }}
           />
         </ResizableView>

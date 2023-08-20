@@ -37,9 +37,10 @@ import {
 } from 'react-icons/ai'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { LuHeading1, LuHeading2, LuHeading3 } from 'react-icons/lu'
-import { BsImage, BsWindow } from 'react-icons/bs'
+import { BsImage, BsLayoutSplit, BsLayoutThreeColumns, BsWindow } from 'react-icons/bs'
 
 import { $createImageNode } from '@renderer/editor/node/Image'
+import { $createColumnNode } from '@renderer/editor/node/Columns'
 
 const ICON_SIZE = 20
 
@@ -228,6 +229,60 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
           })
         },
         ['iframe', 'embed']
+      ),
+      new TypeaheadMenu(
+        '2 Column',
+        <BsLayoutSplit {...ICON_PROPS} />,
+        '',
+        (editor: LexicalEditor) => {
+          editor.update(() => {
+            const selection = $getSelection()
+            if ($isRangeSelection(selection)) {
+              const node = $createColumnNode(2)
+              selection.insertNodes([node])
+              const ns = $createNodeSelection()
+              ns.add(node.getKey())
+              $setSelection(ns)
+            }
+          })
+        },
+        ['grid']
+      ),
+      new TypeaheadMenu(
+        '3 Column',
+        <BsLayoutThreeColumns {...ICON_PROPS} />,
+        '',
+        (editor: LexicalEditor) => {
+          editor.update(() => {
+            const selection = $getSelection()
+            if ($isRangeSelection(selection)) {
+              const node = $createColumnNode(3)
+              selection.insertNodes([node])
+              const ns = $createNodeSelection()
+              ns.add(node.getKey())
+              $setSelection(ns)
+            }
+          })
+        },
+        ['grid']
+      ),
+      new TypeaheadMenu(
+        '4 Column',
+        <BsLayoutThreeColumns {...ICON_PROPS} />,
+        '',
+        (editor: LexicalEditor) => {
+          editor.update(() => {
+            const selection = $getSelection()
+            if ($isRangeSelection(selection)) {
+              const node = $createColumnNode(4)
+              selection.insertNodes([node])
+              const ns = $createNodeSelection()
+              ns.add(node.getKey())
+              $setSelection(ns)
+            }
+          })
+        },
+        ['grid']
       )
     ]
     return query
