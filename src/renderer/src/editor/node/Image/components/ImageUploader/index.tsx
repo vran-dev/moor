@@ -137,18 +137,18 @@ export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
           pointerEvents: dragging ? 'none' : 'auto'
         }}
       >
-        {errMessage && !editing ? <AiOutlineWarning size={30} /> : <BsImage size={30}></BsImage>}
+        {errMessage && !editing ? <AiOutlineWarning size={24} /> : <BsImage size={26}></BsImage>}
       </span>
       <div
-        className="image-uploader-header"
+        className="image-uploader-form"
         style={{
           pointerEvents: dragging ? 'none' : 'auto'
         }}
       >
         <Placeholder errMessage={errMessage} isEditing={editing} />
         {editing && (
-          <div className="image-uploader-input-wrapper">
-            <input type="url" className="image-uploader-input" ref={inputRef} />
+          <>
+            <input type="url" ref={inputRef} />
             <Button
               type="text"
               onClick={(e): void => {
@@ -170,7 +170,7 @@ export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
             >
               cancel
             </Button>
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -196,16 +196,15 @@ function Placeholder(props: { errMessage?: string | null; isEditing: boolean }):
   // if no error message, show placeholder
   return (
     <>
-      <span className="image-uploader-text">
-        drop image here /{' '}
+      <span className="image-editor-placeholder">
+        Paste url or{' '}
         <button
           onClick={(e): void => {
             onChooseFile(e)
           }}
         >
-          or Choose a file [TD]
-        </button>{' '}
-        &nbsp;/ or Click to typing url
+          Upload a picture
+        </button>
       </span>
     </>
   )

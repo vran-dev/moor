@@ -24,43 +24,49 @@
 
 .iframe-editor-icon {
   font-size: 14px;
-  color: #707070;
+  color: #b3b3b3;
   display: flex;
   justify-content: center;
   align-items: center;
   user-select: none;
 }
 
-.iframe-editor-main {
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-}
-
 .iframe-editor-form {
-  position: relative;
   display: flex;
   flex-direction: row;
   flex-grow: 1;
+  width: 100%;
   gap: 8px;
-  padding: 8px;
+  padding-left: 6px;
   font-size: 16px;
-  border-radius: 6px;
   background-color: transparent;
-  border: 1px solid #DDDDDD;
 }
 
 .iframe-editor-form textarea {
-  height: 100%;
-  max-width: 100%;
   flex-grow: 1;
+  height: 32px;
   outline: none;
   border: none;
   background-color: transparent;
-  font-size: 14px;
-  resize:vertical;
   user-select: auto;
   caret-color: #131313;
+  font-size: 14px;
+  resize: vertical;
 }
 
+.iframe-editor-placeholder {
+  color: #b9b9b9;
+  user-select: none;
+  font-size: 14px;
+}
+
+.iframe-editor-placeholder button {
+  padding: 0;
+  color: #b3b3b3;
+  cursor: pointer;
+  border-bottom: 1px solid #b3b3b3;
+}
+
+.iframe-editor-placeholder button:hover {
+  color: #22a0dc;
+}

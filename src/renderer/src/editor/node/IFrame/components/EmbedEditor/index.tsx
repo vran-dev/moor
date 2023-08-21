@@ -85,17 +85,13 @@ export default function EmbedEditor(props: {
       ref={iframeEditorContainerRef}
     >
       <span className="iframe-editor-icon">
-        <BsWindow size={30} />
+        <BsWindow size={24} />
       </span>
-      <div className="iframe-editor-main">
+      <div className="iframe-editor-form">
         {!editing && <Placeholder isEditing={editing} />}
         {editing && (
-          <div className="iframe-editor-form">
-            <textarea
-              ref={textAreaRef}
-              defaultValue={defaultData ? defaultData : ''}
-              placeholder="embed <iframe> tag or url"
-            />
+          <>
+            <textarea ref={textAreaRef} defaultValue={defaultData ? defaultData : ''} />
             <Button onClick={(): void => saveData()}>save</Button>
             <Button
               onClick={(e): void => {
@@ -107,7 +103,7 @@ export default function EmbedEditor(props: {
             >
               cancel
             </Button>
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -128,14 +124,14 @@ function Placeholder(props: { isEditing: boolean }): ReactNode {
   // if no error message, show placeholder
   return (
     <>
-      <span className="image-uploader-text">
-        click to embed url /{' '}
+      <span className="iframe-editor-placeholder">
+        Paste {'<iframe>, url or '}
         <button
           onClick={(e): void => {
             onChooseFile(e)
           }}
         >
-          or Choose a file [TD]
+          Upload a file
         </button>{' '}
       </span>
     </>

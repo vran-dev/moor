@@ -47,6 +47,17 @@ body {
     letter-spacing: 1.2px;
 }
 
+input,
+textarea {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+        'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    color: #000000E0;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 1.2px;
+}
+
 #root {
     height: 100%;
     display: flex;
