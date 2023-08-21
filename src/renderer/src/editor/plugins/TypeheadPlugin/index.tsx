@@ -208,9 +208,9 @@ export function TypeaheadVirtualListMenu(props: {
         KEY_ENTER_COMMAND,
         (payload) => {
           if (options !== null && options.length && selectedIndex !== null) {
-            handleSelect(options[selectedIndex])
             payload.preventDefault()
             payload.stopImmediatePropagation()
+            handleSelect(options[selectedIndex])
             return true
           }
           return false

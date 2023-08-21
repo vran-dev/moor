@@ -4,35 +4,47 @@
   width: 100%;
 }
 
-.columns-node:hover {
-  background-color: #fdfdfd;
-  border-radius: 3px;
-}
-
 .columns-item-node {
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
   gap: 6px;
+  position: relative;
+  border-width: 1px;
+  border-style: dashed;
+  border-color: transparent;
+  border-radius: 3px;
 }
 
-.columns-node.active .columns-item-node {
-  border: 2px dashed #ccc;
-  border-radius: 3px;
+.columns-item-node.active:hover {
+  border-color: #7852ee;
+}
 
+.columns-item-node.active {
+  border-color: #DDD;
 }
 
 .columns-node-resizer {
+  position: absolute;
+  right: -6px;
+  height: 100%;
+  width: 4px;
+  border-radius: 3px;
+  background-color: transparent;
   cursor: col-resize;
   display: block;
-  border-left: 5px #EEE solid;
+}
+
+.columns-node-resizer:hover {
+  background-color: #7852ee;
 }
 
 .columns-node-resizer.dragging {
   cursor: col-resize;
   display: block;
-  border-left: 6px #7852ee solid;
+  width: 4px;
+  background-color: #7852ee;
   transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out, opacity 200ms ease-in-out;
   transition-property: background-color, border-color, opacity;
   transition-duration: 200ms, 200ms, 200ms;

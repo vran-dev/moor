@@ -1,12 +1,8 @@
 import {
   $addUpdateTag,
-  $createParagraphNode,
-  $createTextNode,
   $getNodeByKey,
-  $getRoot,
   EditorState,
   LexicalEditor,
-  LexicalNode,
   NodeKey,
   SerializedEditorState,
   createEditor
@@ -26,7 +22,8 @@ import { $isColumnNode, ColumnsNode } from '.'
 import './index.css'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
-import { throttle } from 'lodash-es'
+import { useDecoratorNodeArrowMove } from '@renderer/editor/utils/useDecoratorNodeArrowMove'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 
 const emptyData: SerializedEditorState = {
   root: {
@@ -59,98 +56,107 @@ export function ColumnsComponent(props: {
   states?: Array<SerializedEditorState>
 }): JSX.Element {
   const { count, nodeKey, states } = props
-  const [widthRatio, setWidthRatio] = useState<Array<number>>(props.widthRatio)
   const resizeHandlers = useRef([])
   const columnNodeItems = useRef([])
   const columnsContainerRef = useRef<HTMLDivElement | null>(null)
   const [editor] = useLexicalComposerContext()
-
-  const updateColumnsNode = useThrottle(
-    useCallback(
-      (callback: (node: ColumnsNode) => void) => {
-        editor.update((): void => {
-          const node = $getNodeByKey(props.nodeKey)
-          if ($isColumnNode(node)) {
-            $addUpdateTag('historic')
-            callback(node)
-          }
-        })
-      },
-      [props.nodeKey]
-    ),
-    250
-  )
-  useEffect(() => {
-    if (!widthRatio) {
-      return
-    }
-    // updateColumnsNode((node: ColumnsNode) => {
-    //   node.setWidthRatio(widthRatio)
-    // })
-  }, [widthRatio])
-
-  useEffect(() => {
-    if (!columnsContainerRef.current) {
-      return
-    }
-    if (resizeHandlers.current.length == 0 || columnNodeItems.current.length == 0) {
-      return
-    }
-
-    const destroyList: (() => void)[] = []
-    resizeHandlers.current.forEach((handler, index) => {
-      const ele = handler as HTMLDivElement
-      const onMouseDown = (mouseDownEvent: MouseEvent): void => {
-        mouseDownEvent.preventDefault()
-        // add .dragging class
-        const ele = resizeHandlers.current[index] as HTMLDivElement
-        ele.classList.add('dragging')
-
-        // save initial position
-        const initialX = mouseDownEvent.clientX
-        const containerWidth = columnsContainerRef.current?.clientWidth || 0
-        const onMouseMove = (mouseMoveEvent: MouseEvent): void => {
-          mouseMoveEvent.preventDefault()
-          console.log('moving')
-          const currentX = mouseMoveEvent.clientX
-          const diffX = currentX - initialX
-          // calculate ratio by offset
-          const offsetRatio = diffX / containerWidth
-          const cloneWidthRatio = Array.from(widthRatio)
-          cloneWidthRatio[index] += offsetRatio
-          cloneWidthRatio[index + 1] -= offsetRatio
-          setWidthRatio(cloneWidthRatio)
+  const { widthRatio } = props
+  const updateColumnsNode = useCallback(
+    (callback: (node: ColumnsNode) => void) => {
+      editor.update((): void => {
+        const node = $getNodeByKey(props.nodeKey)
+        if ($isColumnNode(node)) {
+          $addUpdateTag('historic')
+          callback(node)
         }
-        const onMouseUp = (mouseUpEvent: MouseEvent): void => {
-          mouseUpEvent.preventDefault()
-          // remove .dragging class
-          const ele = resizeHandlers.current[index] as HTMLDivElement
-          ele.classList.remove('dragging')
-          console.log('remove dragging event')
-          updateColumnsNode((node: ColumnsNode) => {
-            node.setWidthRatio(widthRatio)
-          })
-          // remove event listener
-          document.removeEventListener('mousemove', onMouseMove)
-          document.removeEventListener('mouseup', onMouseUp)
-        }
-        document.addEventListener('mousemove', onMouseMove)
-        document.addEventListener('mouseup', onMouseUp)
-        destroyList.push(() => document.removeEventListener('mousemove', onMouseMove))
-        destroyList.push(() => document.removeEventListener('mouseup', onMouseUp))
-      }
-      ele.addEventListener('mousedown', onMouseDown)
-      destroyList.push(() => ele.removeEventListener('mousedown', onMouseDown))
-    })
-    return () => {
-      console.log('destroy.....')
-      destroyList.forEach((destroy) => {
-        destroy()
       })
+    },
+    [props.nodeKey]
+  )
+
+  const onMouseDown = useCallback(
+    (mouseDownEvent: MouseEvent, index: number): void => {
+      mouseDownEvent.preventDefault()
+      // add .dragging class
+      const ele = mouseDownEvent.target as HTMLDivElement
+      ele.classList.add('dragging')
+      // save initial position
+      const initialX = mouseDownEvent.clientX
+
+      const onMouseMove = (mouseMoveEvent: MouseEvent): void => {
+        mouseMoveEvent.preventDefault()
+        console.log('moving')
+        const currentX = mouseMoveEvent.clientX
+        const diffX = currentX - initialX
+        // calculate ratio by offset
+        const containerWidth = columnsContainerRef.current?.clientWidth || 0
+        const offsetRatio = diffX / containerWidth
+        // updateColumnWidth(offsetRatio, index)
+        const cloneWidthRatio = Array.from(widthRatio)
+        cloneWidthRatio[index] += offsetRatio
+        cloneWidthRatio[index + 1] -= offsetRatio
+        updateColumnsNode((node: ColumnsNode) => {
+          node.setWidthRatio(cloneWidthRatio)
+        })
+      }
+      const onMouseUp = (mouseUpEvent: MouseEvent): void => {
+        mouseUpEvent.preventDefault()
+
+        // remove .dragging class
+        const ele = resizeHandlers.current[index] as HTMLDivElement
+        ele.classList.remove('dragging')
+        console.log('remove dragging event')
+        // remove event listener
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+      }
+      console.log('add dragging event')
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    },
+    [widthRatio]
+  )
+
+  const onMouseEnter = useCallback((e: MouseEvent): void => {
+    columnNodeItems.current.forEach((ele) => {
+      // add .active class
+      const target = ele as HTMLDivElement
+      if (target != null) {
+        target.classList.add('active')
+      }
+    })
+  }, [])
+  const onMouseLeave = useCallback((e: MouseEvent): void => {
+    columnNodeItems.current.forEach((ele) => {
+      // remove .active class
+      const target = ele as HTMLDivElement
+      if (target != null) {
+        target.classList.remove('active')
+      }
+    })
+  }, [])
+
+  const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
+
+  useDecoratorNodeArrowMove({
+    editor: editor,
+    predicate: (node) => $isColumnNode(node),
+    focus: (): boolean => {
+      const firstColumnNode = columnNodeItems.current[0]
+      if (firstColumnNode) {
+        setSelected(true)
+        return true
+      }
+      return false
     }
-  }, [columnsContainerRef, resizeHandlers, columnNodeItems, widthRatio])
+  })
   return (
-    <div className="columns-node" ref={columnsContainerRef}>
+    <div
+      className="columns-node"
+      ref={columnsContainerRef}
+      onMouseEnter={(e): void => onMouseEnter(e)}
+      onMouseLeave={(e): void => onMouseLeave(e)}
+    >
       {Array(count)
         .fill(null)
         .map((_, index) => {
@@ -159,7 +165,8 @@ export function ColumnsComponent(props: {
               key={index}
               className="columns-item-node"
               style={{
-                width: `calc((100%-20px)*${widthRatio[index]})`,
+                maxWidth: '100%',
+                width: `calc((100% - 20px) * ${widthRatio[index]})`,
                 flexGrow: 1
               }}
               ref={(ele): void => {
@@ -170,6 +177,9 @@ export function ColumnsComponent(props: {
               {index !== count - 1 && (
                 <div
                   className="columns-node-resizer"
+                  onMouseDown={(e): void => {
+                    onMouseDown(e, index)
+                  }}
                   ref={(ele): void => {
                     resizeHandlers.current[index] = ele
                   }}
@@ -200,11 +210,18 @@ function Column(props: {
   })
 
   useEffect(() => {
-    if (!props.state) {
-      columnEditor.setEditorState(columnEditor.parseEditorState(emptyData))
-    } else {
-      columnEditor.setEditorState(columnEditor.parseEditorState(props.state))
-    }
+    /**
+     * warning: flushSync was called from inside a lifecycle method.
+     *  React cannot flush when React is already rendering.
+     *  Consider moving this call to a scheduler task or micro task.
+     */
+    setTimeout(() => {
+      if (!props.state) {
+        columnEditor.setEditorState(columnEditor.parseEditorState(emptyData))
+      } else {
+        columnEditor.setEditorState(columnEditor.parseEditorState(props.state))
+      }
+    })
   }, [])
 
   const updateColumnNode = useCallback(

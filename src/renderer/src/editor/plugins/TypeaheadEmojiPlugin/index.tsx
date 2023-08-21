@@ -16,7 +16,8 @@ import {
   $isRangeSelection,
   KEY_ARROW_LEFT_COMMAND,
   KEY_ARROW_RIGHT_COMMAND,
-  $createTextNode
+  $createTextNode,
+  COMMAND_PRIORITY_HIGH
 } from 'lexical'
 import { TypeaheadChildrenProps, TypeaheadPlugin } from '../TypeheadPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
@@ -135,7 +136,7 @@ export function EmojiVirtualTable(props: {
           setSelectRow((selectRow + 1) % emojiRows.length)
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
@@ -148,7 +149,7 @@ export function EmojiVirtualTable(props: {
           setSelectRow((selectRow - 1 + emojiRows.length) % emojiRows.length)
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_LEFT_COMMAND,
@@ -168,7 +169,7 @@ export function EmojiVirtualTable(props: {
           setSelectCol((selectCol - 1 + currCols) % currCols)
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_RIGHT_COMMAND,
@@ -185,7 +186,7 @@ export function EmojiVirtualTable(props: {
           setSelectCol((selectCol + 1) % currCols)
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ESCAPE_COMMAND,
@@ -198,7 +199,7 @@ export function EmojiVirtualTable(props: {
           closeTypeahead(true)
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
@@ -212,7 +213,7 @@ export function EmojiVirtualTable(props: {
           payload.stopImmediatePropagation()
           return true
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       )
     )
     return () => {

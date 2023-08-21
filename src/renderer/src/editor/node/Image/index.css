@@ -41,3 +41,7 @@
 .image-control-wrapper--resizing {
   touch-action: none;
 }
+
+.image-content:focus {
+  background-color: red;
+}

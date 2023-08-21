@@ -170,7 +170,9 @@ const FloatingMenu = React.forwardRef(
         name: 'A',
         description: '',
         icon: <AiOutlineBgColors />,
-        onClick: (editor: LexicalEditor): void => {},
+        onClick: (editor: LexicalEditor): void => {
+          setShowColorSelector(!showColorSelector)
+        },
         isActive: (editor: LexicalEditor): boolean => {
           return false
         }
