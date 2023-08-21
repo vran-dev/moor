@@ -22,7 +22,7 @@ import { $isColumnNode, ColumnsNode } from '.'
 import './index.css'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
-import { useDecoratorNodeArrowMove } from '@renderer/editor/utils/useDecoratorNodeArrowMove'
+import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 
 const emptyData: SerializedEditorState = {
@@ -85,7 +85,6 @@ export function ColumnsComponent(props: {
 
       const onMouseMove = (mouseMoveEvent: MouseEvent): void => {
         mouseMoveEvent.preventDefault()
-        console.log('moving')
         const currentX = mouseMoveEvent.clientX
         const diffX = currentX - initialX
         // calculate ratio by offset
@@ -105,12 +104,10 @@ export function ColumnsComponent(props: {
         // remove .dragging class
         const ele = resizeHandlers.current[index] as HTMLDivElement
         ele.classList.remove('dragging')
-        console.log('remove dragging event')
         // remove event listener
         document.removeEventListener('mousemove', onMouseMove)
         document.removeEventListener('mouseup', onMouseUp)
       }
-      console.log('add dragging event')
       document.addEventListener('mousemove', onMouseMove)
       document.addEventListener('mouseup', onMouseUp)
     },
@@ -138,7 +135,7 @@ export function ColumnsComponent(props: {
 
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
 
-  useDecoratorNodeArrowMove({
+  useDecoratorNodeKeySetting({
     editor: editor,
     predicate: (node) => $isColumnNode(node),
     focus: (): boolean => {

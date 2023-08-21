@@ -1,5 +1,5 @@
 import mermaid from 'mermaid'
-import { LanguageInfo } from '../CodeMirrorLanguages'
+import { LanguageInfo } from '.'
 import { useLayoutEffect, useRef } from 'react'
 
 export class MermaidLanguageInfo implements LanguageInfo {

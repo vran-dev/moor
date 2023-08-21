@@ -48,13 +48,14 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { mergeRegister } from '@lexical/utils'
 import { $isCodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
-import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './CodeMirrorLanguages'
+import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './languages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { VirtualSelect } from '@renderer/ui/Select'
 import { CopyButton } from './components/CopyButton'
 import { CodeblockPreview } from './components/CodeblockPreview'
 import { LayoutSelect } from './components/LayoutSelect'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
+import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 
 export interface LanguageOption extends LanguageInfo {
   value: string
@@ -166,6 +167,34 @@ export function CodeMirrorComponent(props: {
       }),
     [editor, nodeKey]
   )
+  // useDecoratorNodeKeySetting(
+  //   {
+  //     nodeKey: props.nodeKey,
+  //     editor: editor,
+  //     focus: () => {
+  //       if (codeMirror) {
+  //         if (codeMirror.hasFocus) {
+  //           return true
+  //         }
+  //         // setSelected(true)
+  //         codeMirror.focus()
+  //         return true
+  //       }
+  //       console.log('return false')
+  //       return false
+  //     }
+  //   },
+  //   [codeMirror]
+  // )
+
+  // useEffect(() => {
+  //   if (!codeMirror) {
+  //     return
+  //   }
+  //   if (selected && !codeMirror.hasFocus) {
+  //     codeMirror.focus()
+  //   }
+  // }, [codeMirror, selected])
 
   // support jump from lexical to codemirror
   useEffect(() => {

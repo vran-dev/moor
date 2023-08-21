@@ -12,8 +12,9 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { ImageUploader } from './components/ImageUploader'
 import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents'
-import { useDecoratorNodeArrowMove } from '@renderer/editor/utils/useDecoratorNodeArrowMove'
+import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
+import { useCover } from '@renderer/ui/Cover/useCover'
 
 export function ImageComponent(props: {
   src?: string | null
@@ -47,9 +48,9 @@ export function ImageComponent(props: {
   )
 
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
-  useDecoratorNodeArrowMove({
+  useDecoratorNodeKeySetting({
+    nodeKey: nodeKey,
     editor: editor,
-    predicate: (node) => $isImageNode(node),
     focus: (): boolean => {
       if (imageRef.current) {
         setSelected(true)
@@ -58,11 +59,23 @@ export function ImageComponent(props: {
       return false
     }
   })
+  const [cover, showCover, hideCover] = useCover()
+  useEffect(() => {
+    if (selected) {
+      console.log('show')
+      showCover()
+    } else {
+      hideCover()
+    }
+  }, [selected, showCover, hideCover])
   const srcExists = src && src.length > 0
   return (
     <BlockWithAlignableContents className={props.className} format={props.format} nodeKey={nodeKey}>
       {!srcExists ? (
-        <ImageUploader nodeKey={nodeKey}></ImageUploader>
+        <div style={{ position: 'relative' }}>
+          <ImageUploader nodeKey={nodeKey}></ImageUploader>
+          {cover}
+        </div>
       ) : (
         <ResizableView
           aspectRatio={ResizableRatioType.Fixed}
@@ -72,12 +85,14 @@ export function ImageComponent(props: {
           }}
         >
           <img
+            ref={imageRef}
             src={src}
             alt={altText}
             draggable="true"
             className={`${selected ? 'image-content' : ''}`}
             style={{ width: '100%', height: '100%' }}
           />
+          {cover}
         </ResizableView>
       )}
     </BlockWithAlignableContents>

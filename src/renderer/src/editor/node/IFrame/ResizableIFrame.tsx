@@ -18,6 +18,9 @@ import {
 import { Divider } from '@renderer/ui/Divider'
 import { offset, useDismiss, useFloating, useHover, useInteractions } from '@floating-ui/react'
 import { VirtualSelect } from '@renderer/ui/Select'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
+import { useCover } from '@renderer/ui/Cover/useCover'
+import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 
 function isEmptyString(str: string | null | undefined): boolean {
   return str === null || str === undefined || str === ''
@@ -83,6 +86,23 @@ export function ResizableIFrame(props: {
   const dismiss = useDismiss(context)
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, dismiss])
 
+  const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
+  const [cover, showCover, hideCover] = useCover()
+  useEffect(() => {
+    if (selected) {
+      showCover()
+    } else {
+      hideCover()
+    }
+  }, [selected, showCover, hideCover])
+  useDecoratorNodeKeySetting({
+    nodeKey: nodeKey,
+    editor: editor,
+    focus: (): boolean => {
+      setSelected(true)
+      return true
+    }
+  })
   return (
     <BlockWithAlignableContents className={className} format={nodeFormat} nodeKey={nodeKey}>
       {(isSuccess() || isLoading()) && (
@@ -135,35 +155,43 @@ export function ResizableIFrame(props: {
               sandbox="allow-scripts allow-popups allow-forms allow-same-origin"
             />
           </div>
+          {cover}
         </ResizableView>
       )}
 
       {isEditing() && (
-        <EmbedEditor
-          nodeKey={nodeKey}
-          defaultData={url}
-          onSave={(data): void => {
-            if (!data) {
-              return
-            }
-            setStatus('loading')
-            editor.update(() => {
-              const node = $getNodeByKey(nodeKey)
-              if ($isIFrameNode(node)) {
-                node.setData(data)
-              }
-            })
+        <div
+          style={{
+            position: 'relative'
           }}
-          onDelete={(): void => {
-            editor.update(() => {
-              const node = $getNodeByKey(nodeKey)
-              if ($isIFrameNode(node)) {
-                node.selectPrevious()
-                node.remove()
+        >
+          <EmbedEditor
+            nodeKey={nodeKey}
+            defaultData={url}
+            onSave={(data): void => {
+              if (!data) {
+                return
               }
-            })
-          }}
-        />
+              setStatus('loading')
+              editor.update(() => {
+                const node = $getNodeByKey(nodeKey)
+                if ($isIFrameNode(node)) {
+                  node.setData(data)
+                }
+              })
+            }}
+            onDelete={(): void => {
+              editor.update(() => {
+                const node = $getNodeByKey(nodeKey)
+                if ($isIFrameNode(node)) {
+                  node.selectPrevious()
+                  node.remove()
+                }
+              })
+            }}
+          />
+          {cover}
+        </div>
       )}
     </BlockWithAlignableContents>
   )

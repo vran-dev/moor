@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { LanguageInfo } from '../../CodeMirrorLanguages'
+import { LanguageInfo } from '../../languages'
 
 export function PreviewModal(props: {
   languageInfo: LanguageInfo

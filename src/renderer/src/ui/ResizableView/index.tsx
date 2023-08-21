@@ -328,7 +328,8 @@ export const ResizableView = (props: ResizableHandleProps): JSX.Element => {
         lineHeight: '0',
         transition: 'width 0.15s ease-out, height 0.15s ease-out',
         width: `${props.initialSize.width ? props.initialSize.width + 'px' : 'inherit'}`,
-        height: `${props.initialSize.height ? props.initialSize.height + 'px' : 'inherit'}`
+        height: `${props.initialSize.height ? props.initialSize.height + 'px' : 'inherit'}`,
+        maxWidth: '100%'
       }}
       onMouseOver={(): void => {
         setIsShow(true)

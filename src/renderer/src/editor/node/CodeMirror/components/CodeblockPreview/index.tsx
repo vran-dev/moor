@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react'
-import { LanguageInfo } from '../../CodeMirrorLanguages'
+import { LanguageInfo } from '../../languages'
 import { PreviewModal } from './PreviewModal'
 import useModal from '@renderer/ui/Modal/useModal'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'

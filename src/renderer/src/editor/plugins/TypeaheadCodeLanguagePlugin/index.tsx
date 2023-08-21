@@ -7,7 +7,7 @@ import {
 } from '../TypeheadPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
-import { languageInfos } from '@renderer/editor/node/CodeMirror/CodeMirrorLanguages'
+import { languageInfos } from '@renderer/editor/node/CodeMirror/languages'
 import { $createNodeSelection, $getSelection, $isRangeSelection, $setSelection } from 'lexical'
 
 import { ReactNode } from 'react'

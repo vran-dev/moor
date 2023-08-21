@@ -6,7 +6,7 @@ import {
   ExcalidrawImperativeAPI
 } from '@excalidraw/excalidraw/types/types'
 import { $getNodeByKey, NodeKey } from 'lexical'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { $isExcalidrawNode, ExcalidrawNode, ExcalidrawOptions } from '.'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
@@ -16,6 +16,8 @@ import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
 import { Button } from '@renderer/ui/Button'
 import './index.css'
+import { useCover } from '@renderer/ui/Cover/useCover'
+import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 
 export default function ExcalidrawComponent(props: {
   data: string
@@ -121,6 +123,25 @@ export default function ExcalidrawComponent(props: {
   )
 
   const [modal, showModal] = useModal(() => setModalActive(false), 'max')
+  const [cover, showCover, hideCover] = useCover()
+  useEffect(() => {
+    if (selected) {
+      showCover()
+    } else {
+      hideCover()
+    }
+  }, [selected, showCover, hideCover])
+  useDecoratorNodeKeySetting({
+    nodeKey: nodeKey,
+    editor: editor,
+    focus: (): boolean => {
+      if (containerRef.current) {
+        setSelected(true)
+        return true
+      }
+      return false
+    }
+  })
 
   return (
     <>
@@ -133,9 +154,6 @@ export default function ExcalidrawComponent(props: {
           paddingBottom: '8px'
         }}
         ref={containerRef}
-        onMouseDown={(): void => {
-          setSelected(true)
-        }}
       >
         <div className="excalidraw-tool-menu">
           <Button onClick={toggleZenMode}> Zen{getZenMode() ? '(On)' : '(Off)'} </Button>
@@ -184,6 +202,7 @@ export default function ExcalidrawComponent(props: {
             />
           </ResizableView>
         )}
+        {cover}
       </div>
       {modal}
     </>
