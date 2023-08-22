@@ -41,6 +41,7 @@ import { BsImage, BsLayoutSplit, BsLayoutThreeColumns, BsWindow } from 'react-ic
 
 import { $createImageNode } from '@renderer/editor/node/Image'
 import { $createColumnNode } from '@renderer/editor/node/Columns'
+import { $createCalloutNode } from '@renderer/editor/node/Callout'
 
 const ICON_SIZE = 20
 
@@ -279,6 +280,21 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
               const ns = $createNodeSelection()
               ns.add(node.getKey())
               $setSelection(ns)
+            }
+          })
+        },
+        ['grid']
+      ),
+      new TypeaheadMenu(
+        'Callout',
+        <BsLayoutThreeColumns {...ICON_PROPS} />,
+        '',
+        (editor: LexicalEditor) => {
+          editor.update(() => {
+            const selection = $getSelection()
+            if ($isRangeSelection(selection)) {
+              const node = $createCalloutNode()
+              selection.insertNodes([node])
             }
           })
         },
