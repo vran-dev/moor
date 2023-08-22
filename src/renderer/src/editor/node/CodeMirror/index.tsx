@@ -146,37 +146,6 @@ export class CodeMirrorNode extends DecoratorBlockNode {
     return true
   }
 
-  selectNext(anchorOffset?: number, focusOffset?: number): RangeSelection {
-    const nextSibling = this.getNextSibling()
-    if ($isCodeMirrorNode(nextSibling)) {
-      const ns = $createNodeSelection()
-      ns.add(nextSibling.getKey())
-      $setSelection(ns)
-      // FIXME return empty range selection to avoid Compile Warning
-      return $createRangeSelection()
-    } else {
-      // fallback to default behavior
-      return super.selectNext(anchorOffset, focusOffset)
-    }
-  }
-
-  selectPrevious(
-    anchorOffset?: number | undefined,
-    focusOffset?: number | undefined
-  ): RangeSelection {
-    const previousSibling = this.getPreviousSibling()
-    if ($isCodeMirrorNode(previousSibling)) {
-      const ns = $createNodeSelection()
-      ns.add(previousSibling.getKey())
-      $setSelection(ns)
-      // FIXME return empty range selection to avoid Compile Warning
-      return $createRangeSelection()
-    } else {
-      // fallback to default behavior
-      return super.selectPrevious(anchorOffset, focusOffset)
-    }
-  }
-
   static getType(): string {
     return 'codemirror'
   }

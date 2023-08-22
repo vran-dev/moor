@@ -8,7 +8,6 @@ import './index.css'
 import {
   LexicalEditor,
   KEY_ARROW_DOWN_COMMAND,
-  COMMAND_PRIORITY_LOW,
   KEY_ARROW_UP_COMMAND,
   KEY_ESCAPE_COMMAND,
   KEY_ENTER_COMMAND,

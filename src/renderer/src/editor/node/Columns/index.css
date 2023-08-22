@@ -1,6 +1,6 @@
 .columns-node {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -27,7 +27,7 @@
 
 .columns-node-resizer {
   position: absolute;
-  right: -6px;
+  right: -7px;
   height: 100%;
   width: 4px;
   border-radius: 3px;

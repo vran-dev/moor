@@ -136,9 +136,9 @@ export function ColumnsComponent(props: {
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
 
   useDecoratorNodeKeySetting({
+    nodeKey: nodeKey,
     editor: editor,
-    predicate: (node) => $isColumnNode(node),
-    focus: (): boolean => {
+    onSelect: (): boolean => {
       const firstColumnNode = columnNodeItems.current[0]
       if (firstColumnNode) {
         setSelected(true)

@@ -98,7 +98,7 @@ export function ResizableIFrame(props: {
   useDecoratorNodeKeySetting({
     nodeKey: nodeKey,
     editor: editor,
-    focus: (): boolean => {
+    onSelect: (): boolean => {
       setSelected(true)
       return true
     }

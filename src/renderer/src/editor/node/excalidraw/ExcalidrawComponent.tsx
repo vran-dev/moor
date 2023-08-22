@@ -134,7 +134,7 @@ export default function ExcalidrawComponent(props: {
   useDecoratorNodeKeySetting({
     nodeKey: nodeKey,
     editor: editor,
-    focus: (): boolean => {
+    onSelect: (): boolean => {
       if (containerRef.current) {
         setSelected(true)
         return true

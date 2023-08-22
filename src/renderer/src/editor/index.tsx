@@ -31,6 +31,7 @@ import ImageDragDropPaste from './plugins/ImageDragDropPastePlugin'
 import IFrameCodePastePlugin from './plugins/IFrameCodePastePlugin'
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext'
 import { EditorState } from 'lexical'
+import DebugPlugin from './plugins/DebugPlugin'
 
 function onError(error) {
   console.error(error)
@@ -97,6 +98,7 @@ export function EditorPlugins(props: { enableHistory?: boolean }) {
       <ImageDragDropPaste />
       <IFrameCodePastePlugin />
       <EmojiTypeaheadPlugin />
+      {/* <DebugPlugin /> */}
     </>
   )
 }

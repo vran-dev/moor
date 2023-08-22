@@ -9,6 +9,7 @@ import {
   $isNodeSelection,
   $isRangeSelection,
   $setSelection,
+  COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   ElementNode,
   KEY_ARROW_DOWN_COMMAND,
@@ -20,11 +21,14 @@ import {
   NodeSelection
 } from 'lexical'
 
+export type KeyAction = 'ArrowUp' | 'ArrowDown'
+
 export function useDecoratorNodeKeySetting(
   props: {
     nodeKey: NodeKey
     editor: LexicalEditor
-    focus: () => boolean
+    onSelect: (keyAction: KeyAction) => boolean
+    defaultActionHandler?: (keyAction: KeyboardEvent) => boolean
   },
   observed?: any[]
 ): void {
@@ -37,7 +41,12 @@ export function useDecoratorNodeKeySetting(
   )
 
   const handleUpOrDownWhenNodeSelected = useCallback(
-    (event: KeyboardEvent, selection: NodeSelection, isUp: boolean) => {
+    (
+      event: KeyboardEvent,
+      selection: NodeSelection,
+      isUp: boolean,
+      onSelect?: (keyAction: KeyAction) => boolean
+    ) => {
       const nodes = selection.getNodes()
       if (nodes.length === 1 && nodePredicate(nodes[0])) {
         event.preventDefault()
@@ -48,20 +57,22 @@ export function useDecoratorNodeKeySetting(
         } else {
           prepareToSelect = nodes[0].getNextSibling()?.getTopLevelElement()
         }
-        console.log('prepareToSelect', prepareToSelect)
         if (prepareToSelect) {
           if ($isElementNode(prepareToSelect)) {
             prepareToSelect.select()
             return true
           }
           if ($isDecoratorNode(prepareToSelect)) {
+            if (prepareToSelect.getKey() === nodeKey && onSelect) {
+              return onSelect(isUp ? 'ArrowUp' : 'ArrowDown')
+            }
+            // fallback to select the node
             const ns = $createNodeSelection()
             ns.add(prepareToSelect.getKey())
             $setSelection(ns)
             return true
           }
         }
-        return false
       }
       return false
     },
@@ -77,15 +88,23 @@ export function useDecoratorNodeKeySetting(
           if ($isRangeSelection(selection)) {
             const topEle = selection.anchor.getNode().getTopLevelElement()
             if (topEle && nodePredicate(topEle.getNextSibling())) {
-              return props.focus()
+              return props.onSelect('ArrowDown')
             }
           }
           if ($isNodeSelection(selection)) {
-            return handleUpOrDownWhenNodeSelected(event, selection as NodeSelection, false)
+            return handleUpOrDownWhenNodeSelected(
+              event,
+              selection as NodeSelection,
+              false,
+              props.onSelect
+            )
+          }
+          if (props.defaultActionHandler) {
+            return props.defaultActionHandler(event)
           }
           return false
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
@@ -94,15 +113,23 @@ export function useDecoratorNodeKeySetting(
           if ($isRangeSelection(selection)) {
             const topEle = selection.anchor.getNode().getTopLevelElement()
             if (topEle && nodePredicate(topEle.getPreviousSibling())) {
-              return props.focus()
+              return props.onSelect('ArrowUp')
             }
           }
           if ($isNodeSelection(selection)) {
-            return handleUpOrDownWhenNodeSelected(event, selection as NodeSelection, true)
+            return handleUpOrDownWhenNodeSelected(
+              event,
+              selection as NodeSelection,
+              true,
+              props.onSelect
+            )
+          }
+          if (props.defaultActionHandler) {
+            return props.defaultActionHandler(event)
           }
           return false
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
@@ -120,9 +147,12 @@ export function useDecoratorNodeKeySetting(
               return true
             }
           }
+          if (props.defaultActionHandler) {
+            return props.defaultActionHandler(event)
+          }
           return false
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_HIGH
       )
     )
   }, [nodeKey, ...(observed ?? [])])

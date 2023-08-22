@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   defaultKeymap,
   history,
@@ -17,7 +17,8 @@ import {
   Compartment,
   EditorState as CodeMirrorEditorState,
   Extension as CodeMirrorExtension,
-  Transaction as CodeMirrorTransaction
+  Transaction as CodeMirrorTransaction,
+  EditorSelection
 } from '@codemirror/state'
 import {
   Command as CodeMirrorCommand,
@@ -55,8 +56,9 @@ import { CopyButton } from './components/CopyButton'
 import { CodeblockPreview } from './components/CodeblockPreview'
 import { LayoutSelect } from './components/LayoutSelect'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
-import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
-
+import { codeMirrorArrowKeyDelegate } from './utils/codeMirrorArrowKeyDelegate'
+import { useCover } from '@renderer/ui/Cover/useCover'
+import { codeMirrorNodeListener } from './utils/codeMirrorNodeListener'
 export interface LanguageOption extends LanguageInfo {
   value: string
   label: string
@@ -167,190 +169,71 @@ export function CodeMirrorComponent(props: {
       }),
     [editor, nodeKey]
   )
-  // useDecoratorNodeKeySetting(
-  //   {
-  //     nodeKey: props.nodeKey,
-  //     editor: editor,
-  //     focus: () => {
-  //       if (codeMirror) {
-  //         if (codeMirror.hasFocus) {
-  //           return true
-  //         }
-  //         // setSelected(true)
-  //         codeMirror.focus()
-  //         return true
-  //       }
-  //       console.log('return false')
-  //       return false
-  //     }
-  //   },
-  //   [codeMirror]
-  // )
 
-  // useEffect(() => {
-  //   if (!codeMirror) {
-  //     return
-  //   }
-  //   if (selected && !codeMirror.hasFocus) {
-  //     codeMirror.focus()
-  //   }
-  // }, [codeMirror, selected])
-
-  // support jump from lexical to codemirror
+  // support jump from codemirror to lexical and delegate select_all to codemirror
   useEffect(() => {
-    return mergeRegister(
-      editor.registerCommand<KeyboardEvent>(
-        KEY_ARROW_DOWN_COMMAND,
-        (event, targetEditor) => {
-          const selection = $getSelection()
-          if ($isRangeSelection(selection)) {
-            const topEle = selection.anchor.getNode().getTopLevelElement()
-            if (topEle && topEle.getNextSibling() && $isCodeMirrorNode(topEle.getNextSibling())) {
-              return true
-            }
-          }
-          return false
-        },
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand<KeyboardEvent>(
-        KEY_ARROW_UP_COMMAND,
-        (event, targetEditor) => {
-          const selection = $getSelection()
-          if ($isRangeSelection(selection)) {
-            const topEle = selection.anchor.getNode().getTopLevelElement()
-            if (
-              topEle &&
-              topEle.getPreviousSibling() &&
-              $isCodeMirrorNode(topEle.getPreviousSibling())
-            ) {
-              return true
-            }
-          }
-          return false
-        },
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand<KeyboardEvent>(
-        KEY_ENTER_COMMAND,
-        (event, targetEditor) => {
-          if (codeMirror) {
-            return codeMirror.hasFocus
-          }
-          return false
-        },
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand<KeyboardEvent>(
-        KEY_DOWN_COMMAND,
-        (event, targetEditor): boolean => {
-          if (event.key === 'Enter') {
-            if (event.ctrlKey) {
-              if (codeMirror && codeMirror.hasFocus) {
-                const { state } = codeMirror
-                if (state.selection.ranges.some((range) => !range.empty)) {
-                  return false
-                }
-                event.preventDefault()
-                event.stopImmediatePropagation()
-                const anchor = state.selection.main.anchor
-                const line = state.doc.lineAt(anchor)
-                if (line.number === state.doc.lines) {
-                  editor.update(() => {
-                    const node = $getNodeByKey(nodeKey)!
-                    const nextSibling = node.getNextSibling()
-                    if (!$isDecoratorNode(nextSibling) && nextSibling) {
-                      codeMirror?.contentDOM.blur()
-                      node.selectNext()
-                    } else {
-                      const pNode = $createParagraphNode()
-                      node.insertAfter(pNode)
-                      codeMirror.contentDOM.blur()
-                      pNode.select()
-                    }
-                  })
-                  return true
-                }
-              }
-            }
-          }
-          if (codeMirror && codeMirror.hasFocus) {
-            // console.log('on key down', event, codeMirror.hasFocus)
-            return codeMirror.hasFocus
-          }
-          return false
-        },
-        COMMAND_PRIORITY_LOW
-      )
-    )
-  }, [editor, codeMirror])
+    if (!codeMirror) {
+      return
+    }
+    return codeMirrorNodeListener(editor, nodeKey, layout, codeMirror)
+  }, [codeMirror, layout, editor, nodeKey])
+
+  const [cover, showCover, hideCover] = useCover()
+
+  useLayoutEffect(() => {
+    if (!codeMirror) {
+      return
+    }
+    if (layout === CodeblockLayout.Preview) {
+      if (selected) {
+        showCover()
+      } else {
+        hideCover()
+      }
+      return
+    }
+    if (selected && !codeMirror.hasFocus) {
+      editor.blur()
+      // use setTimeout to avoid codemirror focus failed
+      setTimeout(() => {
+        codeMirror?.focus()
+        codeMirror?.dispatch({
+          selection: EditorSelection.cursor(codeMirror.state.doc.length)
+        })
+      })
+    }
+  }, [codeMirror, selected, editor, layout])
 
   // initialize codemirror, support jump from codemirror to lexical
   useEffect(() => {
     if (!editorRef.current) {
       return
     }
-
-    const maybeEscape = (unit: 'line' | 'char', dir: 1 | -1): CodeMirrorCommand => {
-      return (view: CodeMirrorEditorView) => {
-        const { state } = view
-
-        // Exit if the selection is not empty
-        if (state.selection.ranges.some((range) => !range.empty)) {
-          return false
-        }
-
-        const anchor = state.selection.main.anchor
-        const line = state.doc.lineAt(anchor)
-        const lineOffset = anchor - line.from
-
-        if (
-          line.number !== (dir < 0 ? 1 : state.doc.lines) ||
-          (unit === 'char' && lineOffset !== (dir < 0 ? 0 : line.length))
-        ) {
-          return false
-        }
-        editor.update(() => {
-          const node = $getNodeByKey(nodeKey)!
-          if (dir < 0) {
-            const previousSibling = node.getPreviousSibling()
-            if (previousSibling) {
-              codeMirror?.contentDOM.blur()
-              node.selectPrevious()
-            } else {
-              node.insertBefore($createParagraphNode())
-            }
-          } else {
-            const nextSibling = node.getNextSibling()
-            if (nextSibling) {
-              codeMirror?.contentDOM.blur()
-              node.selectNext()
-            } else {
-              node.insertAfter($createParagraphNode())
-            }
-          }
-        })
-        return true
-      }
-    }
-
     const codeMirrorKeymap = (): CodeMirrorKeyBinding[] => {
       return [
         {
           key: 'ArrowUp',
-          run: maybeEscape('line', -1)
+          run: codeMirrorArrowKeyDelegate(editor, nodeKey, 'line', -1),
+          preventDefault: true,
+          stopPropagation: true
         },
         {
           key: 'ArrowLeft',
-          run: maybeEscape('char', -1)
+          run: codeMirrorArrowKeyDelegate(editor, nodeKey, 'char', -1),
+          preventDefault: true,
+          stopPropagation: true
         },
         {
           key: 'ArrowDown',
-          run: maybeEscape('line', 1)
+          run: codeMirrorArrowKeyDelegate(editor, nodeKey, 'line', 1),
+          preventDefault: true,
+          stopPropagation: true
         },
         {
           key: 'ArrowRight',
-          run: maybeEscape('char', 1)
+          run: codeMirrorArrowKeyDelegate(editor, nodeKey, 'char', 1),
+          preventDefault: true,
+          stopPropagation: true
         },
         {
           key: 'Backspace',
@@ -381,7 +264,9 @@ export function CodeMirrorComponent(props: {
               return true
             })
             return true
-          }
+          },
+          preventDefault: true,
+          stopPropagation: true
         }
       ]
     }
@@ -436,23 +321,6 @@ export function CodeMirrorComponent(props: {
       }
     }
   }, [codeMirror, layout])
-
-  useEffect(() => {
-    if (!codeMirror) {
-      return
-    }
-    editor.getEditorState().read(() => {
-      const sel = $getSelection()
-      if (
-        selected &&
-        $isNodeSelection(sel) &&
-        sel.getNodes().length === 1 &&
-        sel.getNodes()[0].getKey() === nodeKey
-      ) {
-        codeMirror.focus()
-      }
-    })
-  }, [codeMirror, selected])
 
   useEffect(() => {
     if (!codeMirror) {
@@ -513,27 +381,27 @@ export function CodeMirrorComponent(props: {
     return true
   }, [layout, selectLanguage])
 
-  const onMouseClick = (event: MouseEvent): void => {
-    const { codeDOMNode, isOutside } = getMouseInfo(event)
-    if (isOutside) {
-      return
-    }
-    if (!codeDOMNode) {
-      return
-    }
-    editor.update(() => {
-      const maybeCodeNode = $getNearestNodeFromDOMNode(codeDOMNode)
-      if ($isCodeMirrorNode(maybeCodeNode) && maybeCodeNode.getKey() === props.nodeKey) {
-        setSelected(true)
-      }
-    })
-  }
-  useEffect(() => {
-    document.addEventListener('mousedown', onMouseClick)
-    return () => {
-      document.removeEventListener('mousedown', onMouseClick)
-    }
-  }, [])
+  // const onMouseClick = (event: MouseEvent): void => {
+  //   const { codeDOMNode, isOutside } = getMouseInfo(event)
+  //   if (isOutside) {
+  //     return
+  //   }
+  //   if (!codeDOMNode) {
+  //     return
+  //   }
+  //   editor.update(() => {
+  //     const maybeCodeNode = $getNearestNodeFromDOMNode(codeDOMNode)
+  //     if ($isCodeMirrorNode(maybeCodeNode) && maybeCodeNode.getKey() === props.nodeKey) {
+  //       setSelected(true)
+  //     }
+  //   })
+  // }
+  // useEffect(() => {
+  //   document.addEventListener('mousedown', onMouseClick)
+  //   return () => {
+  //     document.removeEventListener('mousedown', onMouseClick)
+  //   }
+  // }, [])
 
   return (
     <div className="codeblock-container" draggable={true}>
@@ -563,6 +431,7 @@ export function CodeMirrorComponent(props: {
         }
         {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
       </div>
+      {cover}
     </div>
   )
 }

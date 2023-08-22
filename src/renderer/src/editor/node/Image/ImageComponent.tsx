@@ -51,7 +51,7 @@ export function ImageComponent(props: {
   useDecoratorNodeKeySetting({
     nodeKey: nodeKey,
     editor: editor,
-    focus: (): boolean => {
+    onSelect: (): boolean => {
       if (imageRef.current) {
         setSelected(true)
         return true
@@ -62,7 +62,6 @@ export function ImageComponent(props: {
   const [cover, showCover, hideCover] = useCover()
   useEffect(() => {
     if (selected) {
-      console.log('show')
       showCover()
     } else {
       hideCover()
