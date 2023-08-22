@@ -182,6 +182,7 @@ export function ColumnsComponent(props: {
                   }}
                 ></div>
               )}
+              <div className="columns-item-node-border"></div>
             </div>
           )
         })}

@@ -68,7 +68,7 @@ export function Editor() {
           />
           <EditorPlugins />
           <OnChangePlugin onChange={(state: EditorState) => onChange(state)} />
-          {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
+          {/* {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />} */}
         </SharedHistoryContext>
       </LexicalComposer>
     </div>

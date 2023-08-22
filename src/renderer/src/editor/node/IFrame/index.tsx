@@ -112,6 +112,12 @@ export class IFrameNode extends DecoratorBlockNode {
     return { element }
   }
 
+  getTextContent(): string {
+    return `<iframe src="${this.extractUrlFromData()}" width="${this.__options.width}" height="${
+      this.__options.height
+    }"></iframe>`
+  }
+
   setData(data: string): void {
     const self = this.getWritable()
     self.__data = data

@@ -30,23 +30,8 @@ import {
 } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { githubLightInit } from '@uiw/codemirror-theme-github'
-import {
-  $createParagraphNode,
-  $getNodeByKey,
-  $getSelection,
-  $isRangeSelection,
-  COMMAND_PRIORITY_LOW,
-  KEY_ARROW_DOWN_COMMAND,
-  KEY_ARROW_UP_COMMAND,
-  KEY_DOWN_COMMAND,
-  KEY_ENTER_COMMAND,
-  NodeKey,
-  $isNodeSelection,
-  $isDecoratorNode,
-  $getNearestNodeFromDOMNode
-} from 'lexical'
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, NodeKey } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { mergeRegister } from '@lexical/utils'
 import { $isCodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './languages'
@@ -193,14 +178,37 @@ export function CodeMirrorComponent(props: {
       return
     }
     if (selected && !codeMirror.hasFocus) {
-      editor.blur()
-      // use setTimeout to avoid codemirror focus failed
-      setTimeout(() => {
-        codeMirror?.focus()
-        codeMirror?.dispatch({
-          selection: EditorSelection.cursor(codeMirror.state.doc.length)
-        })
+      const canFocus = editor.getEditorState().read(() => {
+        const selection = $getSelection()
+        if ($isNodeSelection(selection)) {
+          if (selection.getNodes().length > 1) {
+            return false
+          }
+        }
+        if ($isRangeSelection(selection)) {
+          const anchorKey = selection.anchor.key
+          const focusKey = selection.focus.key
+          if (anchorKey !== focusKey) {
+            return false
+          }
+          const anchorOffset = selection.anchor.offset
+          const focusOffset = selection.focus.offset
+          if (focusOffset - anchorOffset > 0) {
+            return false
+          }
+        }
+        return true
       })
+      if (canFocus) {
+        editor.blur()
+        // use setTimeout to avoid codemirror focus failed
+        setTimeout(() => {
+          codeMirror?.focus()
+          codeMirror?.dispatch({
+            selection: EditorSelection.cursor(codeMirror.state.doc.length)
+          })
+        })
+      }
     }
   }, [codeMirror, selected, editor, layout])
 

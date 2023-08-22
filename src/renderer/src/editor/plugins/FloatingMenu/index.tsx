@@ -21,7 +21,7 @@ import {
   LexicalEditor,
   SELECTION_CHANGE_COMMAND
 } from 'lexical'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import * as React from 'react'
 
 import { getDOMRangeClientRect, getDOMRangeRect } from '../../utils/getDOMRangeRect'
@@ -32,9 +32,6 @@ import {
   AiOutlineItalic,
   AiOutlineStrikethrough,
   AiOutlineUnderline,
-  AiOutlineAlignRight,
-  AiOutlineAlignLeft,
-  AiOutlineAlignCenter,
   AiOutlineOrderedList,
   AiOutlineUnorderedList,
   AiOutlineCheckSquare

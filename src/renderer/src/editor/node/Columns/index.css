@@ -11,23 +11,36 @@
   flex-direction: row;
   gap: 6px;
   position: relative;
+  padding-right: 6px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.columns-item-node-border {
+  position: absolute;
+  top: 0px;
+  left: -2px;
+  right: 1px;
+  bottom: 0px;
+  border-radius: 3px;
   border-width: 1px;
   border-style: dashed;
   border-color: transparent;
-  border-radius: 3px;
+  pointer-events: none;
 }
 
-.columns-item-node.active:hover {
+.columns-item-node.active:hover .columns-item-node-border {
   border-color: #7852ee;
 }
 
-.columns-item-node.active {
+.columns-item-node.active .columns-item-node-border {
   border-color: #DDD;
 }
 
 .columns-node-resizer {
   position: absolute;
-  right: -7px;
+  top: 0px;
+  right: -5px;
   height: 100%;
   width: 4px;
   border-radius: 3px;
