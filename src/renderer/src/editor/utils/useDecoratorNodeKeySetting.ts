@@ -104,7 +104,7 @@ export function useDecoratorNodeKeySetting(
           }
           return false
         },
-        COMMAND_PRIORITY_HIGH
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
@@ -129,7 +129,7 @@ export function useDecoratorNodeKeySetting(
           }
           return false
         },
-        COMMAND_PRIORITY_HIGH
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
@@ -152,7 +152,7 @@ export function useDecoratorNodeKeySetting(
           }
           return false
         },
-        COMMAND_PRIORITY_HIGH
+        COMMAND_PRIORITY_LOW
       )
     )
   }, [nodeKey, ...(observed ?? [])])
