@@ -64,3 +64,12 @@
   transition-timing-function: ease-in-out, ease-in-out, ease-in-out;
   transition-delay: 0s, 0s, 0s;
 }
+
+.columns-node-editor {
+  height: 100%;
+  flex-grow: 1;
+  position: relative;
+  min-height: 24px;
+  background-color: transparent;
+  outline: none;
+}

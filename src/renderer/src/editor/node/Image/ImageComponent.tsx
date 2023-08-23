@@ -52,11 +52,8 @@ export function ImageComponent(props: {
     nodeKey: nodeKey,
     editor: editor,
     onSelect: (): boolean => {
-      if (imageRef.current) {
-        setSelected(true)
-        return true
-      }
-      return false
+      setSelected(true)
+      return true
     }
   })
   const [cover, showCover, hideCover] = useCover()

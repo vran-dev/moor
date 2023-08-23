@@ -15,7 +15,7 @@ export function useThrottle<T extends (...args: never[]) => void>(fn: T, ms: num
           }
         },
         ms,
-        { trailing: false }
+        { trailing: true }
       ),
     [ms]
   )

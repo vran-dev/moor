@@ -8,49 +8,55 @@ export function ColorPicker(props: {
   const options = useMemo(() => {
     return [
       {
+        value: '#FFFFFF',
+        color: '#FFFFFF',
+        name: '',
+        icon: <ColorIcon color="#FFFFFF" />
+      },
+      {
         value: '#fbfbfb',
         color: '#fbfbfb',
         name: '',
         icon: <ColorIcon color="#fbfbfb" />
       },
       {
-        value: 'Red',
-        color: '#FF5575',
+        value: '#86A8E7',
+        color: '#86A8E7',
         name: '',
-        icon: <ColorIcon color="#FF5575" />
+        icon: <ColorIcon color="#86A8E7" />
       },
       {
-        value: 'Yellow',
-        color: '#FFD36A',
+        value: '#D16BA5',
+        color: '#D16BA5',
         name: '',
-        icon: <ColorIcon color="#FFD36A" />
+        icon: <ColorIcon color="#D16BA5" />
       },
       {
-        value: 'Blue',
+        value: '#6299FF',
         color: '#6299FF',
         name: '',
         icon: <ColorIcon color="#6299FF" />
       },
       {
-        value: 'Green',
+        value: '#22D9AE',
         color: '#22D9AE',
         name: '',
         icon: <ColorIcon color="#22D9AE" />
       },
       {
-        value: 'Pink',
+        value: '#E6A1FF',
         color: '#E6A1FF',
         name: '',
         icon: <ColorIcon color="#E6A1FF" />
       },
       {
-        value: 'Purple',
+        value: '#7445E0',
         color: '#7445E0',
         name: '',
         icon: <ColorIcon color="#7445E0" />
       },
       {
-        value: 'Gray',
+        value: '#dadada',
         color: '#dadada',
         name: '',
         icon: <ColorIcon color="#dadada" />
@@ -77,7 +83,8 @@ export function ColorPicker(props: {
       onSelect={(option): void => props.onChange(option)}
       mainMinWidth="50px"
       headerOptions={{
-        showName: false
+        showName: false,
+        showCaret: false
       }}
     />
   )
@@ -87,9 +94,10 @@ function ColorIcon(props: { color: string }): ReactNode {
   return (
     <div
       style={{
-        width: '16px',
-        height: '16px',
+        width: '15px',
+        height: '15px',
         borderRadius: '2px',
+        border: '1px solid #e5e5e5',
         backgroundColor: props.color
       }}
     ></div>

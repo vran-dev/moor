@@ -9,7 +9,6 @@ import {
   $isNodeSelection,
   $isRangeSelection,
   $setSelection,
-  COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   ElementNode,
   KEY_ARROW_DOWN_COMMAND,

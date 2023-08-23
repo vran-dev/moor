@@ -20,6 +20,7 @@ export interface SelectProps<T extends SelectOption> {
   headerOptions?: {
     showIcon?: boolean
     showName?: boolean
+    showCaret?: boolean
   }
 }
 
@@ -152,6 +153,7 @@ export function VirtualSelect<T extends SelectOption>(props: SelectProps<T>): JS
 
   const showHeaderIcon = props.headerOptions?.showIcon ?? true
   const showHeaderName = props.headerOptions?.showName ?? true
+  const showCaret = props.headerOptions?.showCaret ?? true
 
   return (
     <div
@@ -166,9 +168,11 @@ export function VirtualSelect<T extends SelectOption>(props: SelectProps<T>): JS
           <span className={`select-header-icon`}>{props.options[defaultIndex || 0]?.icon}</span>
         )}
         {showHeaderName && <span>{props.options[defaultIndex || 0]?.name || ''}</span>}
-        <button className="select-caret" onClick={toggleSelect}>
-          <AiOutlineDown />
-        </button>
+        {showCaret && (
+          <button className="select-caret" onClick={toggleSelect}>
+            <AiOutlineDown />
+          </button>
+        )}
       </div>
       <div
         className={`select-main ${getThemeClassName()} ${isActive ? 'active' : ''}`}

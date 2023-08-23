@@ -248,7 +248,7 @@ function Column(props: {
       <RichTextPlugin
         contentEditable={
           <ContentEditable
-            className="editor"
+            className="columns-node-editor"
             spellCheck={false}
             style={{
               width: '100%'

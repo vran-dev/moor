@@ -15,16 +15,13 @@ import {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
-  ElementNode,
   LexicalEditor,
   LexicalNode,
   NodeKey,
   SerializedEditorState,
-  SerializedElementNode,
   Spread
 } from 'lexical'
 import { CalloutComponent } from './components/Callout'
-import { Children } from 'react'
 
 type SerializedCalloutNode = Spread<
   {
@@ -60,7 +57,7 @@ export class CalloutNode extends DecoratorBlockNode {
   }
 
   static clone(node: CalloutNode): CalloutNode {
-    return new CalloutNode(node.__open, node.__children, node.__key)
+    return new CalloutNode(node.__bgColor, node.__children, node.__key)
   }
 
   static importDOM(): DOMConversionMap<HTMLDetailsElement> | null {
@@ -75,7 +72,7 @@ export class CalloutNode extends DecoratorBlockNode {
   }
 
   static importJSON(serializedNode: SerializedCalloutNode): CalloutNode {
-    const node = $createCalloutNode(serializedNode.bgColor)
+    const node = $createCalloutNode(serializedNode.bgColor, serializedNode.children)
     return node
   }
 
@@ -121,8 +118,11 @@ export class CalloutNode extends DecoratorBlockNode {
   }
 }
 
-export function $createCalloutNode(bgColor?: string): CalloutNode {
-  return new CalloutNode(bgColor || '#fbfbfb')
+export function $createCalloutNode(
+  bgColor?: string,
+  children?: SerializedEditorState
+): CalloutNode {
+  return new CalloutNode(bgColor || '#fbfbfb', children)
 }
 
 export function $isCalloutNode(node: LexicalNode | null | undefined): node is CalloutNode {

@@ -8,7 +8,6 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { EditorPlugins } from '@renderer/editor'
 import { useSharedHistoryContext } from '@renderer/editor/context/SharedHistoryContext'
 import LexicalNodes from '@renderer/editor/node'
-import { ColumnsNode, $isColumnNode } from '@renderer/editor/node/Columns'
 import { useThrottle } from '@renderer/editor/utils/useThrottle'
 import { theme } from 'antd'
 import {
@@ -20,12 +19,18 @@ import {
   SerializedEditorState,
   createEditor
 } from 'lexical'
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import './index.css'
-import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 import { ColorPicker } from '../ColorPicker'
 import { $isCalloutNode, CalloutNode } from '../..'
 import { SelectOption } from '@renderer/ui/Select'
+import { useFloating, offset, useHover, useDismiss, useInteractions } from '@floating-ui/react'
+import {
+  KeyAction,
+  useDecoratorNodeKeySetting
+} from '@renderer/editor/utils/useDecoratorNodeKeySetting'
+import { focusEditorDom } from '@renderer/editor/utils/focusEditorDom'
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 export function CalloutComponent(props: {
   bgColor: string
   nodeKey: NodeKey
@@ -46,21 +51,52 @@ export function CalloutComponent(props: {
     [nodeKey]
   )
 
+  const [showToollMenu, setShowTollMenu] = useState(false)
+  const { refs, floatingStyles, context } = useFloating({
+    open: showToollMenu,
+    onOpenChange: setShowTollMenu,
+    placement: 'top-start',
+    middleware: [
+      offset({
+        // crossAxis: -50
+      })
+    ]
+  })
+  const hover = useHover(context, {
+    move: false
+  })
+  const dismiss = useDismiss(context)
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, dismiss])
+
   return (
     <div
       className="callout-container"
       style={{
         backgroundColor: bgColor
       }}
+      ref={refs.setReference}
+      {...getReferenceProps()}
     >
-      <ColorPicker
-        onChange={(option: SelectOption): void => {
-          withCalloutNode((node: CalloutNode) => {
-            node.setBgColor(option.value)
-          })
-        }}
-        color={bgColor}
-      />
+      {showToollMenu && (
+        <div
+          ref={refs.setFloating}
+          style={{
+            zIndex: 9,
+            ...floatingStyles
+          }}
+          {...getFloatingProps()}
+        >
+          <ColorPicker
+            onChange={(option: SelectOption): void => {
+              withCalloutNode((node: CalloutNode) => {
+                node.setBgColor(option.value)
+              })
+            }}
+            color={bgColor}
+          />
+        </div>
+      )}
+
       <NestedEditor nodeKey={nodeKey} state={state} />
     </div>
   )
@@ -68,7 +104,8 @@ export function CalloutComponent(props: {
 
 function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }): JSX.Element {
   const { historyState } = useSharedHistoryContext()
-  const [rootEditor] = useLexicalComposerContext()
+  const [parentEditor] = useLexicalComposerContext()
+  const [selected, setSelected, clearSelection] = useLexicalNodeSelection(props.nodeKey)
   const columnEditor: LexicalEditor = createEditor({
     namespace: 'MoorEditor',
     nodes: [...LexicalNodes],
@@ -77,6 +114,25 @@ function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }
     },
     theme: theme
   })
+
+  useDecoratorNodeKeySetting(
+    {
+      editor: parentEditor,
+      nodeKey: props.nodeKey,
+      onSelect: (action: KeyAction): boolean => {
+        columnEditor.focus()
+        return true
+      }
+    },
+    [columnEditor]
+  )
+  useEffect(() => {
+    if (selected) {
+      focusEditorDom(columnEditor)
+    } else {
+      focusEditorDom(parentEditor)
+    }
+  }, [selected])
 
   useEffect(() => {
     /**
@@ -93,11 +149,11 @@ function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }
     })
   }, [])
 
-  const updateColumnNode = useCallback(
-    (callback: (node: ColumnsNode) => void) => {
-      rootEditor.update((): void => {
+  const updateCalloutNode = useCallback(
+    (callback: (node: CalloutNode) => void) => {
+      parentEditor.update((): void => {
         const node = $getNodeByKey(props.nodeKey)
-        if ($isColumnNode(node)) {
+        if ($isCalloutNode(node)) {
           callback(node)
         }
       })
@@ -107,10 +163,10 @@ function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }
 
   const onChange = useThrottle((editorState: EditorState): void => {
     // save editor state
-    updateColumnNode((node) => {
+    updateCalloutNode((node: CalloutNode) => {
       // prevent history here, beause it will cause repeated history
       $addUpdateTag('historic')
-      // node.replaceChildren(props.index, editorState.toJSON())
+      node.setChildren(editorState.toJSON())
     })
   }, 1000)
 
