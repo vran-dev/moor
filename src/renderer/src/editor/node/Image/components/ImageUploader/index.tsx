@@ -45,6 +45,7 @@ export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
   const turnOffEditingIfClickOutside = useCallback(
     (e: FocusEvent) => {
       const targetEle = e.target as HTMLElement
+
       if (targetEle && targetEle.closest('.image-uploader-container') === null) {
         // save data
         if (inputRef.current && inputRef.current.value !== '') {

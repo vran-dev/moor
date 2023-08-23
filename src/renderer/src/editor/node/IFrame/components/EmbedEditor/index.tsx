@@ -71,16 +71,34 @@ export default function EmbedEditor(props: {
   const turnOffEditingIfClickOutside = useCallback(
     (e: FocusEvent) => {
       const targetEle = e.target as HTMLElement
+
       if (targetEle && targetEle.closest('.iframe-editor') === null) {
+        // save data
+        if (textAreaRef.current && textAreaRef.current.value !== '') {
+          saveData()
+        }
         setEditing(false)
       }
     },
     [editing, iframeEditorContainerRef]
   )
+
+  useEffect(() => {
+    if (editing && iframeEditorContainerRef.current) {
+      document.addEventListener('mousedown', turnOffEditingIfClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', turnOffEditingIfClickOutside)
+      }
+    }
+  }, [editing])
   return (
     <div
       className={`iframe-editor ${editing ? 'editing' : ''}`}
-      onClick={(): void => setEditing(true)}
+      onClick={(e): void => {
+        if (!editing) {
+          setEditing(true)
+        }
+      }}
       onBlur={(e): void => turnOffEditingIfClickOutside(e)}
       ref={iframeEditorContainerRef}
     >
