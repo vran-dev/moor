@@ -46,6 +46,13 @@ export function ImageUploader(props: { nodeKey: NodeKey }): JSX.Element {
     (e: FocusEvent) => {
       const targetEle = e.target as HTMLElement
       if (targetEle && targetEle.closest('.image-uploader-container') === null) {
+        // save data
+        if (inputRef.current && inputRef.current.value !== '') {
+          const src = inputRef.current.value
+          withImageNode((node: ImageNode) => {
+            node.setSrc(src)
+          })
+        }
         setEditing(false)
       }
     },
