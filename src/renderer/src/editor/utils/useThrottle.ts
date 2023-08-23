@@ -2,7 +2,11 @@
 import { throttle } from 'lodash-es'
 import { useMemo, useRef } from 'react'
 
-export function useThrottle<T extends (...args: never[]) => void>(fn: T, ms: number) {
+export function useThrottle<T extends (...args: never[]) => void>(
+  fn: T,
+  ms: number,
+  trailing = true
+) {
   const funcRef = useRef<T | null>(null)
   funcRef.current = fn
 
@@ -15,7 +19,7 @@ export function useThrottle<T extends (...args: never[]) => void>(fn: T, ms: num
           }
         },
         ms,
-        { trailing: true }
+        { trailing: trailing }
       ),
     [ms]
   )

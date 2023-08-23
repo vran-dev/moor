@@ -24,6 +24,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
+import { useDebounce } from '@renderer/editor/utils/useDebounce'
 
 const emptyData: SerializedEditorState = {
   root: {
@@ -61,17 +62,21 @@ export function ColumnsComponent(props: {
   const columnsContainerRef = useRef<HTMLDivElement | null>(null)
   const [editor] = useLexicalComposerContext()
   const { widthRatio } = props
-  const updateColumnsNode = useCallback(
-    (callback: (node: ColumnsNode) => void) => {
-      editor.update((): void => {
-        const node = $getNodeByKey(props.nodeKey)
-        if ($isColumnNode(node)) {
-          $addUpdateTag('historic')
-          callback(node)
-        }
-      })
-    },
-    [props.nodeKey]
+  const updateColumnsNode = useThrottle(
+    useCallback(
+      (callback: (node: ColumnsNode) => void) => {
+        editor.update((): void => {
+          const node = $getNodeByKey(props.nodeKey)
+          if ($isColumnNode(node)) {
+            $addUpdateTag('historic')
+            callback(node)
+          }
+        })
+      },
+      [props.nodeKey]
+    ),
+    20,
+    false
   )
 
   const onMouseDown = useCallback(

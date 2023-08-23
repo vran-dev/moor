@@ -7,13 +7,18 @@ import {
   DOMConversionMap,
   DOMConversionOutput,
   EditorConfig,
+  EditorState,
   LexicalEditor,
   LexicalNode,
   NodeKey,
   SerializedEditorState,
-  Spread
+  Spread,
+  createEditor
 } from 'lexical'
 import { ColumnsComponent } from './ColumnsComponent'
+import { $generateHtmlFromNodes } from '@lexical/html'
+import { $getHtmlContent } from '@lexical/clipboard'
+import LexicalNodes from '..'
 
 export type SerializedColumnNode = Spread<
   {
@@ -126,6 +131,32 @@ export class ColumnsNode extends DecoratorBlockNode {
         states={this.__children}
       ></ColumnsComponent>
     )
+  }
+
+  getTextContent(): string {
+    // return this.__children
+    //   .map((child) => {
+    //     const columnExportEditor: LexicalEditor = createEditor({
+    //       namespace: 'ColumnExportTempEditor',
+    //       nodes: [...LexicalNodes],
+    //       onError: (error) => {
+    //         console.log(error)
+    //       }
+    //     })
+    //     columnExportEditor.setEditorState(columnExportEditor.parseEditorState(child))
+    //     // const htmlString = $getHtmlContent(columnExportEditor)
+    //     // const root = columnExportEditor.getEditorState()._nodeMap.get('root')
+    //     // console.log(root)
+    //     // return root?.getTextContent() || ''
+    //     // let textContent = ''
+    //     // for (let i = 0; i < nodes.length; i++) {
+    //     //   textContent += nodes[i].getTextContent()
+    //     // }
+    //     // return textContent
+    //     // return $generateHtmlFromNodes(columnExportEditor)
+    //   })
+    //   .join('\n')
+    return ''
   }
 }
 
