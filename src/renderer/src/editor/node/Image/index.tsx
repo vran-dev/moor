@@ -11,6 +11,7 @@ import type {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
+  ElementFormatType,
   LexicalNode,
   NodeKey,
   Spread
@@ -28,6 +29,7 @@ import {
 export interface ImagePayload {
   altText?: string
   height?: number
+  format?: ElementFormatType
   key?: NodeKey
   src?: string
   width?: number
@@ -62,7 +64,14 @@ export class ImageNode extends DecoratorBlockNode {
   }
 
   static clone(node: ImageNode): ImageNode {
-    return new ImageNode(node.__src, node.__altText, node.__width, node.__height, node.__key)
+    return new ImageNode(
+      node.__src,
+      node.__altText,
+      node.__width,
+      node.__height,
+      node.__format,
+      node.__key
+    )
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
@@ -94,8 +103,15 @@ export class ImageNode extends DecoratorBlockNode {
     }
   }
 
-  constructor(src?: string, altText?: string, width?: number, height?: number, key?: NodeKey) {
-    super('start', key)
+  constructor(
+    src?: string,
+    altText?: string,
+    width?: number,
+    height?: number,
+    format?: ElementFormatType,
+    key?: NodeKey
+  ) {
+    super(format, key)
     this.__src = src
     this.__altText = altText
     this.__width = width
@@ -158,8 +174,8 @@ export class ImageNode extends DecoratorBlockNode {
 }
 
 export function $createImageNode(options?: ImagePayload): ImageNode {
-  const { altText, height, key, src, width } = options || {}
-  return $applyNodeReplacement(new ImageNode(src, altText, width, height, key))
+  const { altText, height, key, format, src, width } = options || {}
+  return $applyNodeReplacement(new ImageNode(src, altText, width, height, format, key))
 }
 
 export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {

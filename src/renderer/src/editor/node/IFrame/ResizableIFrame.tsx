@@ -21,6 +21,7 @@ import { VirtualSelect } from '@renderer/ui/Select'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { useCover } from '@renderer/ui/Cover/useCover'
 import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
+import { AlignableBlockToolMenu } from '@renderer/ui/AlignableBlockToolMenu'
 
 function isEmptyString(str: string | null | undefined): boolean {
   return str === null || str === undefined || str === ''
@@ -129,15 +130,15 @@ export function ResizableIFrame(props: {
                 }}
                 {...getFloatingProps()}
               >
-                <ToolMenu editor={editor} nodeKey={nodeKey} nodeFormat={nodeFormat}>
+                <AlignableBlockToolMenu editor={editor} nodeKey={nodeKey} nodeFormat={nodeFormat}>
                   {!isEditing() && (
                     <Button
                       onClick={(e): void => setStatus('editing')}
-                      icon={<BsCodeSquare />}
+                      icon={<BsCodeSquare size={12} />}
                       type="dark"
                     ></Button>
                   )}
-                </ToolMenu>
+                </AlignableBlockToolMenu>
               </div>
             )}
             <iframe
@@ -152,7 +153,7 @@ export function ResizableIFrame(props: {
                 setStatus('success')
               }}
               allowFullScreen={true}
-              sandbox="allow-scripts allow-popups allow-forms allow-same-origin"
+              sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-top-navigation-by-user-activation"
             />
           </div>
           {cover}
@@ -194,98 +195,5 @@ export function ResizableIFrame(props: {
         </div>
       )}
     </BlockWithAlignableContents>
-  )
-}
-
-function ToolMenu(props: {
-  editor: LexicalEditor
-  nodeKey: NodeKey
-  nodeFormat: ElementFormatType
-  children?: React.ReactNode
-}): JSX.Element {
-  const { editor, nodeKey, nodeFormat, children } = props
-  const withIFrameNode = (callback: (node: IFrameNode) => void, onUpdate?: () => void): void => {
-    editor.update(
-      () => {
-        const node = $getNodeByKey(nodeKey)
-        if ($isIFrameNode(node)) {
-          callback(node)
-        }
-      },
-      { onUpdate }
-    )
-  }
-
-  const removeNode = useCallback(() => {
-    withIFrameNode((node) => {
-      node.remove()
-    })
-  }, [nodeKey])
-
-  const layoutSelectItems = [
-    {
-      icon: <BsLayoutSidebarInset />,
-      name: 'start',
-      value: 'start',
-      onSelect: () =>
-        withIFrameNode((node: IFrameNode) => {
-          node.setFormat('start')
-        })
-    },
-    {
-      icon: <BsSquare />,
-      name: 'center',
-      value: 'center',
-      onSelect: () =>
-        withIFrameNode((node: IFrameNode) => {
-          node.setFormat('center')
-        })
-    },
-    {
-      icon: <BsLayoutSidebarInsetReverse />,
-      name: 'end',
-      value: 'end',
-      onSelect: () =>
-        withIFrameNode((node: IFrameNode) => {
-          node.setFormat('end')
-        })
-    }
-  ]
-
-  const getMenuJustifyContentByFormat = (): string => {
-    if (nodeFormat === 'right' || nodeFormat === 'end') {
-      return 'end'
-    }
-    if (nodeFormat === 'center') {
-      return 'center'
-    }
-    return 'start'
-  }
-  const defaultLayoutActiveIndex = layoutSelectItems.findIndex((b) => b.value === nodeFormat)
-
-  return (
-    <div
-      className="embed-iframe-tool-menu"
-      style={{
-        justifyContent: getMenuJustifyContentByFormat()
-      }}
-    >
-      {children}
-      <Button onClick={(): void => removeNode()} icon={<BsTrash3 />} type="dark"></Button>
-      <Divider direction="vertical"></Divider>
-      <VirtualSelect
-        options={layoutSelectItems}
-        defaultIndex={defaultLayoutActiveIndex < 0 ? 0 : defaultLayoutActiveIndex}
-        onSelect={(option): void => option.onSelect?.()}
-        className="layout-select"
-        theme="dark"
-        mainMinWidth="90px"
-        headerOptions={{
-          showName: false
-        }}
-      />
-      {/* TODO support save snapshot time */}
-      {/* <Button onClick={() => {}}>Snapshot</Button> */}
-    </div>
   )
 }

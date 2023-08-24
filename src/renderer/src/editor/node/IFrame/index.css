@@ -3,18 +3,3 @@
   height: 100%;
   width: 100%;
 }
-
-.embed-iframe-tool-menu {
-  display: flex;
-  flex-direction: row;
-  gap: 3px;
-  padding: 3px;
-  background-color: #0e0e0f;
-  opacity: 0.8;
-  z-index: 9;
-}
-
-
-.layout-select {
-  color: #FFF;
-}

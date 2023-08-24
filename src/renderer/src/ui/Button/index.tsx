@@ -20,7 +20,7 @@ export function Button(props: {
       {...props.attributes}
     >
       {props.icon}
-      <span>{props.children}</span>
+      {props.children && <span>{props.children}</span>}
     </button>
   )
 }

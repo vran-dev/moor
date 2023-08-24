@@ -45,6 +45,8 @@
 }
 
 .select-caret {
+  display: flex;
+  justify-content: center;
   color: #cdcdcd;
 }
 
