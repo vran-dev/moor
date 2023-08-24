@@ -188,6 +188,22 @@ const getAbsolutePathHandler: IpcHandler = {
   }
 }
 
+const findInpage: IpcHandler = {
+  name: 'start-find-in-page',
+  handle: (event, ...args) => {
+    const mainWindow = BrowserWindow.getFocusedWindow()
+    if (mainWindow) {
+      console.log('start find in page', args[0])
+      mainWindow.webContents.findInPage(args[0], {
+        findNext: true,
+        forward: true
+      })
+    } else {
+      console.log('ignore find in page')
+    }
+  }
+}
+
 export const handlers = [
   openFileDialogHandler,
   openDirectoryHandler,
@@ -196,5 +212,6 @@ export const handlers = [
   writeFileHandler,
   listFilesRecursiveHandler,
   listFileTreeHandler,
-  getAbsolutePathHandler
+  getAbsolutePathHandler,
+  findInpage
 ]

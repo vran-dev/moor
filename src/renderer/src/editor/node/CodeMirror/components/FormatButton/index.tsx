@@ -114,9 +114,7 @@ const FORMATTER_BY_LANG: Record<string, CodeFormatter> = {
   },
   java: {
     format(source, language) {
-      return formateByPrettier(source, language, async () => [
-        await import('prettier-plugin-java')
-      ])
+      return formateByPrettier(source, language, async () => [await import('prettier-plugin-java')])
     }
   },
   sql: {
@@ -149,7 +147,7 @@ const FORMATTER_BY_LANG: Record<string, CodeFormatter> = {
       return Promise.resolve(format(source, { language: 'sql' }))
     }
   },
-  
+
   'mariadb sql': {
     format(source, language) {
       return Promise.resolve(format(source, { language: 'mariadb' }))
