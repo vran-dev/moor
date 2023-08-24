@@ -21,7 +21,7 @@ export function CopyButton(props: { codeMirror: EditorView }): JSX.Element {
       <button
         onClick={(): void => copy()}
         onMouseLeave={(): void => onMouseLeave()}
-        className="copy-button"
+        className="code-tool-button"
       >
         {isDone ? <MdOutlineDone /> : <GoCopy />}
       </button>

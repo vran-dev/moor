@@ -32,7 +32,7 @@ import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { githubLightInit } from '@uiw/codemirror-theme-github'
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, NodeKey } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { $isCodeMirrorNode, CodeblockLayout } from '.'
+import { $isCodeMirrorNode, CodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
 import { LanguageInfo, languageInfos, languageMatch, listLanguages } from './languages'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
@@ -44,6 +44,9 @@ import { useDebounce } from '@renderer/editor/utils/useDebounce'
 import { codeMirrorArrowKeyDelegate } from './utils/codeMirrorArrowKeyDelegate'
 import { useCover } from '@renderer/ui/Cover/useCover'
 import { codeMirrorNodeListener } from './utils/codeMirrorNodeListener'
+import { useCodeMirrorDataUpdate } from './utils/useCodeMirrorDataUpdate'
+import { LineWrapButton } from './components/LineWrapButton'
+import { FormatButton, canFormat } from './components/FormatButton'
 export interface LanguageOption extends LanguageInfo {
   value: string
   label: string
@@ -54,6 +57,7 @@ export function CodeMirrorComponent(props: {
   data: string
   layout?: CodeblockLayout
   language?: string | null
+  lineWrap?: boolean
 }): JSX.Element {
   const [codeMirror, setCodeMirror] = useState<CodeMirrorEditorView | null>()
   const editorRef = useRef<HTMLDivElement>(null)
@@ -78,6 +82,7 @@ export function CodeMirrorComponent(props: {
     }
   }, [language])
   const languageCompartment = useMemo(() => new Compartment(), [])
+  const lineWrapCompartment = useMemo(() => new Compartment(), [])
   const languageOptions = useMemo(() => {
     return languageInfos.map((item, index) => {
       return {
@@ -114,7 +119,9 @@ export function CodeMirrorComponent(props: {
 
   const onLanguageChange = useCallback((option) => {
     setSelectLanguage(option)
-    updateLexicalNodeLanguage(option.value)
+    withCodeMirrorNode((node): void => {
+      node.setLanguage(option.value)
+    })
   }, [])
 
   // update lexical node data
@@ -133,23 +140,12 @@ export function CodeMirrorComponent(props: {
     1000
   )
 
-  const updateLexicalNodeLanguage = useCallback(
-    (language: string) =>
+  const withCodeMirrorNode = useCallback(
+    (callback: (node: CodeMirrorNode) => void) =>
       editor.update(() => {
         const node = $getNodeByKey(nodeKey)
         if ($isCodeMirrorNode(node)) {
-          node.setLanguage(language)
-        }
-      }),
-    [editor, nodeKey]
-  )
-
-  const updateLexicalNodeLayout = useCallback(
-    (layout: CodeblockLayout) =>
-      editor.update(() => {
-        const node = $getNodeByKey(nodeKey)
-        if ($isCodeMirrorNode(node)) {
-          node.setLayout(layout)
+          callback(node)
         }
       }),
     [editor, nodeKey]
@@ -291,7 +287,6 @@ export function CodeMirrorComponent(props: {
         history(),
         indentOnInput(),
         autocompletion(),
-        CodeMirrorEditorView.lineWrapping,
         foldGutter(),
         // highlightActiveLine(),
         // drawSelection(),
@@ -302,11 +297,14 @@ export function CodeMirrorComponent(props: {
         githubLightInit({
           settings: {
             background: 'transpanret',
-            gutterBackground: 'transparent',
+            gutterBackground: '#fbfbfb',
             selection: 'default'
           }
         }),
         languageCompartment.of([]),
+        props.lineWrap
+          ? lineWrapCompartment.of([CodeMirrorEditorView.lineWrapping])
+          : lineWrapCompartment.of([]),
         changeFilter
       ]
     })
@@ -330,41 +328,14 @@ export function CodeMirrorComponent(props: {
     }
   }, [codeMirror, layout])
 
-  useEffect(() => {
-    if (!codeMirror) {
-      return
-    }
-    const newText = data || ''
-    const curText = codeMirror.state.doc.toString()
-    if (newText != curText) {
-      let start = 0,
-        curEnd = curText.length,
-        newEnd = newText.length
-      while (start < curEnd && curText.charCodeAt(start) == newText.charCodeAt(start)) {
-        ++start
-      }
-      while (
-        curEnd > start &&
-        newEnd > start &&
-        curText.charCodeAt(curEnd - 1) == newText.charCodeAt(newEnd - 1)
-      ) {
-        curEnd--
-        newEnd--
-      }
-      codeMirror.dispatch({
-        changes: {
-          from: start,
-          to: curEnd,
-          insert: newText.slice(start, newEnd)
-        }
-      })
-    }
-  }, [codeMirror, data])
+  useCodeMirrorDataUpdate({ codeMirror: codeMirror, data: data })
 
   const onLayoutChange = useCallback(
     (value) => {
       setLayout(CodeblockLayout[value])
-      updateLexicalNodeLayout(value)
+      withCodeMirrorNode((node): void => {
+        node.setLayout(value)
+      })
     },
     [layout]
   )
@@ -389,28 +360,6 @@ export function CodeMirrorComponent(props: {
     return true
   }, [layout, selectLanguage])
 
-  // const onMouseClick = (event: MouseEvent): void => {
-  //   const { codeDOMNode, isOutside } = getMouseInfo(event)
-  //   if (isOutside) {
-  //     return
-  //   }
-  //   if (!codeDOMNode) {
-  //     return
-  //   }
-  //   editor.update(() => {
-  //     const maybeCodeNode = $getNearestNodeFromDOMNode(codeDOMNode)
-  //     if ($isCodeMirrorNode(maybeCodeNode) && maybeCodeNode.getKey() === props.nodeKey) {
-  //       setSelected(true)
-  //     }
-  //   })
-  // }
-  // useEffect(() => {
-  //   document.addEventListener('mousedown', onMouseClick)
-  //   return () => {
-  //     document.removeEventListener('mousedown', onMouseClick)
-  //   }
-  // }, [])
-
   return (
     <div className="codeblock-container" draggable={true}>
       <div className="codeblock-header">
@@ -425,7 +374,24 @@ export function CodeMirrorComponent(props: {
           <LayoutSelect onChange={(option): void => onLayoutChange(option.value)} layout={layout} />
         )}
 
-        {codeMirror && <CopyButton codeMirror={codeMirror} />}
+        {codeMirror && (
+          <>
+            <CopyButton codeMirror={codeMirror} />
+            <LineWrapButton
+              codeMirror={codeMirror}
+              lineWrapCompartMent={lineWrapCompartment}
+              defaultValue={props.lineWrap || false}
+              onChange={(value): void =>
+                withCodeMirrorNode((node) => {
+                  node.setLineWrap(value)
+                })
+              }
+            />
+            {selectLanguage && canFormat(selectLanguage.name.toLocaleLowerCase()) && (
+              <FormatButton codeMirror={codeMirror} lang={selectLanguage?.name} />
+            )}
+          </>
+        )}
       </div>
       <div className="codeblock-main">
         {
@@ -442,18 +408,4 @@ export function CodeMirrorComponent(props: {
       {cover}
     </div>
   )
-}
-
-function getMouseInfo(event: MouseEvent): {
-  codeDOMNode: HTMLElement | null
-  isOutside: boolean
-} {
-  const target = event.target
-  if (target && target instanceof HTMLElement) {
-    const codeDOMNode = target.closest<HTMLElement>('div.codeblock-container')
-    const isOutside = !(codeDOMNode || target.closest<HTMLElement>('div.codeblock-header'))
-    return { codeDOMNode, isOutside }
-  } else {
-    return { codeDOMNode: null, isOutside: true }
-  }
 }

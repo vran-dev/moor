@@ -222,7 +222,7 @@ export const defaultData = {
         type: 'columns',
         version: 1,
         count: 2,
-        widthRatio: [0.5, 0.5],
+        widthRatio: [0.3, 0.7],
         children: [
           {
             root: {
@@ -268,6 +268,7 @@ export const defaultData = {
                   version: 1,
                   data: "aliCloud:\n  ons:\n    orderhub:\n      groupId: 'GID_family_member_task_orderhub_order'\n      topic: 'dtc-online-order-qa-topic'\n      tag: 'dtc-online-tag'",
                   language: 'YAML',
+                  lineWrap: true,
                   layout: 'SplitVertical'
                 }
               ],

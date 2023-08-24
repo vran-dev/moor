@@ -1,6 +1,5 @@
 import {
   DOMConversionOutput,
-  RangeSelection,
   type DOMConversionMap,
   type EditorConfig,
   type ElementFormatType,
@@ -8,9 +7,6 @@ import {
   type LexicalNode,
   type NodeKey,
   type Spread,
-  $setSelection,
-  $createNodeSelection,
-  $createRangeSelection,
   DOMExportOutput,
   DOMConversion
 } from 'lexical'
@@ -28,6 +24,7 @@ export type SerializedCodeMirrorNode = Spread<
     data: string
     language: string | undefined | null
     layout: CodeblockLayout
+    lineWrap: boolean
   },
   SerializedDecoratorBlockNode
 >
@@ -52,11 +49,13 @@ export class CodeMirrorNode extends DecoratorBlockNode {
   __data: string
   __language: string | undefined | null
   __layout: CodeblockLayout
+  __lineWrap: boolean
 
   constructor(
     data = '',
     language?: string | null,
     layout?: CodeblockLayout,
+    lineWrap?: boolean,
     format?: ElementFormatType,
     key?: NodeKey
   ) {
@@ -64,6 +63,7 @@ export class CodeMirrorNode extends DecoratorBlockNode {
     this.__data = data
     this.__language = language
     this.__layout = layout ? layout : CodeblockLayout.SplitVertical
+    this.__lineWrap = lineWrap === true
   }
 
   setData(data: string): void {
@@ -93,6 +93,15 @@ export class CodeMirrorNode extends DecoratorBlockNode {
     return this.__layout
   }
 
+  setLineWrap(lineWrap: boolean): void {
+    const writable = this.getWritable()
+    writable.__lineWrap = lineWrap
+  }
+
+  getLineWrap(): boolean {
+    return this.__lineWrap
+  }
+
   updateDOM(): false {
     return false
   }
@@ -104,6 +113,7 @@ export class CodeMirrorNode extends DecoratorBlockNode {
         data={this.getData()}
         language={this.getLanguage()}
         layout={this.getLayout()}
+        lineWrap={this.getLineWrap()}
       />
     )
   }
@@ -114,6 +124,7 @@ export class CodeMirrorNode extends DecoratorBlockNode {
       data: this.getData(),
       language: this.getLanguage(),
       layout: this.getLayout(),
+      lineWrap: this.getLineWrap(),
       type: 'codemirror',
       version: 1
     }
@@ -155,13 +166,14 @@ export class CodeMirrorNode extends DecoratorBlockNode {
       node.getData(),
       node.getLanguage(),
       node.getLayout(),
+      node.getLineWrap(),
       node.__format,
       node.__key
     )
   }
 
   static importJSON(json: SerializedCodeMirrorNode): CodeMirrorNode {
-    return new CodeMirrorNode(json.data, json.language, json.layout, json.format)
+    return new CodeMirrorNode(json.data, json.language, json.layout, json.lineWrap, json.format)
   }
 
   static importDOM(): DOMConversionMap<HTMLSpanElement> | null {

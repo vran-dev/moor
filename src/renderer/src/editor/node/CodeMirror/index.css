@@ -1,8 +1,9 @@
 /* codemirror style customize */
 .cm-editor {
   border: none;
-  background-color: transparent;
+  /* background-color: transparent; */
   margin-top: 1rem;
+  border-radius: 6px;
 }
 
 .cm-editor.cm-focused {
@@ -58,42 +59,6 @@
   text-align: center;
 }
 
-.react-select-container {
-  z-index: 9;
-  min-width: 150px;
-  border-width: 0px;
-  outline: none;
-  min-height: 24px;
-  background-color: transparent;
-}
-
-.react-select-container:hover {
-  box-shadow: none;
-}
-
-.react-select-value-container {
-  background-color: transparent;
-}
-
-.react-select-control {
-  border-width: 0px !important;
-  border-style: none;
-  box-shadow: none;
-  background-color: transparent !important;
-}
-
-.react-select-control:hover {
-  border-width: 0px;
-  border-style: none;
-  border-color: transparent;
-  background-color: transparent;
-  box-shadow: none;
-}
-
-.react-select-menu {
-  z-index: 10 !important;
-}
-
 .codeblock-preview {
   max-width: 100%;
   overflow: scroll;
@@ -107,15 +72,20 @@
   text-align: center;
 }
 
-.copy-button {
+.code-tool-button {
   border-radius: 6px;
-  right: 6px;
-  position: absolute;
+  /* right: 6px; */
+  /* position: absolute; */
   color: #939393;
   padding: 5px;
+  text-align: center;
+  vertical-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.copy-button:hover {
+.code-tool-button:hover {
   background-color: var(--highlight-color);
   color: var(--highlight-text-color);
 }

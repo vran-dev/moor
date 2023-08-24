@@ -19,7 +19,7 @@
 .columns-item-node-border {
   position: absolute;
   top: 0px;
-  left: -2px;
+  left: -3px;
   right: 1px;
   bottom: 0px;
   border-radius: 3px;
@@ -29,9 +29,9 @@
   pointer-events: none;
 }
 
-.columns-item-node.active:hover .columns-item-node-border {
+/* .columns-item-node.active:hover .columns-item-node-border {
   border-color: #7852ee;
-}
+} */
 
 .columns-item-node.active .columns-item-node-border {
   border-color: #DDD;
@@ -39,9 +39,9 @@
 
 .columns-node-resizer {
   position: absolute;
-  top: 0px;
+  top: 10%;
   right: -5px;
-  height: 100%;
+  height: 80%;
   width: 4px;
   border-radius: 3px;
   background-color: transparent;
