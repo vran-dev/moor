@@ -15,6 +15,7 @@ import { IFrameNode } from './IFrame'
 import { ImageNode } from './Image'
 import { ColumnsNode } from './Columns'
 import { CalloutNode } from './Callout'
+import { CalloutNextNode } from './CalloutNext'
 
 const LexicalNodes: ReadonlyArray<
   | Klass<LexicalNode>
@@ -50,6 +51,7 @@ const LexicalNodes: ReadonlyArray<
   ColumnsNode,
   MarkNode,
   CalloutNode,
+  CalloutNextNode,
   {
     replace: CodeNode,
     with: (node: CodeNode): LexicalNode => {

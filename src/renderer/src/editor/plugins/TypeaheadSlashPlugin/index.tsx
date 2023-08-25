@@ -42,6 +42,7 @@ import { BsImage, BsLayoutSplit, BsLayoutThreeColumns, BsWindow } from 'react-ic
 import { $createImageNode } from '@renderer/editor/node/Image'
 import { $createColumnNode } from '@renderer/editor/node/Columns'
 import { $createCalloutNode } from '@renderer/editor/node/Callout'
+import { INSERT_CALLOUT_COMMAND } from '../CalloutPlugin'
 
 const ICON_SIZE = 20
 
@@ -293,8 +294,11 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
           editor.update(() => {
             const selection = $getSelection()
             if ($isRangeSelection(selection)) {
-              const node = $createCalloutNode()
-              selection.insertNodes([node])
+              const callout = $createCalloutNode()
+              selection.insertNodes([callout])
+              const ns = $createNodeSelection()
+              ns.add(callout.getKey())
+              $setSelection(ns)
             }
           })
         },

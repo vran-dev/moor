@@ -29,12 +29,10 @@ import { ColorPicker } from '../ColorPicker'
 import { $isCalloutNode, CalloutNode } from '../..'
 import { SelectOption } from '@renderer/ui/Select'
 import { useFloating, offset, useHover, useDismiss, useInteractions } from '@floating-ui/react'
-import {
-  KeyAction,
-  useDecoratorNodeKeySetting
-} from '@renderer/editor/utils/useDecoratorNodeKeySetting'
+import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 import { focusEditorDom } from '@renderer/editor/utils/focusEditorDom'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
+import { isMultipleSelectino } from '@renderer/editor/utils/isMultipleSelection'
 export function CalloutComponent(props: {
   bgColor: string
   nodeKey: NodeKey
@@ -129,7 +127,7 @@ function NestedEditor(props: {
     {
       editor: parentEditor,
       nodeKey: props.nodeKey,
-      onSelect: (action: KeyAction): boolean => {
+      onSelect: (): boolean => {
         setSelected(true)
         return true
       },
@@ -166,8 +164,10 @@ function NestedEditor(props: {
     [calloutEditor, parentEditor]
   )
   useEffect(() => {
+    if (isMultipleSelectino(parentEditor)) {
+      return
+    }
     if (selected) {
-      parentEditor.blur()
       focusEditorDom(calloutEditor)
     } else {
       focusEditorDom(parentEditor)

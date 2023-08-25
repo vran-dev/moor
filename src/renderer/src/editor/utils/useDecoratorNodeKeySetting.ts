@@ -84,13 +84,15 @@ export function useDecoratorNodeKeySetting(
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_DOWN_COMMAND,
         (event, targetEditor) => {
-          if(primaryHandler && primaryHandler(event)) {
+          if (primaryHandler && primaryHandler(event)) {
             return true
           }
           const selection = $getSelection()
           if ($isRangeSelection(selection)) {
             const topEle = selection.anchor.getNode().getTopLevelElement()
             if (topEle && nodePredicate(topEle.getNextSibling())) {
+              event.preventDefault()
+              event.stopImmediatePropagation()
               return props.onSelect('ArrowDown')
             }
           }
@@ -112,13 +114,15 @@ export function useDecoratorNodeKeySetting(
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
         (event, targetEditor) => {
-          if(primaryHandler && primaryHandler(event)) {
+          if (primaryHandler && primaryHandler(event)) {
             return true
           }
           const selection = $getSelection()
           if ($isRangeSelection(selection)) {
             const topEle = selection.anchor.getNode().getTopLevelElement()
             if (topEle && nodePredicate(topEle.getPreviousSibling())) {
+              event.preventDefault()
+              event.stopImmediatePropagation()
               return props.onSelect('ArrowUp')
             }
           }
@@ -140,7 +144,7 @@ export function useDecoratorNodeKeySetting(
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
         (event, targetEditor) => {
-          if(primaryHandler && primaryHandler(event)) {
+          if (primaryHandler && primaryHandler(event)) {
             return true
           }
           const selection = $getSelection()

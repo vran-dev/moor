@@ -32,6 +32,7 @@ import IFrameCodePastePlugin from './plugins/IFrameCodePastePlugin'
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext'
 import { EditorState } from 'lexical'
 import DebugPlugin from './plugins/DebugPlugin'
+import CalloutPlugin from './plugins/CalloutPlugin'
 
 function onError(error) {
   console.error(error)
@@ -54,7 +55,7 @@ export function Editor() {
 
   // TODO useThrottle
   const onChange = (editorState: EditorState): void => {
-    console.log(editorState)
+    console.log(editorState.toJSON())
   }
 
   return (
