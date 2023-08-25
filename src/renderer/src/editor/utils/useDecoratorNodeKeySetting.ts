@@ -27,11 +27,12 @@ export function useDecoratorNodeKeySetting(
     nodeKey: NodeKey
     editor: LexicalEditor
     onSelect: (keyAction: KeyAction) => boolean
-    defaultActionHandler?: (keyAction: KeyboardEvent) => boolean
+    primaryHandler?: (keyAction: KeyboardEvent) => boolean
+    fallbackHandler?: (keyAction: KeyboardEvent) => boolean
   },
   observed?: any[]
 ): void {
-  const { editor, nodeKey } = props
+  const { editor, nodeKey, primaryHandler, fallbackHandler } = props
   const nodePredicate = useCallback(
     (node: LexicalNode | null) => {
       return node?.getKey() === nodeKey
@@ -83,6 +84,9 @@ export function useDecoratorNodeKeySetting(
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_DOWN_COMMAND,
         (event, targetEditor) => {
+          if(primaryHandler && primaryHandler(event)) {
+            return true
+          }
           const selection = $getSelection()
           if ($isRangeSelection(selection)) {
             const topEle = selection.anchor.getNode().getTopLevelElement()
@@ -98,8 +102,8 @@ export function useDecoratorNodeKeySetting(
               props.onSelect
             )
           }
-          if (props.defaultActionHandler) {
-            return props.defaultActionHandler(event)
+          if (props.fallbackHandler) {
+            return props.fallbackHandler(event)
           }
           return false
         },
@@ -108,6 +112,9 @@ export function useDecoratorNodeKeySetting(
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_UP_COMMAND,
         (event, targetEditor) => {
+          if(primaryHandler && primaryHandler(event)) {
+            return true
+          }
           const selection = $getSelection()
           if ($isRangeSelection(selection)) {
             const topEle = selection.anchor.getNode().getTopLevelElement()
@@ -123,8 +130,8 @@ export function useDecoratorNodeKeySetting(
               props.onSelect
             )
           }
-          if (props.defaultActionHandler) {
-            return props.defaultActionHandler(event)
+          if (props.fallbackHandler) {
+            return props.fallbackHandler(event)
           }
           return false
         },
@@ -133,6 +140,9 @@ export function useDecoratorNodeKeySetting(
       editor.registerCommand<KeyboardEvent>(
         KEY_ENTER_COMMAND,
         (event, targetEditor) => {
+          if(primaryHandler && primaryHandler(event)) {
+            return true
+          }
           const selection = $getSelection()
           if ($isNodeSelection(selection)) {
             const nodes = selection.getNodes()
@@ -146,8 +156,8 @@ export function useDecoratorNodeKeySetting(
               return true
             }
           }
-          if (props.defaultActionHandler) {
-            return props.defaultActionHandler(event)
+          if (props.fallbackHandler) {
+            return props.fallbackHandler(event)
           }
           return false
         },

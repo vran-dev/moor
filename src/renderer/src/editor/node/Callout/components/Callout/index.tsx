@@ -13,9 +13,13 @@ import { theme } from 'antd'
 import {
   $addUpdateTag,
   $getNodeByKey,
+  $getRoot,
+  $getSelection,
+  $isRangeSelection,
   EditorState,
   LexicalEditor,
   NodeKey,
+  ParagraphNode,
   SerializedEditorState,
   createEditor
 } from 'lexical'
@@ -97,42 +101,78 @@ export function CalloutComponent(props: {
         </div>
       )}
 
-      <NestedEditor nodeKey={nodeKey} state={state} />
+      <NestedEditor nodeKey={nodeKey} state={state} parentEditor={editor} />
     </div>
   )
 }
 
-function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }): JSX.Element {
+function NestedEditor(props: {
+  nodeKey: NodeKey
+  parentEditor: LexicalEditor
+  state?: SerializedEditorState
+}): JSX.Element {
   const { historyState } = useSharedHistoryContext()
-  const [parentEditor] = useLexicalComposerContext()
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(props.nodeKey)
-  const columnEditor: LexicalEditor = createEditor({
-    namespace: 'MoorEditor',
-    nodes: [...LexicalNodes],
-    onError: (error) => {
-      console.log(error)
-    },
-    theme: theme
-  })
+  const { parentEditor, nodeKey } = props
+  const [calloutEditor, setCalloutEditor] = useState<LexicalEditor>(
+    createEditor({
+      namespace: 'MoorEditor',
+      nodes: [...LexicalNodes],
+      onError: (error) => {
+        console.log(error)
+      },
+      theme: theme
+    })
+  )
 
   useDecoratorNodeKeySetting(
     {
       editor: parentEditor,
       nodeKey: props.nodeKey,
       onSelect: (action: KeyAction): boolean => {
-        columnEditor.focus()
+        setSelected(true)
         return true
+      },
+      primaryHandler: (action: KeyboardEvent): boolean => {
+        if (action.key == 'Enter' && (action.ctrlKey || action.metaKey)) {
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            const anchor = selection.anchor
+            const focus = selection.focus
+            if (anchor.key === focus.key && anchor.offset === focus.offset) {
+              const focusKey = selection.focus.key
+              const root = $getRoot()
+              const lastChild = root.getLastDescendant()
+              if (lastChild && focusKey === lastChild.__key) {
+                const editorState = parentEditor.getEditorState()
+                const node = editorState._nodeMap.get(nodeKey)
+                if (node) {
+                  calloutEditor.blur()
+                  parentEditor.update(() => {
+                    const pNode = new ParagraphNode()
+                    node.insertAfter(pNode)
+                    pNode.select()
+                  })
+                  return true
+                }
+              }
+              return false
+            }
+          }
+        }
+        return false
       }
     },
-    [columnEditor]
+    [calloutEditor, parentEditor]
   )
   useEffect(() => {
     if (selected) {
-      focusEditorDom(columnEditor)
+      parentEditor.blur()
+      focusEditorDom(calloutEditor)
     } else {
       focusEditorDom(parentEditor)
     }
-  }, [selected])
+  }, [selected, calloutEditor, parentEditor])
 
   useEffect(() => {
     /**
@@ -142,9 +182,9 @@ function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }
      */
     setTimeout(() => {
       if (!props.state) {
-        columnEditor.setEditorState(columnEditor.parseEditorState(emptyData))
+        calloutEditor.setEditorState(calloutEditor.parseEditorState(emptyData))
       } else {
-        columnEditor.setEditorState(columnEditor.parseEditorState(props.state))
+        calloutEditor.setEditorState(calloutEditor.parseEditorState(props.state))
       }
     })
   }, [])
@@ -171,7 +211,7 @@ function NestedEditor(props: { nodeKey: NodeKey; state?: SerializedEditorState }
   }, 1000)
 
   return (
-    <LexicalNestedComposer initialEditor={columnEditor}>
+    <LexicalNestedComposer initialEditor={calloutEditor}>
       <RichTextPlugin
         contentEditable={
           <ContentEditable
