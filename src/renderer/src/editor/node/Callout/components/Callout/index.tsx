@@ -12,12 +12,20 @@ import { useThrottle } from '@renderer/editor/utils/useThrottle'
 import { theme } from 'antd'
 import {
   $addUpdateTag,
+  $createNodeSelection,
   $getNodeByKey,
   $getRoot,
   $getSelection,
+  $isNodeSelection,
+  $isParagraphNode,
   $isRangeSelection,
+  $setSelection,
+  COMMAND_PRIORITY_LOW,
   EditorState,
+  ElementNode,
+  KEY_DOWN_COMMAND,
   LexicalEditor,
+  LexicalNode,
   NodeKey,
   ParagraphNode,
   SerializedEditorState,
@@ -30,9 +38,16 @@ import { $isCalloutNode, CalloutNode } from '../..'
 import { SelectOption } from '@renderer/ui/Select'
 import { useFloating, offset, useHover, useDismiss, useInteractions } from '@floating-ui/react'
 import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
-import { focusEditorDom } from '@renderer/editor/utils/focusEditorDom'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { isMultipleSelectino } from '@renderer/editor/utils/isMultipleSelection'
+
+import {
+  focusEditorDom,
+  getNodeByEditor,
+  isAtBottomLine,
+  isAtHeadLine,
+  isSingleRangeSelection
+} from '@renderer/editor/utils/EditorHelper'
 export function CalloutComponent(props: {
   bgColor: string
   nodeKey: NodeKey
@@ -127,42 +142,42 @@ function NestedEditor(props: {
     {
       editor: parentEditor,
       nodeKey: props.nodeKey,
-      onSelect: (): boolean => {
+      onSelect: (event: KeyboardEvent): boolean => {
+        if (event.key === 'ArrowUp') {
+          calloutEditor.focus(() => {}, { defaultSelection: 'rootEnd' })
+          return true
+        }
         setSelected(true)
         return true
       },
-      primaryHandler: (action: KeyboardEvent): boolean => {
-        if (action.key == 'Enter' && (action.ctrlKey || action.metaKey)) {
-          const selection = $getSelection()
-          if ($isRangeSelection(selection)) {
-            const anchor = selection.anchor
-            const focus = selection.focus
-            if (anchor.key === focus.key && anchor.offset === focus.offset) {
-              const focusKey = selection.focus.key
-              const root = $getRoot()
-              const lastChild = root.getLastDescendant()
-              if (lastChild && focusKey === lastChild.__key) {
-                const editorState = parentEditor.getEditorState()
-                const node = editorState._nodeMap.get(nodeKey)
-                if (node) {
-                  calloutEditor.blur()
-                  parentEditor.update(() => {
-                    const pNode = new ParagraphNode()
-                    node.insertAfter(pNode)
-                    pNode.select()
-                  })
-                  return true
-                }
-              }
-              return false
-            }
-          }
+      primaryHandler: (event: KeyboardEvent): boolean => {
+        if (event.key == 'ArrowUp' || event.key == 'ArrowDown') {
+          return handleParentArrowKey(event, calloutEditor, parentEditor, nodeKey)
         }
         return false
       }
     },
     [calloutEditor, parentEditor]
   )
+
+  useEffect(() => {
+    return calloutEditor.registerCommand(
+      KEY_DOWN_COMMAND,
+      (event: KeyboardEvent): boolean => {
+        if (event.key == 'Enter' && (event.ctrlKey || event.metaKey)) {
+          return handleCalloutCtrlEnter(event, calloutEditor, parentEditor, nodeKey)
+        }
+        if (event.key == 'Enter') {
+          return handleCalloutEnter(event, calloutEditor, parentEditor, nodeKey)
+        }
+        if (event.key == 'ArrowUp' || event.key == 'ArrowDown') {
+          return handleCalloutArrowKeyfunction(event, calloutEditor, parentEditor, nodeKey)
+        }
+        return false
+      },
+      COMMAND_PRIORITY_LOW
+    )
+  }, [calloutEditor, parentEditor])
   useEffect(() => {
     if (isMultipleSelectino(parentEditor)) {
       return
@@ -230,6 +245,167 @@ function NestedEditor(props: {
       <EditorPlugins enableHistory={false} />
     </LexicalNestedComposer>
   )
+}
+
+function handleParentArrowKey(
+  event: KeyboardEvent,
+  editor: LexicalEditor,
+  parentEditor: LexicalEditor,
+  nodeKey: NodeKey
+): boolean {
+  const selection = $getSelection()
+  if ($isNodeSelection(selection) && selection.getNodes().length === 1) {
+    const currentNode = selection.getNodes()[0]
+    let prepareToSelect: LexicalNode | null | ElementNode = null
+    if (event.key == 'ArrowUp') {
+      prepareToSelect = currentNode.getPreviousSibling()
+    } else {
+      prepareToSelect = currentNode.getNextSibling()
+    }
+
+    if (prepareToSelect && prepareToSelect.__key == nodeKey) {
+      event.preventDefault()
+      const defSelection = event.key == 'ArrowUp' ? 'rootEnd' : 'rootStart'
+      parentEditor.blur()
+      editor.focus(() => {}, { defaultSelection: defSelection })
+      return true
+    }
+  }
+  return false
+}
+
+function handleCalloutArrowKeyfunction(
+  event: KeyboardEvent,
+  editor: LexicalEditor,
+  parentEditor: LexicalEditor,
+  nodeKey: NodeKey
+): boolean {
+  // jump from callout editor to parent editor
+  if (isSingleRangeSelection(editor)) {
+    if (isAtHeadLine(editor) && event.key == 'ArrowUp') {
+      parentEditor.update((): void => {
+        const calloutNode = getNodeByEditor(parentEditor, nodeKey)
+        let prepareToSelect = calloutNode?.getPreviousSibling()
+        if (prepareToSelect) {
+          if (prepareToSelect instanceof ElementNode) {
+            event.preventDefault()
+            prepareToSelect.select()
+          } else {
+            const ns = $createNodeSelection()
+            ns.add(prepareToSelect.__key)
+            event.preventDefault()
+            editor.blur()
+            focusEditorDom(parentEditor)
+            $setSelection(ns)
+          }
+        }
+      })
+      return true
+    }
+
+    if (isAtBottomLine(editor) && event.key == 'ArrowDown') {
+      parentEditor.update((): void => {
+        const calloutNode = getNodeByEditor(parentEditor, nodeKey)
+        let prepareToSelect = calloutNode?.getNextSibling()
+        if (prepareToSelect) {
+          if (prepareToSelect instanceof ElementNode) {
+            event.preventDefault()
+            prepareToSelect.select()
+          } else {
+            const ns = $createNodeSelection()
+            ns.add(prepareToSelect.__key)
+            event.preventDefault()
+            editor.blur()
+            focusEditorDom(parentEditor)
+            $setSelection(ns)
+          }
+        }
+      })
+    }
+    return false
+  }
+  return false
+}
+
+function handleCalloutCtrlEnter(
+  event: KeyboardEvent,
+  editor: LexicalEditor,
+  parentEditor: LexicalEditor,
+  nodeKey: NodeKey
+): boolean {
+  const selection = $getSelection()
+  if ($isRangeSelection(selection)) {
+    const anchor = selection.anchor
+    const focus = selection.focus
+    if (anchor.key === focus.key && anchor.offset === focus.offset) {
+      const focusKey = selection.focus.key
+      const root = $getRoot()
+      const lastChild = root.getLastDescendant()
+      if (lastChild && focusKey === lastChild.__key) {
+        const editorState = parentEditor.getEditorState()
+        const node = editorState._nodeMap.get(nodeKey)
+        if (node) {
+          event.preventDefault()
+          editor.blur()
+          parentEditor.update(() => {
+            const pNode = new ParagraphNode()
+            node.insertAfter(pNode)
+            pNode.select()
+          })
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+function handleCalloutEnter(
+  event: KeyboardEvent,
+  editor: LexicalEditor,
+  parentEditor: LexicalEditor,
+  nodeKey: NodeKey
+): boolean {
+  const selection = $getSelection()
+  if ($isRangeSelection(selection)) {
+    const anchor = selection.anchor
+    const focus = selection.focus
+    if (anchor.key === focus.key && anchor.offset === focus.offset) {
+      const focusKey = selection.focus.key
+      const root = $getRoot()
+      const lastChild = root.getLastDescendant()
+      // in the last line
+      if (lastChild && focusKey === lastChild.__key) {
+        const prev = lastChild.getPreviousSibling()
+        if (isEmptyParagraph(prev) && isEmptyParagraph(lastChild)) {
+          event.preventDefault()
+          editor.blur()
+          const editorState = parentEditor.getEditorState()
+          const node = editorState._nodeMap.get(nodeKey)
+          parentEditor.update(() => {
+            const pNode = new ParagraphNode()
+            node?.insertAfter(pNode)
+            pNode.select()
+          })
+          setTimeout(() => {
+            editor.update(() => {
+              lastChild.remove()
+              prev?.remove()
+            })
+          })
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+function isEmptyParagraph(node: LexicalNode | null): boolean {
+  if ($isParagraphNode(node) && node.getChildren().length === 0) {
+    return true
+  }
+  return false
 }
 
 const emptyData: SerializedEditorState = {

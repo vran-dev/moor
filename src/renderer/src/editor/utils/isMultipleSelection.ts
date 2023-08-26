@@ -21,7 +21,6 @@ export function isMultipleSelectino(editor: LexicalEditor | null): boolean {
       }
     }
 
-    console.log(selection)
     return true
   })
 }

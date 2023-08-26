@@ -55,7 +55,7 @@ export function Editor() {
 
   // TODO useThrottle
   const onChange = (editorState: EditorState): void => {
-    console.log(editorState.toJSON())
+    console.log(editorState)
   }
 
   return (

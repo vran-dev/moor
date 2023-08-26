@@ -1,4 +1,5 @@
 import { Command as CodeMirrorCommand, EditorView as CodeMirrorEditorView } from '@codemirror/view'
+import { selectByNodeType } from '@renderer/editor/utils/EditorHelper'
 import {
   $createNodeSelection,
   $createParagraphNode,
@@ -66,27 +67,5 @@ function focusAndSelectNode(editor: LexicalEditor, node: LexicalNode | null | un
     // Note: preventScroll won't work in Webkit.
     rootElement.focus({ preventScroll: true })
   }
-  selectElementNodeIfNecessary(node)
-  selectDecoratorNodeIfNecessary(node)
-}
-
-function selectElementNodeIfNecessary(node: LexicalNode | null | undefined): void {
-  if (node == null) {
-    return
-  }
-  if ($isElementNode(node)) {
-    node.select()
-  }
-}
-
-function selectDecoratorNodeIfNecessary(node: LexicalNode | null | undefined): void {
-  if (node == null) {
-    return
-  }
-
-  if ($isDecoratorNode(node)) {
-    const ns = $createNodeSelection()
-    ns.add(node.getKey())
-    $setSelection(ns)
-  }
+  selectByNodeType(node)
 }

@@ -116,6 +116,7 @@ export class CalloutNode extends DecoratorBlockNode {
       <CalloutComponent bgColor={this.__bgColor} nodeKey={this.__key} state={this.__children} />
     )
   }
+  
 }
 
 export function $createCalloutNode(

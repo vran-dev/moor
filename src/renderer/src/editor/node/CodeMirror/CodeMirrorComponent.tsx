@@ -30,7 +30,16 @@ import {
 } from '@codemirror/view'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { githubLightInit } from '@uiw/codemirror-theme-github'
-import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, NodeKey } from 'lexical'
+import {
+  $getNodeByKey,
+  $getSelection,
+  $isNodeSelection,
+  $isRangeSelection,
+  COMMAND_PRIORITY_HIGH,
+  COMMAND_PRIORITY_LOW,
+  KEY_DOWN_COMMAND,
+  NodeKey
+} from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $isCodeMirrorNode, CodeMirrorNode, CodeblockLayout } from '.'
 import './index.css'
@@ -43,10 +52,16 @@ import { LayoutSelect } from './components/LayoutSelect'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
 import { codeMirrorArrowKeyDelegate } from './utils/codeMirrorArrowKeyDelegate'
 import { useCover } from '@renderer/ui/Cover/useCover'
-import { codeMirrorNodeListener } from './utils/codeMirrorNodeListener'
 import { useCodeMirrorDataUpdate } from './utils/useCodeMirrorDataUpdate'
 import { LineWrapButton } from './components/LineWrapButton'
 import { FormatButton, canFormat } from './components/FormatButton'
+import { useCodeMirrorSelectAll } from './utils/useCodeMirrorSelectAll'
+import { useArrowKeyOnSelect } from '@renderer/editor/utils/useArrowKeyOnSelect'
+import { useArrowKeyToSelect } from '@renderer/editor/utils/useArrowKeyToSelect'
+import {
+  codeMirrorCtrlEnterKeyDelegate,
+  codeMirrorTripleEnterKeyDelegate
+} from './utils/codeMirrorEnterKeyDelegate'
 export interface LanguageOption extends LanguageInfo {
   value: string
   label: string
@@ -68,6 +83,7 @@ export function CodeMirrorComponent(props: {
     props.layout ? props.layout : CodeblockLayout.SplitVertical
   )
   const [selected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey)
+  const [toBottom, setToBottom] = useState(false)
   useEffect((): void => {
     if (language) {
       const matchedLanges = listLanguages({ query: language, nameFullMatch: true })
@@ -151,13 +167,30 @@ export function CodeMirrorComponent(props: {
     [editor, nodeKey]
   )
 
-  // support jump from codemirror to lexical and delegate select_all to codemirror
-  useEffect(() => {
-    if (!codeMirror) {
-      return
-    }
-    return codeMirrorNodeListener(editor, nodeKey, layout, codeMirror)
-  }, [codeMirror, layout, editor, nodeKey])
+  useArrowKeyOnSelect(
+    {
+      nodeKey: nodeKey,
+      editor: editor
+    },
+    [codeMirror, layout]
+  )
+  useArrowKeyToSelect(
+    {
+      nodeKey: nodeKey,
+      editor: editor,
+      onSelect: (event): boolean => {
+        setSelected(true)
+        if (event.key === 'ArrowDown') {
+          setToBottom(false)
+        } else {
+          setToBottom(true)
+        }
+        return true
+      }
+    },
+    [codeMirror, layout]
+  )
+  useCodeMirrorSelectAll(editor, codeMirror)
 
   const [cover, showCover, hideCover] = useCover()
 
@@ -196,17 +229,39 @@ export function CodeMirrorComponent(props: {
         return true
       })
       if (canFocus) {
-        editor.blur()
+        // editor.blur()
         // use setTimeout to avoid codemirror focus failed
         setTimeout(() => {
           codeMirror?.focus()
-          codeMirror?.dispatch({
-            selection: EditorSelection.cursor(codeMirror.state.doc.length)
-          })
+          if (toBottom) {
+            codeMirror?.dispatch({
+              selection: EditorSelection.cursor(codeMirror.state.doc.length)
+            })
+          }
         })
       }
     }
-  }, [codeMirror, selected, editor, layout])
+  }, [codeMirror, selected, editor, layout, toBottom])
+
+  useEffect(() => {
+    return editor.registerCommand(
+      KEY_DOWN_COMMAND,
+      (event: KeyboardEvent): boolean => {
+        if (!codeMirror?.hasFocus) {
+          return false
+        }
+        if (event.key === 'Enter') {
+          if (event.ctrlKey || event.metaKey) {
+            return codeMirrorCtrlEnterKeyDelegate(editor, codeMirror, nodeKey)
+          } else {
+            return codeMirrorTripleEnterKeyDelegate(editor, codeMirror, nodeKey)
+          }
+        }
+        return false
+      },
+      COMMAND_PRIORITY_LOW
+    )
+  }, [editor, codeMirror])
 
   // initialize codemirror, support jump from codemirror to lexical
   useEffect(() => {
