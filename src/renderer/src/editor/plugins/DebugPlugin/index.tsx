@@ -12,6 +12,7 @@ export default function DebugPlugin(): null {
         KEY_DOWN_COMMAND,
         (payload): boolean => {
           console.log('KEY_DOWN_COMMAND', payload)
+          console.log(editor)
           return false
         },
         COMMAND_PRIORITY_HIGH

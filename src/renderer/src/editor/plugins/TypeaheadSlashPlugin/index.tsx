@@ -37,12 +37,13 @@ import {
 } from 'react-icons/ai'
 import { LiaQuoteLeftSolid } from 'react-icons/lia'
 import { LuHeading1, LuHeading2, LuHeading3 } from 'react-icons/lu'
-import { BsImage, BsLayoutSplit, BsLayoutThreeColumns, BsWindow } from 'react-icons/bs'
+import { BsDistributeVertical, BsImage, BsWindow } from 'react-icons/bs'
 
 import { $createImageNode } from '@renderer/editor/node/Image'
 import { $createColumnNode } from '@renderer/editor/node/Columns'
 import { $createCalloutNode } from '@renderer/editor/node/Callout'
 import { INSERT_CALLOUT_COMMAND } from '../CalloutPlugin'
+import { TfiLayoutColumn2, TfiLayoutColumn3, TfiLayoutColumn4 } from 'react-icons/tfi'
 
 const ICON_SIZE = 20
 
@@ -234,8 +235,8 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
       ),
       new TypeaheadMenu(
         '2 Column',
-        <BsLayoutSplit {...ICON_PROPS} />,
-        '',
+        <TfiLayoutColumn2 {...ICON_PROPS} />,
+        'create 2 column grid',
         (editor: LexicalEditor) => {
           editor.update(() => {
             const selection = $getSelection()
@@ -252,8 +253,8 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
       ),
       new TypeaheadMenu(
         '3 Column',
-        <BsLayoutThreeColumns {...ICON_PROPS} />,
-        '',
+        <TfiLayoutColumn3 {...ICON_PROPS} />,
+        'create 3 column grid',
         (editor: LexicalEditor) => {
           editor.update(() => {
             const selection = $getSelection()
@@ -270,8 +271,8 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
       ),
       new TypeaheadMenu(
         '4 Column',
-        <BsLayoutThreeColumns {...ICON_PROPS} />,
-        '',
+        <TfiLayoutColumn4 {...ICON_PROPS} />,
+        'create 4 column grid',
         (editor: LexicalEditor) => {
           editor.update(() => {
             const selection = $getSelection()
@@ -288,8 +289,8 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
       ),
       new TypeaheadMenu(
         'Callout',
-        <BsLayoutThreeColumns {...ICON_PROPS} />,
-        '',
+        <BsDistributeVertical {...ICON_PROPS} />,
+        'highlight important content',
         (editor: LexicalEditor) => {
           editor.update(() => {
             const selection = $getSelection()
