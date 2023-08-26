@@ -302,7 +302,7 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
             }
           })
         },
-        ['grid']
+        ['callout']
       )
     ]
     return query

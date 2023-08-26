@@ -10,7 +10,8 @@ import {
   $isDecoratorNode,
   $isElementNode,
   $setSelection,
-  NodeKey
+  NodeKey,
+  $isParagraphNode
 } from 'lexical'
 
 export function isSingleRangeSelection(editor: LexicalEditor): boolean {
@@ -116,4 +117,11 @@ export function focusEditorDom(editor: LexicalEditor): void {
 export function getNodeByEditor(editor: LexicalEditor, nodeKey: NodeKey): LexicalNode | undefined {
   const editorState = editor.getEditorState()
   return editorState._nodeMap.get(nodeKey)
+}
+
+export function isEmptyParagraph(node: LexicalNode | null): boolean {
+  if ($isParagraphNode(node) && node.getChildren().length === 0) {
+    return true
+  }
+  return false
 }

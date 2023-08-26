@@ -1,14 +1,8 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import {
-  $createParagraphNode,
-  $getSelection,
-  COMMAND_PRIORITY_LOW,
-  SELECTION_CHANGE_COMMAND,
-  createCommand
-} from 'lexical'
+import { COMMAND_PRIORITY_LOW, createCommand } from 'lexical'
 import { $insertNodeToNearestRoot, mergeRegister } from '@lexical/utils'
 import { useEffect } from 'react'
-import { $createCalloutNextNode } from '@renderer/editor/node/CalloutNext'
+import { $createCalloutNode } from '@renderer/editor/node/Callout'
 
 export const INSERT_CALLOUT_COMMAND = createCommand<void>()
 export default function ÇalloutPlugin(): null {
@@ -20,9 +14,8 @@ export default function ÇalloutPlugin(): null {
         INSERT_CALLOUT_COMMAND,
         () => {
           editor.update(() => {
-            const calloutNode = $createCalloutNextNode().append($createParagraphNode())
+            const calloutNode = $createCalloutNode()
             $insertNodeToNearestRoot(calloutNode)
-            calloutNode.select()
           })
           return true
         },

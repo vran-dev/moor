@@ -17,7 +17,6 @@ import {
   $getRoot,
   $getSelection,
   $isNodeSelection,
-  $isParagraphNode,
   $isRangeSelection,
   $setSelection,
   COMMAND_PRIORITY_LOW,
@@ -31,7 +30,7 @@ import {
   SerializedEditorState,
   createEditor
 } from 'lexical'
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useLayoutEffect } from 'react'
 import './index.css'
 import { ColorPicker } from '../ColorPicker'
 import { $isCalloutNode, CalloutNode } from '../..'
@@ -46,8 +45,10 @@ import {
   getNodeByEditor,
   isAtBottomLine,
   isAtHeadLine,
+  isEmptyParagraph,
   isSingleRangeSelection
 } from '@renderer/editor/utils/EditorHelper'
+
 export function CalloutComponent(props: {
   bgColor: string
   nodeKey: NodeKey
@@ -178,13 +179,19 @@ function NestedEditor(props: {
       COMMAND_PRIORITY_LOW
     )
   }, [calloutEditor, parentEditor])
+
   useEffect(() => {
     if (isMultipleSelectino(parentEditor)) {
       return
     }
     if (selected) {
-      focusEditorDom(calloutEditor)
+      // parentEditor.blur()
+      // delay focus, because of editor may not render yet when create
+      setTimeout(() => {
+        focusEditorDom(calloutEditor)
+      }, 10)
     } else {
+      console.log('unfocus')
       focusEditorDom(parentEditor)
     }
   }, [selected, calloutEditor, parentEditor])
@@ -397,13 +404,6 @@ function handleCalloutEnter(
         }
       }
     }
-  }
-  return false
-}
-
-function isEmptyParagraph(node: LexicalNode | null): boolean {
-  if ($isParagraphNode(node) && node.getChildren().length === 0) {
-    return true
   }
   return false
 }
