@@ -12,6 +12,7 @@ import type {
   DOMExportOutput,
   EditorConfig,
   ElementFormatType,
+  LexicalEditor,
   LexicalNode,
   NodeKey,
   Spread
@@ -86,12 +87,23 @@ export class ImageNode extends DecoratorBlockNode {
   }
 
   exportDOM(): DOMExportOutput {
-    const element = document.createElement('img')
-    element.setAttribute('src', this.__src || '')
-    element.setAttribute('alt', this.__altText || '')
-    element.setAttribute('width', this.__width?.toString() || '')
-    element.setAttribute('height', this.__height ? this.__height.toString() : '')
-    return { element }
+    if (this.__src && isSvg(this.__src)) {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(this.__src, 'image/svg+xml')
+      const svgElement = doc.documentElement
+      const htmlElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div')
+      htmlElement.appendChild(svgElement)
+      return {
+        element: htmlElement
+      }
+    } else {
+      const element = document.createElement('img')
+      element.setAttribute('src', this.__src || '')
+      element.setAttribute('alt', this.__altText || '')
+      element.setAttribute('width', this.__width?.toString() || '')
+      element.setAttribute('height', this.__height ? this.__height.toString() : '')
+      return { element }
+    }
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -180,4 +192,13 @@ export function $createImageNode(options?: ImagePayload): ImageNode {
 
 export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {
   return node instanceof ImageNode
+}
+
+export function isSvg(src: string | undefined): boolean {
+  if (!src) {
+    return false
+  }
+  // use regex to check if the src is a svg
+  const svgTagRegex = /^<svg\b[^>]*>.*<\/svg>$/i
+  return svgTagRegex.test(src)
 }

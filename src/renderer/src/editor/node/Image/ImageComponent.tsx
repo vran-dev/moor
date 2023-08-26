@@ -1,7 +1,7 @@
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
 import { ResizableRatioType, ResizableView } from '@renderer/ui/ResizableView'
 import { useEffect, useRef, useState } from 'react'
-import { $isImageNode, ImageNode } from '.'
+import { $isImageNode, ImageNode, isSvg } from '.'
 import {
   $getNodeByKey,
   COMMAND_PRIORITY_HIGH,
@@ -121,16 +121,23 @@ export function ImageComponent(props: {
                             style={{
                               display: 'flex',
                               justifyContent: 'center',
-                              alignContent: 'center',
+                              alignContent: 'center'
                             }}
                           >
-                            <img
-                              src={src}
-                              alt={altText}
-                              draggable="true"
-                              className={`${selected ? 'image-content' : ''}`}
-                              style={{ maxWidth: '100%', maxHeight: '100%' }}
-                            />
+                            {isSvg(src) ? (
+                              <div
+                                dangerouslySetInnerHTML={{ __html: src }}
+                                style={{ maxWidth: '100%', maxHeight: '100%' }}
+                              />
+                            ) : (
+                              <img
+                                src={src}
+                                alt={altText}
+                                draggable="true"
+                                className={`${selected ? 'image-content' : ''}`}
+                                style={{ maxWidth: '100%', maxHeight: '100%' }}
+                              />
+                            )}
                           </div>
                         )
                       })
@@ -139,14 +146,18 @@ export function ImageComponent(props: {
                 </AlignableBlockToolMenu>
               </div>
             )}
-            <img
-              ref={imageRef}
-              src={src}
-              alt={altText}
-              draggable="true"
-              className={`${selected ? 'image-content' : ''}`}
-              style={{ width: '100%', height: '100%' }}
-            />
+            {isSvg(src) ? (
+              <SvgNode svgString={src}></SvgNode>
+            ) : (
+              <img
+                ref={imageRef}
+                src={src}
+                alt={altText}
+                draggable="true"
+                className={`${selected ? 'image-content' : ''}`}
+                style={{ width: '100%', height: '100%' }}
+              />
+            )}
           </div>
           {cover}
         </ResizableView>
@@ -154,4 +165,8 @@ export function ImageComponent(props: {
       {modal}
     </BlockWithAlignableContents>
   )
+}
+
+const SvgNode = ({ svgString }) => {
+  return <div dangerouslySetInnerHTML={{ __html: svgString }} />
 }
