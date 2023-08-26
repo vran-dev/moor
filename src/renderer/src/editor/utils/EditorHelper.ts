@@ -90,7 +90,7 @@ export function findClosestPrevSibling(
 export function selectByNodeType(node: LexicalNode | ElementNode | null | undefined): boolean {
   if ($isElementNode(node)) {
     $setSelection(null)
-    node.select()
+    node.selectStart()
     return true
   }
   if ($isDecoratorNode(node)) {
