@@ -417,38 +417,41 @@ export function CodeMirrorComponent(props: {
 
   return (
     <div className="codeblock-container" draggable={true}>
-      <div className="codeblock-header">
-        <VirtualSelect
-          options={languageOptions}
-          onSelect={(option): void => onLanguageChange(option)}
-          defaultIndex={languageOptions.findIndex((item) => item.value === language)}
-          filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
-          mainMinWidth="200px"
-        />
-        {selectLanguage && selectLanguage.preview && (
-          <LayoutSelect onChange={(option): void => onLayoutChange(option.value)} layout={layout} />
-        )}
-
-        {codeMirror && (
-          <>
-            <CopyButton codeMirror={codeMirror} />
-            <LineWrapButton
-              codeMirror={codeMirror}
-              lineWrapCompartMent={lineWrapCompartment}
-              defaultValue={props.lineWrap || false}
-              onChange={(value): void =>
-                withCodeMirrorNode((node) => {
-                  node.setLineWrap(value)
-                })
-              }
-            />
-            {selectLanguage && canFormat(selectLanguage.name.toLocaleLowerCase()) && (
-              <FormatButton codeMirror={codeMirror} lang={selectLanguage?.name} />
-            )}
-          </>
-        )}
-      </div>
       <div className="codeblock-main">
+        <div className="codeblock-tool-menu">
+          <VirtualSelect
+            options={languageOptions}
+            onSelect={(option): void => onLanguageChange(option)}
+            defaultIndex={languageOptions.findIndex((item) => item.value === language)}
+            filter={(inputValue, option): boolean => languageMatch(inputValue, false, option)}
+            mainMinWidth="200px"
+          />
+          {selectLanguage && selectLanguage.preview && (
+            <LayoutSelect
+              onChange={(option): void => onLayoutChange(option.value)}
+              layout={layout}
+            />
+          )}
+
+          {codeMirror && (
+            <>
+              <CopyButton codeMirror={codeMirror} />
+              <LineWrapButton
+                codeMirror={codeMirror}
+                lineWrapCompartMent={lineWrapCompartment}
+                defaultValue={props.lineWrap || false}
+                onChange={(value): void =>
+                  withCodeMirrorNode((node) => {
+                    node.setLineWrap(value)
+                  })
+                }
+              />
+              {selectLanguage && canFormat(selectLanguage.name.toLocaleLowerCase()) && (
+                <FormatButton codeMirror={codeMirror} lang={selectLanguage?.name} />
+              )}
+            </>
+          )}
+        </div>
         {
           <div
             className="codeblock-editor"
@@ -458,8 +461,8 @@ export function CodeMirrorComponent(props: {
             }}
           ></div>
         }
-        {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
       </div>
+      {shouldShowCodePreview() && <CodeblockPreview language={selectLanguage} data={data} />}
       {cover}
     </div>
   )

@@ -40,7 +40,7 @@
   position: relative;
 }
 
-.codeblock-header {
+.codeblock-tool-menu {
   display: flex;
   position: relative;
   flex-direction: row;
@@ -50,6 +50,9 @@
 
 .codeblock-main {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .codeblock-preview {

@@ -32,7 +32,8 @@ export type SerializedCodeMirrorNode = Spread<
 export enum CodeblockLayout {
   Code = 'Code',
   Preview = 'Preview',
-  SplitVertical = 'SplitVertical'
+  SplitVertical = 'SplitVertical',
+  SplitHorizontal = 'SplitHorizontal'
 }
 
 export function convertCodeMirrorElement(domNode: HTMLElement): DOMConversionOutput | null {
