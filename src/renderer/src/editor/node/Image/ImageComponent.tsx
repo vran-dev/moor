@@ -20,6 +20,7 @@ import { AlignableBlockToolMenu } from '@renderer/ui/AlignableBlockToolMenu'
 import { Button } from '@renderer/ui/Button'
 import { AiOutlineZoomIn } from 'react-icons/ai'
 import useModal from '@renderer/ui/Modal/useModal'
+import { ZoomView } from '@renderer/ui/ZoomView'
 
 export function ImageComponent(props: {
   src?: string | null
@@ -163,6 +164,7 @@ export function ImageComponent(props: {
         </ResizableView>
       )}
       {modal}
+      <ZoomView />
     </BlockWithAlignableContents>
   )
 }
