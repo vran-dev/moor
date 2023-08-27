@@ -16,6 +16,8 @@ import { ImageNode } from './Image'
 import { ColumnsNode } from './Columns'
 import { CalloutNode } from './Callout'
 import { CalloutNextNode } from './CalloutNext'
+import { MoorListNode } from './MoorList/List'
+import { MoorListItemNode } from './MoorList/ListItem'
 
 const LexicalNodes: ReadonlyArray<
   | Klass<LexicalNode>
@@ -31,8 +33,6 @@ const LexicalNodes: ReadonlyArray<
     }
 > = [
   HeadingNode,
-  ListNode,
-  ListItemNode,
   QuoteNode,
   CodeNode,
   TableNode,
@@ -52,6 +52,8 @@ const LexicalNodes: ReadonlyArray<
   MarkNode,
   CalloutNode,
   CalloutNextNode,
+  MoorListNode,
+  MoorListItemNode,
   {
     replace: CodeNode,
     with: (node: CodeNode): LexicalNode => {

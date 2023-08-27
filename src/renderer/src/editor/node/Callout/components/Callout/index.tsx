@@ -191,7 +191,6 @@ function NestedEditor(props: {
         focusEditorDom(calloutEditor)
       }, 10)
     } else {
-      console.log('unfocus')
       focusEditorDom(parentEditor)
     }
   }, [selected, calloutEditor, parentEditor])

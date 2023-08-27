@@ -51,6 +51,7 @@
   border-radius: 3px;
   line-height: 85%;
   padding: 0.2em 0.4em;
+
   &::before {
     content: none !important;
   }
@@ -90,13 +91,9 @@
   padding-left: 1.625em;
 }
 
-.EditorTheme__ul > .EditorTheme__listItem {
+.EditorTheme__ul>.EditorTheme__listItem {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
-}
-
-.EditorTheme__ul .EditorTheme__listItem {
-  /* padding-left: 0.375em; */
 }
 
 .EditorTheme__ol {
@@ -129,72 +126,6 @@
   margin-bottom: 0.5em;
 }
 
-/* check list */
-.EditorTheme__listItemChecked,
-.EditorTheme__listItemUnchecked {
-  position: relative;
-  margin-right: 8px;
-  padding-left: 24px;
-  padding-right: 24px;
-  list-style-type: none;
-  outline: none;
-}
-
-.EditorTheme__listItemChecked {
-  text-decoration: line-through;
-}
-
-.EditorTheme__listItemUnchecked:before,
-.EditorTheme__listItemChecked:before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  top: 2px;
-  left: 0px;
-  cursor: pointer;
-  display: block;
-  background-size: cover;
-  position: absolute;
-}
-
-.EditorTheme__listItemUnchecked[dir='rtl']:before,
-.EditorTheme__listItemChecked[dir='rtl']:before {
-  left: auto;
-  right: 0;
-}
-
-.EditorTheme__listItemUnchecked:focus:before,
-.EditorTheme__listItemChecked:focus:before {
-  border-radius: 2px;
-}
-
-.EditorTheme__listItemUnchecked:before {
-  border: 1px solid #999;
-  border-radius: 2px;
-}
-
-.EditorTheme__listItemChecked:before {
-  border: 1px solid rgb(61, 135, 245);
-  border-radius: 2px;
-  background-color: #3d87f5;
-  background-repeat: no-repeat;
-}
-
-.EditorTheme__listItemChecked:after {
-  content: '';
-  cursor: pointer;
-  border-color: #fff;
-  border-style: solid;
-  position: absolute;
-  display: block;
-  top: 6px;
-  width: 3px;
-  left: 7px;
-  right: 7px;
-  height: 6px;
-  transform: rotate(45deg);
-  border-width: 0 2px 2px 0;
-}
 
 .EditorTheme__nestedListItem {
   list-style-type: none;
@@ -211,8 +142,7 @@
   margin-bottom: 16px;
 }
 
-.EditorTheme__embedBlockFocus {
-}
+.EditorTheme__embedBlockFocus {}
 
 .callout-next {
   margin-top: 16px;
@@ -223,4 +153,82 @@
   padding-right: 16px;
   min-width: 100%;
   position: relative;
+}
+
+/* check list */
+.EditorTheme__listItemChecked,
+.EditorTheme__listItemUnchecked {
+  position: relative;
+  margin-right: 8px;
+  padding-right: 24px;
+  list-style-type: none;
+  outline: none;
+  align-items: baseline;
+}
+
+.EditorTheme__listItemChecked {
+  color: #777777;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+ul[data-type="checkList"]>li {
+  margin-right: 0.2rem;
+  user-select: none;
+}
+
+ul[data-type="checkList"] {
+  padding-left: 1.625em;
+  position: relative;
+}
+
+ul[data-type="checkList"]>li {
+  position: relative;
+  display: flex;
+  margin-bottom: 1rem;
+  align-items: flex-start;
+}
+
+ul[data-type="checkList"]>li input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #FFFFFF;
+  margin: 0;
+  cursor: pointer;
+  width: 1.1em;
+  height: 1.1em;
+  position: relative;
+  top: 2px;
+  border: 2px solid #1c1917;
+  margin-right: 0.3rem;
+  display: grid;
+  place-content: center;
+}
+
+ul[data-type="checkList"]>li input[type="checkbox"]:hover {
+  background-color: #EEE;
+}
+
+ul[data-type="checkList"]>li input[type="checkbox"]:active {
+  background-color: #EEE;
+}
+
+ul[data-type="checkList"]>li input[type="checkbox"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em;
+  transform-origin: center;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+ul[data-type="checkList"]>li input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+
+ul[data-type="checkList"]>li input[type="checkbox"]:checked:hover {
+  opacity: 0.8;
 }

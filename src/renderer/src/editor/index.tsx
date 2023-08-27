@@ -32,6 +32,7 @@ import IFrameCodePastePlugin from './plugins/IFrameCodePastePlugin'
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext'
 import { EditorState } from 'lexical'
 import DebugPlugin from './plugins/DebugPlugin'
+import { MoorListPlugin } from './plugins/MoorListPLugin'
 
 function onError(error) {
   console.error(error)
@@ -81,8 +82,6 @@ export function EditorPlugins(props: { enableHistory?: boolean }) {
     <>
       {/* TODO if open empty editor then enable autofocus */}
       {/* <AutoFocusPlugin defaultSelection="rootStart" /> */}
-      <CheckListPlugin />
-      <ListPlugin />
       <LexicalClickableLinkPlugin />
       {props.enableHistory !== false && <HistoryPlugin externalHistoryState={historyState} />}
       <HorizontalRulePlugin />
@@ -98,6 +97,7 @@ export function EditorPlugins(props: { enableHistory?: boolean }) {
       <ImageDragDropPaste />
       <IFrameCodePastePlugin />
       <EmojiTypeaheadPlugin />
+      <MoorListPlugin />
       {/* <DebugPlugin /> */}
     </>
   )

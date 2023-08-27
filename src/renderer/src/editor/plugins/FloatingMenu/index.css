@@ -1,6 +1,7 @@
 .floating-menu-container {
   min-height: 36px;
   z-index: 99;
+  min-width: 366px;
 }
 
 .floating-menu-list {

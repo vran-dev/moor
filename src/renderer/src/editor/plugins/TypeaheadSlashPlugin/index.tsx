@@ -5,11 +5,7 @@ import {
   TypeaheadPlugin,
   TypeaheadVirtualListMenu
 } from '../TypeheadPlugin'
-import {
-  INSERT_UNORDERED_LIST_COMMAND,
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_CHECK_LIST_COMMAND
-} from '@lexical/list'
+
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
@@ -42,8 +38,12 @@ import { BsDistributeVertical, BsImage, BsWindow } from 'react-icons/bs'
 import { $createImageNode } from '@renderer/editor/node/Image'
 import { $createColumnNode } from '@renderer/editor/node/Columns'
 import { $createCalloutNode } from '@renderer/editor/node/Callout'
-import { INSERT_CALLOUT_COMMAND } from '../CalloutPlugin'
 import { TfiLayoutColumn2, TfiLayoutColumn3, TfiLayoutColumn4 } from 'react-icons/tfi'
+import {
+  INSERT_MOOR_CHECK_LIST_COMMAND,
+  INSERT_MOOR_ORDERED_LIST_COMMAND,
+  INSERT_MOOR_UNORDERED_LIST_COMMAND
+} from '../MoorListPLugin/commands'
 
 const ICON_SIZE = 20
 
@@ -100,7 +100,7 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         <AiOutlineUnorderedList {...ICON_PROPS} />,
         'turn into unsorted list',
         (editor: LexicalEditor) => {
-          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
+          editor.dispatchCommand(INSERT_MOOR_UNORDERED_LIST_COMMAND, undefined)
         }
       ),
       new TypeaheadMenu(
@@ -108,7 +108,7 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         <AiOutlineOrderedList {...ICON_PROPS} />,
         'turn into sorted list',
         (editor: LexicalEditor) => {
-          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
+          editor.dispatchCommand(INSERT_MOOR_ORDERED_LIST_COMMAND, undefined)
         }
       ),
       new TypeaheadMenu(
@@ -124,7 +124,7 @@ export const SlashTypeaheadPlugin = (): ReactNode => {
         <AiOutlineCheckSquare {...ICON_PROPS} />,
         'tracking todo tasks',
         (editor: LexicalEditor) => {
-          editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)
+          editor.dispatchCommand(INSERT_MOOR_CHECK_LIST_COMMAND, undefined)
         }
       ),
       new TypeaheadMenu(

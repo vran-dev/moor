@@ -412,6 +412,7 @@ export const defaultData = {
             format: '',
             indent: 0,
             type: 'listitem',
+            itemType: 'check',
             version: 1,
             checked: false,
             value: 1
@@ -432,6 +433,7 @@ export const defaultData = {
             format: '',
             indent: 0,
             type: 'listitem',
+            itemType: 'check',
             version: 1,
             checked: false,
             value: 2

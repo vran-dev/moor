@@ -72,4 +72,5 @@
   min-height: 24px;
   background-color: transparent;
   outline: none;
+  font-family: var(--default-font-family);
 }

@@ -50,26 +50,22 @@ import {
   inline,
   useDismiss,
   useRole,
-  useInteractions,
-  FloatingPortal
+  useInteractions
 } from '@floating-ui/react'
 import { BiUnlink } from 'react-icons/bi'
 import { OPEN_LINK_EDITOR } from '../FloatingLinkEditor/openLinkEditorCommand'
 import { $isCodeMirrorNode } from '@renderer/editor/node/CodeMirror'
 import { hasLinkInSelection } from '@renderer/editor/utils/hasLinkAtSelection'
 import { TOGGLE_LINK_COMMAND } from '@lexical/link'
-import { BsListCheck } from 'react-icons/bs'
-import { hasNodeTypeInSelection } from '@renderer/editor/utils/hasNodeTypeInSelection'
-import {
-  $isListItemNode,
-  $isListNode,
-  INSERT_CHECK_LIST_COMMAND,
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
-  REMOVE_LIST_COMMAND
-} from '@lexical/list'
 import { hasBlockTypeInSelection } from '@renderer/editor/utils/hasBlockTypeInSelection'
-import { VirtualSelect } from '@renderer/ui/Select'
+import { $isListNode } from '@renderer/editor/node/MoorList/List'
+import {
+  INSERT_MOOR_CHECK_LIST_COMMAND,
+  INSERT_MOOR_ORDERED_LIST_COMMAND,
+  INSERT_MOOR_UNORDERED_LIST_COMMAND,
+  REMOVE_MOOR_LIST_COMMAND
+} from '../MoorListPLugin/commands'
+import { removeList } from '@renderer/editor/node/MoorList/utils'
 
 export interface FloatMenu {
   icon: React.ReactNode
@@ -186,9 +182,10 @@ const FloatingMenu = React.forwardRef(
             return false
           })
           if (hasOtherBlockType) {
-            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
+            removeList(editor)
+            editor.dispatchCommand(INSERT_MOOR_UNORDERED_LIST_COMMAND, undefined)
           } else {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
+            editor.dispatchCommand(REMOVE_MOOR_LIST_COMMAND, undefined)
           }
         },
         isActive: (editor: LexicalEditor): boolean => {
@@ -212,9 +209,10 @@ const FloatingMenu = React.forwardRef(
             return false
           })
           if (hasOtherBlockType) {
-            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
+            removeList(editor)
+            editor.dispatchCommand(INSERT_MOOR_ORDERED_LIST_COMMAND, undefined)
           } else {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
+            editor.dispatchCommand(REMOVE_MOOR_LIST_COMMAND, undefined)
           }
         },
         isActive: (editor: LexicalEditor): boolean => {
@@ -238,9 +236,10 @@ const FloatingMenu = React.forwardRef(
             return false
           })
           if (hasOtherBlockType) {
-            editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined)
+            removeList(editor)
+            editor.dispatchCommand(INSERT_MOOR_CHECK_LIST_COMMAND, undefined)
           } else {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
+            editor.dispatchCommand(REMOVE_MOOR_LIST_COMMAND, undefined)
           }
         },
         isActive: (editor: LexicalEditor): boolean => {
