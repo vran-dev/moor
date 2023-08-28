@@ -19,8 +19,7 @@ import { useFloating, offset, useHover, useDismiss, useInteractions } from '@flo
 import { AlignableBlockToolMenu } from '@renderer/ui/AlignableBlockToolMenu'
 import { Button } from '@renderer/ui/Button'
 import { AiOutlineZoomIn } from 'react-icons/ai'
-import useModal from '@renderer/ui/Modal/useModal'
-import { ZoomView } from '@renderer/ui/ZoomView'
+import { useZoomablePreview } from '@renderer/ui/ZoomView'
 
 export function ImageComponent(props: {
   src?: string | null
@@ -85,7 +84,7 @@ export function ImageComponent(props: {
   }, [selected, showCover, hideCover])
   const srcExists = src && src.length > 0
 
-  const [modal, showModal] = useModal()
+  const [previewModal, showPreviewModal, fitScreen] = useZoomablePreview()
   return (
     <BlockWithAlignableContents className={props.className} format={props.format} nodeKey={nodeKey}>
       {!srcExists ? (
@@ -116,17 +115,12 @@ export function ImageComponent(props: {
                     icon={<AiOutlineZoomIn size={12} />}
                     type="dark"
                     onClick={() => {
-                      showModal('Preview', (onClose) => {
+                      showPreviewModal((): JSX.Element => {
                         return (
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignContent: 'center'
-                            }}
-                          >
+                          <>
                             {isSvg(src) ? (
                               <div
+                                onLoad={fitScreen}
                                 dangerouslySetInnerHTML={{ __html: src }}
                                 style={{ maxWidth: '100%', maxHeight: '100%' }}
                               />
@@ -135,11 +129,12 @@ export function ImageComponent(props: {
                                 src={src}
                                 alt={altText}
                                 draggable="true"
+                                onLoad={fitScreen}
                                 className={`${selected ? 'image-content' : ''}`}
                                 style={{ maxWidth: '100%', maxHeight: '100%' }}
                               />
                             )}
-                          </div>
+                          </>
                         )
                       })
                     }}
@@ -163,8 +158,7 @@ export function ImageComponent(props: {
           {cover}
         </ResizableView>
       )}
-      {modal}
-      <ZoomView />
+      {previewModal}
     </BlockWithAlignableContents>
   )
 }
