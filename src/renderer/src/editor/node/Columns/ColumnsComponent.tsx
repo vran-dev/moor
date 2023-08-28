@@ -25,6 +25,7 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { useDecoratorNodeKeySetting } from '@renderer/editor/utils/useDecoratorNodeKeySetting'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { useDebounce } from '@renderer/editor/utils/useDebounce'
+import DraggableBlockPlugin from '@renderer/editor/plugins/DraggableBlockPlugin'
 
 const emptyData: SerializedEditorState = {
   root: {
@@ -202,6 +203,12 @@ function Column(props: {
 }): JSX.Element {
   const { historyState } = useSharedHistoryContext()
   const [rootEditor] = useLexicalComposerContext()
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null)
+  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem)
+    }
+  }
 
   const columnEditor: LexicalEditor = createEditor({
     namespace: 'MoorEditor',
@@ -252,13 +259,15 @@ function Column(props: {
     <LexicalNestedComposer initialEditor={columnEditor}>
       <RichTextPlugin
         contentEditable={
-          <ContentEditable
-            className="columns-node-editor"
-            spellCheck={false}
-            style={{
-              width: '100%'
-            }}
-          />
+          <div ref={onRef}>
+            <ContentEditable
+              className="columns-node-editor"
+              spellCheck={false}
+              style={{
+                width: '100%'
+              }}
+            />
+          </div>
         }
         placeholder={null}
         ErrorBoundary={LexicalErrorBoundary}
@@ -266,6 +275,7 @@ function Column(props: {
       <HistoryPlugin externalHistoryState={historyState} />
       <OnChangePlugin onChange={onChange} ignoreSelectionChange />
       <EditorPlugins enableHistory={false} />
+      {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
     </LexicalNestedComposer>
   )
 }

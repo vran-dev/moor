@@ -63,13 +63,17 @@ export function Editor() {
       <LexicalComposer initialConfig={initialConfig}>
         <SharedHistoryContext>
           <RichTextPlugin
-            contentEditable={<ContentEditable className="editor" spellCheck={false} />}
+            contentEditable={
+              <div className="editor" ref={onRef}>
+                <ContentEditable spellCheck={false} />
+              </div>
+            }
             placeholder={null}
             ErrorBoundary={LexicalErrorBoundary}
           />
           <EditorPlugins />
           <OnChangePlugin onChange={(state: EditorState) => onChange(state)} />
-          {/* {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />} */}
+          {floatingAnchorElem && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
         </SharedHistoryContext>
       </LexicalComposer>
     </div>
