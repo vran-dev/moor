@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Electron</title>
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src *; img-src 'self' app: data: *; script-src 'self' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; font-src 'self' https://unpkg.com"
+    />
+    <meta name="referrer" content="never">
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/renderer/index.tsx"></script>
+  </body>
+</html>
