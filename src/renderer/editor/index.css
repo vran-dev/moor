@@ -1,0 +1,20 @@
+.ProseMirror {
+    width: 100%;
+}
+
+.ProseMirror:focus {
+    outline: none;
+}
+
+.ProseMirror-selectednode {
+    outline: 1;
+    overflow: hidden;
+}
+
+.ProseMirror .is-empty::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
