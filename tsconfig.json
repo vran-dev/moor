@@ -11,9 +11,15 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "composite": true,
+    "paths": {
+      "@renderer/*": [
+        "src/renderer/*"
+      ]
+    }
   },
   "include": [
-    "src"
+    "src/**/*"
   ]
 }

@@ -1,0 +1,94 @@
+/* codemirror style customize */
+.cm-editor {
+  border: none;
+  /* background-color: transparent; */
+  margin-top: 1rem;
+  border-radius: 6px;
+}
+
+.cm-editor.cm-focused {
+  border: none;
+  outline: none;
+}
+
+.ͼ2 .cm-gutters {
+  color: #9f9f9f;
+  border: none;
+}
+
+.ͼ2 .cm-gutters:hover {}
+
+.ͼ2 .cm-content {
+  padding-left: 12px;
+}
+
+/* codeblock style */
+.editor-view .codeblock {
+  margin-top: 1.25rem;
+}
+
+.codeblock-container {
+  /* background-color: #fbfbfe; */
+  background-color: #fbfbfb;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  position: relative;
+  border-radius: 8px;
+  margin-top: 12px;
+  position: relative;
+}
+
+.codeblock-tool-menu {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  gap: 6px;
+  width: 100%;
+}
+
+.codeblock-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.codeblock-preview {
+  background-color: #FFFFFF;
+  padding: 5px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.codeblock-preview {
+  max-width: 100%;
+  overflow: scroll;
+}
+
+.codeblock-preview-modal {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  overflow: scroll;
+  text-align: center;
+}
+
+.code-tool-button {
+  border-radius: 6px;
+  /* right: 6px; */
+  /* position: absolute; */
+  color: #939393;
+  padding: 5px;
+  text-align: center;
+  vertical-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.code-tool-button:hover {
+  background-color: var(--highlight-color);
+  color: var(--highlight-text-color);
+}
