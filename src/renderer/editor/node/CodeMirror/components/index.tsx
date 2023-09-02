@@ -39,7 +39,7 @@ import { CopyButton } from './CopyButton'
 import { LineWrapButton } from './LineWrapButton'
 import { EditorView } from 'prosemirror-view'
 import { Node } from 'prosemirror-model'
-import { CodeMirrorNodeAttrs } from '../NodeView'
+import { CodeMirrorNodeAttrs, SelectOption } from '../NodeView'
 import { githubLightInit } from '@uiw/codemirror-theme-github'
 import { updateNodeAttributesPartial } from '@renderer/editor/util/NodeAttributeUtils'
 import { CodePreview } from './CodePreview'
@@ -54,6 +54,7 @@ export function CodeMirrorComponent(props: {
     node: Node
     view: EditorView
     getPos: () => number | undefined
+    selection: SelectOption
 }): JSX.Element {
     const [codeMirror, setCodeMirror] = useState<CodeMirrorEditorView | null>()
     const editorRef = useRef<HTMLDivElement>(null)
@@ -118,6 +119,13 @@ export function CodeMirrorComponent(props: {
             language: option.value
         })
     }, [])
+
+    useEffect(() => {
+        if (props.selection && codeMirror) {
+            codeMirror.focus()
+            codeMirror.dispatch({ selection: props.selection })
+        }
+    }, [props.selection, codeMirror])
 
     useEffect(() => {
         if (!editorRef.current) {
